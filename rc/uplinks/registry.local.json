@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-10-05T01:55:06.331Z",
+  "uplinks": [
+    {
+      "id": "breakingGround",
+      "name": "Breaking Ground",
+      "author": "jonpepler",
+      "repo": "ksp-gonogo/GonogoBreakingGroundUplink",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "minAppVersion": "1.0.0",
+          "apiVersion": "6.0.0",
+          "uiKitVersion": "0.1.0",
+          "contractMajor": 29,
+          "contractMinor": 2,
+          "bundleUrl": "/rc/uplinks/breakingGround.client.js",
+          "integrity": "sha256-0310f9271d5992a85fa4387cdaa1e760b6724b75d9ebd84456f27c4a98ef4cd4",
+          "expectedClientHash": null
+        }
+      ]
+    },
+    {
+      "id": "makingHistory",
+      "name": "Making History",
+      "author": "jonpepler",
+      "repo": "ksp-gonogo/GonogoMakingHistoryUplink",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "minAppVersion": "1.0.0",
+          "apiVersion": "6.0.0",
+          "uiKitVersion": "0.1.0",
+          "contractMajor": 29,
+          "contractMinor": 2,
+          "bundleUrl": "/rc/uplinks/makingHistory.client.js",
+          "integrity": "sha256-bd2d70ab58f121ef27e2847e08a4beb3aae7b1f0f485eb294df5b70f12363a7e",
+          "expectedClientHash": null
+        }
+      ]
+    }
+  ]
+}
