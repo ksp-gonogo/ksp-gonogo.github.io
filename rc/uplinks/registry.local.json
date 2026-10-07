@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-07T09:29:50.340Z",
+  "generatedAt": "2026-10-07T12:09:54.002Z",
   "uplinks": [
     {
       "id": "breakingGround",
@@ -11,7 +11,6 @@
           "version": "1.0.0",
           "minAppVersion": "1.0.0",
           "apiVersion": "6.0.0",
-          "uiKitVersion": "0.1.0",
           "contractMajor": 29,
           "contractMinor": 22,
           "bundleUrl": "/rc/uplinks/breakingGround.client.js",
@@ -30,7 +29,6 @@
           "version": "1.0.0",
           "minAppVersion": "1.0.0",
           "apiVersion": "6.0.0",
-          "uiKitVersion": "0.1.0",
           "contractMajor": 29,
           "contractMinor": 22,
           "bundleUrl": "/rc/uplinks/makingHistory.client.js",
