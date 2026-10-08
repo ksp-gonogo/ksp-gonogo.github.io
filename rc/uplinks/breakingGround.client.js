@@ -294,25 +294,25 @@ function emptyStateText(breakingGround, available, listRead, parts) {
 // ../../mod/GonogoBreakingGroundUplink/client/src/RoboticsConsole/actions.ts
 var roboticsActions = [
   {
-    id: "targetUp",
+    id: "target-up",
     label: "Target +",
     accepts: ["button"],
     description: "Increase the selected joint's target."
   },
   {
-    id: "targetDown",
+    id: "target-down",
     label: "Target \u2212",
     accepts: ["button"],
     description: "Decrease the selected joint's target."
   },
   {
-    id: "toggleMotor",
+    id: "toggle-motor",
     label: "Toggle motor",
     accepts: ["button"],
     description: "Engage / disengage the selected joint's motor."
   },
   {
-    id: "toggleLock",
+    id: "toggle-lock",
     label: "Toggle lock",
     accepts: ["button"],
     description: "Lock / unlock the selected joint."
@@ -484,7 +484,7 @@ function RoboticsConsoleView({
               ToggleButton,
               {
                 size: "sm",
-                active: selected.motorEngaged === true,
+                pressed: selected.motorEngaged === true,
                 tone: "go",
                 disabled: selected.motorEngaged === null,
                 "aria-label": flagLabel("Toggle motor", selected.motorEngaged),
@@ -499,7 +499,7 @@ function RoboticsConsoleView({
               ToggleButton,
               {
                 size: "sm",
-                active: selected.locked === true,
+                pressed: selected.locked === true,
                 tone: "warn",
                 disabled: selected.locked === null,
                 "aria-label": flagLabel("Toggle lock", selected.locked),
@@ -589,14 +589,14 @@ function RoboticsConsoleComponent({
   );
   useActionInput({
     // The nudges are relative, so they dispatch nothing while the target is unread.
-    targetUp: (p) => {
+    "target-up": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
       if (!selected || selected.target === null) return void 0;
       const next = selected.target + TARGET_STEP[selected.type];
       setTarget(selected.partId, selected.type, next);
       return { Target: next };
     },
-    targetDown: (p) => {
+    "target-down": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
       if (!selected || selected.target === null) return void 0;
       const next = selected.target - TARGET_STEP[selected.type];
@@ -604,13 +604,13 @@ function RoboticsConsoleComponent({
       return { Target: next };
     },
     // Motor and lock send an absolute state inverted from the one read back, so an unread flag dispatches nothing.
-    toggleMotor: (p) => {
+    "toggle-motor": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
       if (!selected || selected.motorEngaged === null) return void 0;
       setMotor(selected.partId, !selected.motorEngaged);
       return { Motor: !selected.motorEngaged };
     },
-    toggleLock: (p) => {
+    "toggle-lock": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
       if (!selected || selected.locked === null) return void 0;
       setLock(selected.partId, !selected.locked);
@@ -688,25 +688,25 @@ import { useState as useState2 } from "react";
 // ../../mod/GonogoBreakingGroundUplink/client/src/RotorTachometer/actions.ts
 var rotorActions = [
   {
-    id: "rpmUp",
+    id: "rpm-up",
     label: "RPM up",
     accepts: ["button"],
     description: "Raise the selected rotor's RPM cap."
   },
   {
-    id: "rpmDown",
+    id: "rpm-down",
     label: "RPM down",
     accepts: ["button"],
     description: "Lower the selected rotor's RPM cap."
   },
   {
-    id: "toggleMotor",
+    id: "toggle-motor",
     label: "Toggle motor",
     accepts: ["button"],
     description: "Engage / disengage the selected rotor's motor."
   },
   {
-    id: "toggleLock",
+    id: "toggle-lock",
     label: "Toggle lock",
     accepts: ["button"],
     description: "Lock / unlock the selected rotor."
@@ -843,7 +843,7 @@ function RotorControls({
         ToggleButton2,
         {
           size: "sm",
-          active: selected.motorEngaged === true,
+          pressed: selected.motorEngaged === true,
           tone: "go",
           disabled: selected.motorEngaged === null,
           "aria-label": flagLabel("Toggle motor", selected.motorEngaged),
@@ -858,7 +858,7 @@ function RotorControls({
         ToggleButton2,
         {
           size: "sm",
-          active: selected.locked === true,
+          pressed: selected.locked === true,
           tone: "warn",
           disabled: selected.locked === null,
           "aria-label": flagLabel("Toggle lock", selected.locked),
@@ -870,7 +870,7 @@ function RotorControls({
         ToggleButton2,
         {
           size: "sm",
-          active: selected.brakePercentage !== null && selected.brakePercentage > 0,
+          pressed: selected.brakePercentage !== null && selected.brakePercentage > 0,
           tone: "warn",
           disabled: selected.brakePercentage === null,
           "aria-label": selected.brakePercentage === null ? "Toggle brake (unavailable, not reported)" : void 0,
@@ -933,7 +933,7 @@ function RotorGauge({
           color: "var(--color-surface-raised)"
         }
       ],
-      ariaLabel: `${rotor.name}: ${rpmReading.value == null ? "RPM unknown" : writeQuantity(rpmReading.value)}, ${rotor.rpmLimit === null ? "cap unknown" : `cap ${writeQuantity(quantity("rpm", rotor.rpmLimit))}`}`
+      "aria-label": `${rotor.name}: ${rpmReading.value == null ? "RPM unknown" : writeQuantity(rpmReading.value)}, ${rotor.rpmLimit === null ? "cap unknown" : `cap ${writeQuantity(quantity("rpm", rotor.rpmLimit))}`}`
     }
   ) }) });
 }
@@ -964,19 +964,19 @@ function RotorTachometerComponent({
   const selected = rotors.find((r) => r.partId === selectedId) ?? rotors[0] ?? null;
   const setRpmLimit = (id, rpm) => {
     const value2 = Math.round(clamp(rpm, 0, ROTOR_MAX_RPM));
-    void rpmCmd.send({ partId: id, value: value2 }, { label: `RPM cap ${value2}` });
+    void rpmCmd.send({ partId: id, rpm: value2 }, { label: `RPM cap ${value2}` });
   };
   const setTorqueLimit = (id, pct) => {
     const value2 = Math.round(clamp(pct, 0, 100));
     void torqueCmd.send(
-      { partId: id, value: value2 },
+      { partId: id, percent: value2 },
       { label: `Torque ${writeQuantity2(quantity2("%", value2))}` }
     );
   };
   const setBrake = (id, pct) => {
     const value2 = Math.round(clamp(pct, 0, 200));
     void brakeCmd.send(
-      { partId: id, value: value2 },
+      { partId: id, percent: value2 },
       { label: `Brake ${writeQuantity2(quantity2("%", value2))}` }
     );
   };
@@ -991,14 +991,14 @@ function RotorTachometerComponent({
   const reverse = (id) => void reverseCmd.send({ partId: id }, { label: "Reverse" });
   useActionInput2({
     // The steppers are relative, so they dispatch nothing while the cap is unread.
-    rpmUp: (p) => {
+    "rpm-up": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
       if (!selected || selected.rpmLimit === null) return void 0;
       const next = clamp(selected.rpmLimit + RPM_STEP, 0, ROTOR_MAX_RPM);
       setRpmLimit(selected.partId, next);
       return { RPM: next };
     },
-    rpmDown: (p) => {
+    "rpm-down": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
       if (!selected || selected.rpmLimit === null) return void 0;
       const next = clamp(selected.rpmLimit - RPM_STEP, 0, ROTOR_MAX_RPM);
@@ -1006,13 +1006,13 @@ function RotorTachometerComponent({
       return { RPM: next };
     },
     // Motor and lock send an absolute state inverted from the one read back, so an unread flag dispatches nothing.
-    toggleMotor: (p) => {
+    "toggle-motor": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
       if (!selected || selected.motorEngaged === null) return void 0;
       setMotor(selected.partId, !selected.motorEngaged);
       return { Motor: !selected.motorEngaged };
     },
-    toggleLock: (p) => {
+    "toggle-lock": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
       if (!selected || selected.locked === null) return void 0;
       setLock(selected.partId, !selected.locked);

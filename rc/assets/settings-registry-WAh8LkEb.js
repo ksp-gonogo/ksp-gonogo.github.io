@@ -1,1 +1,0 @@
-function i(e){return e.backing==="stream-backed"?!0:e.readOnly===!0}function s(e){return e.type??"boolean"}const t=new Map;function a(e){t.set(e.id,e)}function u(e){return t.get(e)}function r(){return[...t.values()]}function c(e){return r().filter(n=>!n.screens||n.screens.includes(e))}function g(){t.clear()}export{g as _,u as a,c as b,r as g,i,a as r,s};
