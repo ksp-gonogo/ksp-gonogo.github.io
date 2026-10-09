@@ -563,7 +563,8 @@ function RoboticsConsoleComponent({
     useTelemetry2("game.dlc"),
     void 0
   )?.breakingGround;
-  const targetCmd = useCommand("robotics.servo.setTarget");
+  const angleCmd = useCommand("robotics.servo.setAngle");
+  const extensionCmd = useCommand("robotics.servo.setExtension");
   const motorCmd = useCommand("robotics.servo.setMotor");
   const lockCmd = useCommand("robotics.servo.setLock");
   const servos = roboticsReading.state === "held" ? withholdVerdicts(parseServos(roboticsRaw)) : parseServos(roboticsRaw);
@@ -575,10 +576,15 @@ function RoboticsConsoleComponent({
   };
   const [selectedId, setSelectedId] = useState(null);
   const selected = servos.find((s) => s.partId === selectedId) ?? servos[0] ?? null;
-  const setTarget = (id, type, value2) => void targetCmd.send(
-    { partId: id, value: Number(formatPos(type, value2)) },
-    { label: `Target ${formatPos(type, value2)}${unitFor(type)}` }
-  );
+  const setTarget = (id, type, value2) => {
+    const target = Number(formatPos(type, value2));
+    const label = `Target ${formatPos(type, value2)}${unitFor(type)}`;
+    if (type === "piston") {
+      void extensionCmd.send({ partId: id, metres: target }, { label });
+      return;
+    }
+    void angleCmd.send({ partId: id, degrees: target }, { label });
+  };
   const setMotor = (id, engaged) => void motorCmd.send(
     { partId: id, enabled: engaged },
     { label: `Motor ${engaged ? "on" : "off"}` }
