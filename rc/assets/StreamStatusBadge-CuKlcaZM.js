@@ -1,1 +1,0 @@
-import{j as o}from"./ext-react-jsx-runtime-Cf8x2fCZ.js";import{B as e}from"./ToggleButton-BGQalpAk.js";import{Z as m}from"./PlotCrosshair-B8FkPL92.js";import{s}from"./contributionsRead-CRjYsb9k.js";import{f as a}from"./streamStatusWord-Dpl2hf1A.js";function l({status:r}){const t=a(r);return o.jsx(m,{children:t!==null&&o.jsx(e,{tone:s(r),size:"sm",children:t})})}export{l as S};

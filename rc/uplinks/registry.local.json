@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-10T09:12:32.270Z",
+  "generatedAt": "2026-10-10T17:13:29.666Z",
   "uplinks": [
     {
       "id": "breakingGround",
@@ -12,7 +12,7 @@
           "minAppVersion": "1.0.0",
           "apiVersion": "6.0.0",
           "contractMajor": 36,
-          "contractMinor": 0,
+          "contractMinor": 2,
           "bundleUrl": "/rc/uplinks/breakingGround.client.js",
           "integrity": "sha256-acafbd2966a2ff6490534730841d46a2425ae5130a4c6fa2aaf865da3eab47b6",
           "expectedClientHash": null
@@ -30,7 +30,7 @@
           "minAppVersion": "1.0.0",
           "apiVersion": "6.0.0",
           "contractMajor": 36,
-          "contractMinor": 0,
+          "contractMinor": 2,
           "bundleUrl": "/rc/uplinks/makingHistory.client.js",
           "integrity": "sha256-bd2d70ab58f121ef27e2847e08a4beb3aae7b1f0f485eb294df5b70f12363a7e",
           "expectedClientHash": null
