@@ -113,7 +113,7 @@ function DeployedBaseCard({
             AugmentSlot,
             {
               name: "deployed-science.experiment",
-              props: { experiment: exp, body: base.body }
+              props: { experiment: exp, body: base.body, held: basesReading }
             }
           )
         ] }, `${base.id}-${exp.partId}`))
@@ -777,7 +777,7 @@ function brakeStateText(brakePercentage) {
 }
 function directionText(counterClockwise) {
   if (counterClockwise === null) return "Reverse";
-  return counterClockwise ? "\u21BA CCW" : "\u21BB CW";
+  return counterClockwise ? "CCW" : "CW";
 }
 function RotorControls({
   selected,
