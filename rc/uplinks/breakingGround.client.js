@@ -22,6 +22,8 @@ import {
   Badge,
   Box,
   Cluster,
+  HeldBadge,
+  heldGradeOf,
   Meter,
   Stack,
   Text,
@@ -59,11 +61,21 @@ function progressPercentReading(source, fraction) {
 function progressRatioReading(source, fraction) {
   return combineReadings([source], () => value("ratio", fraction));
 }
+var titleCase = (name) => name.charAt(0) + name.slice(1).toLowerCase().replace(/_/g, " ");
+function siteLine(base) {
+  const parts = [
+    base.biome,
+    base.situation === null ? null : titleCase(base.situation),
+    base.deployedOnGround === false ? "not on the ground" : null
+  ].filter((p) => p !== null && p !== "");
+  return parts.length === 0 ? null : parts.join(" \xB7 ");
+}
 function DeployedBaseCard({
   base,
   basesReading
 }) {
   const state = powerState(base);
+  const heldGrade = heldGradeOf(basesReading);
   return /* @__PURE__ */ jsx(
     Box,
     {
@@ -76,8 +88,10 @@ function DeployedBaseCard({
       children: /* @__PURE__ */ jsxs(Stack, { children: [
         /* @__PURE__ */ jsxs(Cluster, { style: { gap: "var(--gap-related)" }, children: [
           /* @__PURE__ */ jsx(Text, { size: "sm", style: { fontWeight: 600 }, children: base.body || "Surface base" }),
-          /* @__PURE__ */ jsx(Badge, { tone: POWER_TONE[state], "data-tone": POWER_TONE[state], live: true, children: POWER_LABEL[state] })
+          /* @__PURE__ */ jsx(Badge, { tone: POWER_TONE[state], "data-tone": POWER_TONE[state], live: true, children: POWER_LABEL[state] }),
+          heldGrade !== void 0 && /* @__PURE__ */ jsx(HeldBadge, { grade: heldGrade, subject: "Deployed bases", size: "sm" })
         ] }),
+        siteLine(base) && /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: siteLine(base) }),
         /* @__PURE__ */ jsxs(Text, { level: "muted", style: XS2_STYLE, children: [
           powerBalance(base) ?? "Power unknown",
           base.experiments.length > 0 && /* @__PURE__ */ jsxs(Text, { level: "faint", style: XS2_STYLE, children: [
@@ -102,9 +116,9 @@ function DeployedBaseCard({
                     decimals: 0
                   }
                 ),
-                exp.collecting === true && /* @__PURE__ */ jsxs(Text, { tone: "go", style: XS2_STYLE, "aria-hidden": "true", children: [
+                exp.collecting === true && /* @__PURE__ */ jsxs(Text, { tone: "go", style: XS2_STYLE, children: [
                   " ",
-                  "\u25CF"
+                  "\u25CF collecting"
                 ] })
               ] })
             }
@@ -150,6 +164,9 @@ function parseFlatDeployedEntry(entry) {
     vesselName: e.vesselName,
     partName: typeof e.partName === "string" ? e.partName : null,
     body: typeof e.body === "string" ? e.body : null,
+    biome: typeof e.biome === "string" ? e.biome : null,
+    situation: typeof e.situation === "string" ? e.situation : null,
+    deployedOnGround: typeof e.deployedOnGround === "boolean" ? e.deployedOnGround : null,
     experimentId: typeof e.experimentId === "string" ? e.experimentId : null,
     scienceCompletedPercentage: numOrNull(e.scienceCompletedPercentage),
     scienceTransmittedPercentage: numOrNull(e.scienceTransmittedPercentage),
@@ -210,6 +227,9 @@ function parseBases(raw) {
     return {
       id: baseIndex,
       body: first?.body ?? "",
+      biome: first?.biome ?? null,
+      situation: first?.situation ?? null,
+      deployedOnGround: first?.deployedOnGround ?? null,
       powered: poweredFromState(first?.power),
       powerAvailable: first?.powerAvailable ?? null,
       powerRequired: first?.powerRequired ?? null,
@@ -279,7 +299,7 @@ import {
   useCommand,
   useTelemetry as useTelemetry2
 } from "@ksp-gonogo/sitrep-sdk";
-import { EmptyState as EmptyState2, Panel as Panel3, Section as Section3 } from "@ksp-gonogo/ui-kit";
+import { EmptyState as EmptyState2, heldGradeOf as heldGradeOf2, Panel as Panel3, Section as Section3 } from "@ksp-gonogo/ui-kit";
 import { useState } from "react";
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/robotics.ts
@@ -387,6 +407,8 @@ function parseServos(raw) {
       atTarget: current === null || target === null ? null : Math.abs(current - target) < AT_TARGET_EPSILON[type],
       motorEngaged: boolOrNull(e.servoMotorIsEngaged),
       locked: boolOrNull(e.servoIsLocked),
+      motorized: boolOrNull(e.servoIsMotorized),
+      motorState: typeof e.motorState === "string" ? e.motorState : null,
       torqueLimit: numOrNull(e.servoMotorLimit)
     });
   }
@@ -406,22 +428,27 @@ function ServoPosition({
   if (servo[of] === null) return "unknown";
   return /* @__PURE__ */ jsx3(Unit2, { value: readings[of], decimals: positionDecimals(servo.type) });
 }
-function listSuffix(s) {
-  if (s.locked === true) return " \xB7 locked";
-  if (s.atTarget === true) return " \xB7 \u2713";
-  return "";
+function ListSuffix({ servo }) {
+  if (servo.locked === true) return " \xB7 locked";
+  if (servo.atTarget === true) {
+    return /* @__PURE__ */ jsxs2(Fragment2, { children: [
+      " \xB7 ",
+      /* @__PURE__ */ jsx3("span", { role: "img", "aria-label": "at target", children: "\u2713" })
+    ] });
+  }
+  return null;
 }
 function RoboticsConsoleView({
   servos,
   selected,
   positionReadings,
+  held,
   rows,
   onSelect,
   setTarget,
   setMotor,
   setLock
 }) {
-  const unit = unitFor(selected.type);
   const decimals = positionDecimals(selected.type);
   const readings = positionReadings(selected);
   const showToggles = rows >= 6;
@@ -430,6 +457,7 @@ function RoboticsConsoleView({
     Panel2,
     {
       panelTitle: "ROBOTICS",
+      panelBadges: held === void 0 ? void 0 : [{ id: "read", label: "Reading", held }],
       sections: [
         /* @__PURE__ */ jsx3(Section2, { full: true, children: /* @__PURE__ */ jsxs2(Cluster2, { justify: "start", align: "baseline", wrap: true, children: [
           selected.current === null ? /* @__PURE__ */ jsx3(Text2, { size: "lg", weight: "semibold", level: "muted", role: "status", children: "Position unknown" }) : /* @__PURE__ */ jsx3(Text2, { size: "lg", weight: "semibold", children: /* @__PURE__ */ jsx3(Unit2, { value: readings.current, decimals }) }),
@@ -457,10 +485,7 @@ function RoboticsConsoleView({
                   children: "\u2212"
                 }
               ),
-              /* @__PURE__ */ jsx3(Text2, { size: "sm", children: selected.target === null ? "unknown" : /* @__PURE__ */ jsxs2(Fragment2, { children: [
-                formatPos(selected.type, selected.target),
-                unit
-              ] }) }),
+              /* @__PURE__ */ jsx3(Text2, { size: "sm", children: selected.target === null ? "unknown" : /* @__PURE__ */ jsx3(Unit2, { value: readings.target, decimals }) }),
               /* @__PURE__ */ jsx3(
                 Button,
                 {
@@ -486,7 +511,7 @@ function RoboticsConsoleView({
                 size: "sm",
                 pressed: selected.motorEngaged === true,
                 tone: "go",
-                disabled: selected.motorEngaged === null,
+                disabled: selected.motorEngaged === null || selected.motorized === false,
                 "aria-label": flagLabel("Toggle motor", selected.motorEngaged),
                 onClick: () => selected.motorEngaged !== null && setMotor(selected.partId, !selected.motorEngaged),
                 children: [
@@ -495,6 +520,7 @@ function RoboticsConsoleView({
                 ]
               }
             ),
+            selected.motorState && /* @__PURE__ */ jsx3(Text2, { level: "muted", size: "sm", children: selected.motorState }),
             /* @__PURE__ */ jsx3(
               ToggleButton,
               {
@@ -537,7 +563,7 @@ function RoboticsConsoleView({
                     readings: positionReadings(s)
                   }
                 ),
-                listSuffix(s)
+                /* @__PURE__ */ jsx3(ListSuffix, { servo: s })
               ] })
             ]
           },
@@ -643,6 +669,7 @@ function RoboticsConsoleComponent({
       servos,
       selected,
       positionReadings,
+      held: heldGradeOf2(roboticsReading),
       rows: h ?? 8,
       onSelect: setSelectedId,
       setTarget,
@@ -682,6 +709,7 @@ import {
 } from "@ksp-gonogo/sitrep-sdk";
 import {
   EmptyState as EmptyState3,
+  heldGradeOf as heldGradeOf3,
   Panel as Panel4,
   Section as Section6,
   SelectableRow as SelectableRow2,
@@ -779,8 +807,13 @@ function directionText(counterClockwise) {
   if (counterClockwise === null) return "Reverse";
   return counterClockwise ? "CCW" : "CW";
 }
+function reverseLabel(counterClockwise) {
+  if (counterClockwise === null) return void 0;
+  return `Reverse (now ${counterClockwise ? "CCW" : "CW"})`;
+}
 function RotorControls({
   selected,
+  rpmLimitReading,
   torqueReading,
   setRpmLimit,
   setTorqueLimit,
@@ -804,7 +837,7 @@ function RotorControls({
           children: "\u2212"
         }
       ),
-      /* @__PURE__ */ jsx5(Cluster3, { justify: "center", children: /* @__PURE__ */ jsx5(Text3, { size: "sm", children: selected.rpmLimit === null ? "RPM cap unknown" : Math.round(selected.rpmLimit) }) }),
+      /* @__PURE__ */ jsx5(Cluster3, { justify: "center", children: /* @__PURE__ */ jsx5(Text3, { size: "sm", children: selected.rpmLimit === null ? "RPM cap unknown" : /* @__PURE__ */ jsx5(Unit3, { value: rpmLimitReading, decimals: 0 }) }) }),
       /* @__PURE__ */ jsx5(
         Button2,
         {
@@ -887,7 +920,16 @@ function RotorControls({
           ]
         }
       ),
-      /* @__PURE__ */ jsx5(ToggleButton2, { size: "sm", onClick: () => reverse(selected.partId), children: directionText(selected.counterClockwise) })
+      /* @__PURE__ */ jsx5(
+        Button2,
+        {
+          size: "sm",
+          type: "button",
+          "aria-label": reverseLabel(selected.counterClockwise),
+          onClick: () => reverse(selected.partId),
+          children: directionText(selected.counterClockwise)
+        }
+      )
     ] })
   ] });
 }
@@ -1045,12 +1087,14 @@ function RotorTachometerComponent({
       }
     );
   }
+  const heldGrade = heldGradeOf3(roboticsReading);
   const showGauge = (h ?? 8) >= 6;
   const readingsOf = (r) => roboticsReading[r.srcIndex];
   return /* @__PURE__ */ jsx7(
     Panel4,
     {
       panelTitle: "ROTORS",
+      panelBadges: heldGrade === void 0 ? void 0 : [{ id: "read", label: "Reading", held: heldGrade }],
       sections: [
         showGauge && /* @__PURE__ */ jsx7(
           RotorGauge,
@@ -1065,6 +1109,7 @@ function RotorTachometerComponent({
           RotorControls,
           {
             selected,
+            rpmLimitReading: readingsOf(selected).rpmLimit,
             torqueReading: readingsOf(selected).servoMotorLimit,
             setRpmLimit,
             setTorqueLimit,
