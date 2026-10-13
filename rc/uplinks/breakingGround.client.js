@@ -27,6 +27,7 @@ import {
   Meter,
   Stack,
   Text,
+  Tooltip,
   Unit
 } from "@ksp-gonogo/ui-kit";
 
@@ -86,7 +87,7 @@ function DeployedBaseCard({
         borderColor: "var(--color-surface-raised)"
       },
       children: /* @__PURE__ */ jsxs(Stack, { children: [
-        /* @__PURE__ */ jsxs(Cluster, { style: { gap: "var(--gap-related)" }, children: [
+        /* @__PURE__ */ jsxs(Cluster, { justify: "start", wrap: true, children: [
           /* @__PURE__ */ jsx(Text, { size: "sm", style: { fontWeight: 600 }, children: base.body || "Surface base" }),
           /* @__PURE__ */ jsx(Badge, { tone: POWER_TONE[state], "data-tone": POWER_TONE[state], live: true, children: POWER_LABEL[state] }),
           heldGrade !== void 0 && /* @__PURE__ */ jsx(HeldBadge, { grade: heldGrade, subject: "Deployed bases", size: "sm" })
@@ -116,10 +117,7 @@ function DeployedBaseCard({
                     decimals: 0
                   }
                 ),
-                exp.collecting === true && /* @__PURE__ */ jsxs(Text, { tone: "go", style: XS2_STYLE, children: [
-                  " ",
-                  "\u25CF collecting"
-                ] })
+                exp.collecting === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment is collecting science now", children: /* @__PURE__ */ jsx(Badge, { tone: "go", size: "sm", children: "Collecting" }) })
               ] })
             }
           ),
@@ -280,8 +278,8 @@ registerComponent({
   description: "Power balance and per-experiment science progress for Breaking Ground deployed surface bases on every body, reported even while you fly something else. Read-only.",
   tags: ["telemetry", "science"],
   defaultSize: { w: 5, h: 9 },
-  // At four rows the overflow glow covers the last line of the empty state.
-  minSize: { w: 4, h: 5 },
+  // Five columns hold an experiment's figure beside its collecting badge, and seven rows keep a base's header, site line, power line and first experiment on screen with the held badge wrapped onto its own line.
+  minSize: { w: 5, h: 7 },
   component: DeployedScienceComponent,
   dataRequirements: ["deployed.bases", "game.dlc.breakingGround"],
   defaultConfig: {},
