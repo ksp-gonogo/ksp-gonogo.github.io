@@ -54,8 +54,13 @@ function powerBalance(base) {
 }
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/DeployedBaseCard.tsx
-import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+import { jsx, jsxs } from "react/jsx-runtime";
 var XS2_STYLE = { fontSize: "var(--font-size-caption)" };
+var FIGURE_AND_BADGE = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "var(--gap-related)"
+};
 function progressPercentReading(source, fraction) {
   return combineReadings([source], () => value("%", fraction * 100));
 }
@@ -109,7 +114,7 @@ function DeployedBaseCard({
               label: exp.name,
               tone: "go",
               value: exp.progress === null ? null : progressRatioReading(basesReading, exp.progress),
-              valueLabelNode: exp.progress === null ? void 0 : /* @__PURE__ */ jsxs(Fragment, { children: [
+              valueLabelNode: exp.progress === null ? void 0 : /* @__PURE__ */ jsxs("span", { style: FIGURE_AND_BADGE, children: [
                 /* @__PURE__ */ jsx(
                   Unit,
                   {
@@ -353,8 +358,6 @@ import {
 } from "@ksp-gonogo/ui-kit";
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/unreadLabels.ts
-var stepperLabel = (action, from) => from === null ? `${action} (unavailable, not reported)` : action;
-var flagLabel = (action, from) => from === null ? `${action} (unavailable, not reported)` : void 0;
 function motorStateText(engaged) {
   if (engaged === null) return "unknown";
   return engaged ? "on" : "off";
@@ -417,7 +420,7 @@ function withholdVerdicts(servos) {
 }
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RoboticsConsole/RoboticsConsoleView.tsx
-import { Fragment as Fragment2, jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
+import { Fragment, jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
 function ServoPosition({
   servo,
   of,
@@ -429,7 +432,7 @@ function ServoPosition({
 function ListSuffix({ servo }) {
   if (servo.locked === true) return " \xB7 locked";
   if (servo.atTarget === true) {
-    return /* @__PURE__ */ jsxs2(Fragment2, { children: [
+    return /* @__PURE__ */ jsxs2(Fragment, { children: [
       " \xB7 ",
       /* @__PURE__ */ jsx3("span", { role: "img", "aria-label": "at target", children: "\u2713" })
     ] });
@@ -473,8 +476,9 @@ function RoboticsConsoleView({
                   variant: "ghost",
                   size: "sm",
                   type: "button",
-                  "aria-label": stepperLabel("Decrease target", selected.target),
+                  "aria-label": "Decrease target",
                   disabled: selected.target === null,
+                  disabledReason: "The target is not reported",
                   onClick: () => selected.target !== null && setTarget(
                     selected.partId,
                     selected.type,
@@ -490,8 +494,9 @@ function RoboticsConsoleView({
                   variant: "ghost",
                   size: "sm",
                   type: "button",
-                  "aria-label": stepperLabel("Increase target", selected.target),
+                  "aria-label": "Increase target",
                   disabled: selected.target === null,
+                  disabledReason: "The target is not reported",
                   onClick: () => selected.target !== null && setTarget(
                     selected.partId,
                     selected.type,
@@ -510,7 +515,7 @@ function RoboticsConsoleView({
                 pressed: selected.motorEngaged === true,
                 tone: "go",
                 disabled: selected.motorEngaged === null || selected.motorized === false,
-                "aria-label": flagLabel("Toggle motor", selected.motorEngaged),
+                disabledReason: selected.motorEngaged === null ? "The motor state is not reported" : "This part has no motor",
                 onClick: () => selected.motorEngaged !== null && setMotor(selected.partId, !selected.motorEngaged),
                 children: [
                   "Motor ",
@@ -526,7 +531,7 @@ function RoboticsConsoleView({
                 pressed: selected.locked === true,
                 tone: "warn",
                 disabled: selected.locked === null,
-                "aria-label": flagLabel("Toggle lock", selected.locked),
+                disabledReason: "The lock state is not reported",
                 onClick: () => selected.locked !== null && setLock(selected.partId, !selected.locked),
                 children: lockStateText(selected.locked)
               }
@@ -829,8 +834,9 @@ function RotorControls({
           variant: "ghost",
           size: "sm",
           type: "button",
-          "aria-label": stepperLabel("Lower RPM cap", selected.rpmLimit),
+          "aria-label": "Lower RPM cap",
           disabled: selected.rpmLimit === null,
+          disabledReason: "The RPM cap is not reported",
           onClick: () => selected.rpmLimit !== null && setRpmLimit(selected.partId, selected.rpmLimit - RPM_STEP),
           children: "\u2212"
         }
@@ -842,8 +848,9 @@ function RotorControls({
           variant: "ghost",
           size: "sm",
           type: "button",
-          "aria-label": stepperLabel("Raise RPM cap", selected.rpmLimit),
+          "aria-label": "Raise RPM cap",
           disabled: selected.rpmLimit === null,
+          disabledReason: "The RPM cap is not reported",
           onClick: () => selected.rpmLimit !== null && setRpmLimit(selected.partId, selected.rpmLimit + RPM_STEP),
           children: "+"
         }
@@ -855,8 +862,9 @@ function RotorControls({
           variant: "ghost",
           size: "sm",
           type: "button",
-          "aria-label": stepperLabel("Lower torque limit", selected.torqueLimit),
+          "aria-label": "Lower torque limit",
           disabled: selected.torqueLimit === null,
+          disabledReason: "The torque limit is not reported",
           onClick: () => selected.torqueLimit !== null && setTorqueLimit(selected.partId, selected.torqueLimit - TORQUE_STEP),
           children: "\u2212"
         }
@@ -868,8 +876,9 @@ function RotorControls({
           variant: "ghost",
           size: "sm",
           type: "button",
-          "aria-label": stepperLabel("Raise torque limit", selected.torqueLimit),
+          "aria-label": "Raise torque limit",
           disabled: selected.torqueLimit === null,
+          disabledReason: "The torque limit is not reported",
           onClick: () => selected.torqueLimit !== null && setTorqueLimit(selected.partId, selected.torqueLimit + TORQUE_STEP),
           children: "+"
         }
@@ -883,7 +892,7 @@ function RotorControls({
           pressed: selected.motorEngaged === true,
           tone: "go",
           disabled: selected.motorEngaged === null,
-          "aria-label": flagLabel("Toggle motor", selected.motorEngaged),
+          disabledReason: "The motor state is not reported",
           onClick: () => selected.motorEngaged !== null && setMotor(selected.partId, !selected.motorEngaged),
           children: [
             "Motor ",
@@ -898,7 +907,7 @@ function RotorControls({
           pressed: selected.locked === true,
           tone: "warn",
           disabled: selected.locked === null,
-          "aria-label": flagLabel("Toggle lock", selected.locked),
+          disabledReason: "The lock state is not reported",
           onClick: () => selected.locked !== null && setLock(selected.partId, !selected.locked),
           children: lockStateText(selected.locked)
         }
@@ -910,7 +919,7 @@ function RotorControls({
           pressed: selected.brakePercentage !== null && selected.brakePercentage > 0,
           tone: "warn",
           disabled: selected.brakePercentage === null,
-          "aria-label": selected.brakePercentage === null ? "Toggle brake (unavailable, not reported)" : void 0,
+          disabledReason: "The brake is not reported",
           onClick: () => selected.brakePercentage !== null && setBrake(selected.partId, selected.brakePercentage > 0 ? 0 : 100),
           children: [
             "Brake ",
