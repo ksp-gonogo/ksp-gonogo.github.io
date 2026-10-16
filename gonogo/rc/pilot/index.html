@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>gonogo has moved</title>
+    <script>
+      (function () {
+        var moves = [["/gonogo/rc/","/rc/"],["/gonogo/","/rc/"]];
+        var path = location.pathname;
+        if (path === "/gonogo") path = "/gonogo/";
+        for (var i = 0; i < moves.length; i++) {
+          if (path.indexOf(moves[i][0]) === 0) {
+            location.replace(
+              moves[i][1] + path.slice(moves[i][0].length) + location.search + location.hash,
+            );
+            return;
+          }
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <p>This page has moved. <a href="/rc/pilot">Continue to gonogo</a>.</p>
+  </body>
+</html>
