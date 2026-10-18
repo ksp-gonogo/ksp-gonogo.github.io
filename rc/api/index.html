@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 44.12.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 44.13.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 44.12.0</span>
+<span class="version">contract 44.13.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1534,7 +1534,7 @@ means, all over one socket.</p>
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
   &quot;contractMajor&quot;: 44,
-  &quot;contractMinor&quot;: 12
+  &quot;contractMinor&quot;: 13
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -9296,7 +9296,10 @@ session. Their settings are at their defaults and are not listed in
         &quot;label&quot;: &quot;&lt;label&gt;&quot;,
         &quot;description&quot;: &quot;&lt;description&gt;&quot;,
         &quot;value&quot;: &quot;&lt;value&gt;&quot;,
-        &quot;default&quot;: &quot;&lt;default&gt;&quot;
+        &quot;default&quot;: &quot;&lt;default&gt;&quot;,
+        &quot;tags&quot;: [
+          &quot;&lt;tags item&gt;&quot;
+        ]
       }
     ],
     &quot;persistence&quot;: {
@@ -21012,7 +21015,7 @@ replaces the unreadable file.</td>
 <div class="description"><p>One declared setting, described well enough for a client to draw its
 control.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">7 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">8 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -21061,6 +21064,14 @@ number written with a full stop for a <a class="code-ref" href="#schema-SettingK
 <td class="unit"></td>
 <td><p>The value in force when the settings file holds none for this row, in the
 same spelling as <a class="code-ref" href="#schema-SettingsRowState"><code>SettingsRowState.value</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">tags</td>
+<td class="type">string[]</td>
+<td class="unit"></td>
+<td><p>The tags the declaring Uplink gave the setting, such as <code>setup</code> for one
+offered among the first-run setup&#39;s recommended settings. Empty for none; a
+client ignores a tag it does not know.</p>
 </td>
 </tr></tbody></table></div>
 </details>
