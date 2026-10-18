@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 44.11.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 44.12.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 44.11.0</span>
+<span class="version">contract 44.12.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1534,7 +1534,7 @@ means, all over one socket.</p>
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
   &quot;contractMajor&quot;: 44,
-  &quot;contractMinor&quot;: 11
+  &quot;contractMinor&quot;: 12
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -11375,7 +11375,9 @@ asteroids are included.</p>
         &quot;crew&quot;: &quot;&lt;crew&gt;&quot;,
         &quot;endSource&quot;: &quot;&lt;endSource&gt;&quot;,
         &quot;endedUt&quot;: &quot;&lt;endedUt: number ut or null&gt;&quot;,
-        &quot;endKind&quot;: &quot;&lt;endKind&gt;&quot;
+        &quot;endKind&quot;: &quot;&lt;endKind&gt;&quot;,
+        &quot;crewDead&quot;: &quot;&lt;crewDead: number count or null&gt;&quot;,
+        &quot;crewMissing&quot;: &quot;&lt;crewMissing: number count or null&gt;&quot;
       }
     ]
   },
@@ -16171,8 +16173,9 @@ aboard.</td>
 </tr><tr>
 <td class="field">1</td>
 <td class="field">Terminated</td>
-<td>The player ended the craft from the Tracking Station. Its crew went with it
-and no reputation was charged.</td>
+<td>The player ended the craft from the Tracking Station. Its crew leave the
+roster as missing, back after the game&#39;s respawn period, and no reputation
+is charged: see <a class="code-ref" href="#schema-CatalogEntry"><code>CatalogEntry.crewDead</code></a> and <a class="code-ref" href="#schema-CatalogEntry"><code>CatalogEntry.crewMissing</code></a>.</td>
 </tr></tbody></table></div>
 </details>
 </article>
@@ -16184,7 +16187,7 @@ tracking station follows. An object with no resolvable stable id is left out
 rather than given a made-up one, so <a class="code-ref" href="#schema-CatalogEntry"><code>CatalogEntry.vesselId</code></a> is always
 present.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">24 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">26 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -16397,6 +16400,23 @@ destruction itself. Null exactly when <a class="code-ref" href="#schema-CatalogE
 <td><p>Whether the craft this centre knows has ended was destroyed or ended by the
 player from the Tracking Station. Null exactly when <a class="code-ref" href="#schema-CatalogEntry"><code>CatalogEntry.endSource</code></a>
 is.</p>
+</td>
+</tr><tr>
+<td class="field">crewDead <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">count</td>
+<td><p>For a craft the player ended from the Tracking Station, how many of its crew
+the game&#39;s roster marks dead after the end. Null for any other end and when
+the roster was not read.</p>
+</td>
+</tr><tr>
+<td class="field">crewMissing <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">count</td>
+<td><p>For a craft the player ended from the Tracking Station, how many of its crew
+the game&#39;s roster marks missing after the end: they return to the roster
+when the game&#39;s respawn period for them ends. Null for any other end and
+when the roster was not read.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -20041,7 +20061,7 @@ moving on rails (<a class="code-ref" href="#schema-Quality"><code>0 (OnRails)</c
 since it started. Each line has had file paths, IP addresses, peer ids and
 share codes replaced, so it is safe to post publicly.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">1 field</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">2 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -20049,6 +20069,15 @@ share codes replaced, so it is safe to post publicly.</p>
 <td class="type">string[]</td>
 <td class="unit"></td>
 <td><p>The lines, oldest first.</p>
+</td>
+</tr><tr>
+<td class="field">total</td>
+<td class="type">number</td>
+<td class="unit">count</td>
+<td><p>How many lines the mod has kept since it started, counting those it has
+since let go of, which is also the number of the last of <a class="code-ref" href="#schema-RecentLog"><code>RecentLog.lines</code></a>.
+A caller that keeps the previous reply&#39;s count can tell which lines are new
+and how many it missed. Starts again from zero when the game restarts.</p>
 </td>
 </tr></tbody></table></div>
 </details>
