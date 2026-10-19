@@ -8793,8 +8793,11 @@ for example <code>crewReport</code>).</p>
 <td class="field">title <span class="optional">optional</span></td>
 <td class="type">string | null</td>
 <td class="unit"></td>
-<td><p>The experiment&#39;s display title (KSP&#39;s <code>ScienceExperiment.experimentTitle</code>).
-<code>null</code> when the module&#39;s experiment definition has not resolved.</p>
+<td><p>The experiment&#39;s own display title (KSP&#39;s
+<code>ScienceExperiment.experimentTitle</code>, or the providing mod&#39;s title for the
+experiment). Never the part&#39;s title: several experiments on one part have
+different titles. <code>null</code> when the experiment definition has not resolved,
+and a client then names the experiment by <code>experimentId</code>.</p>
 </td>
 </tr><tr>
 <td class="field">deployed <span class="optional">optional</span></td>
@@ -8815,7 +8818,9 @@ for example <code>crewReport</code>).</p>
 <td class="type">boolean | null</td>
 <td class="unit"></td>
 <td><p>Whether the experiment can be run more than once without a reset (KSP&#39;s
-<code>ModuleScienceExperiment.rerunnable</code>).</p>
+<code>ModuleScienceExperiment.rerunnable</code>). <code>null</code> when the providing mod has no
+such notion, which is neither answer: a client does not present it as a
+one-shot experiment.</p>
 </td>
 </tr><tr>
 <td class="field">resettable <span class="optional">optional</span></td>
