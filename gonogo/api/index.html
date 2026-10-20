@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 44.13.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 45.1.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 44.13.0</span>
+<span class="version">contract 45.1.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1252,7 +1252,7 @@ pre code {
 </ul>
 </details></li>
 <li class="nav-group" data-view="ns-science"><details>
-<summary>science <span class="count">8</span></summary>
+<summary>science <span class="count">12</span></summary>
 <p class="nav-sub">Telemetry</p><ul>
 <li data-name="science.archive"><a href="#channel-science.archive" title="science.archive">archive</a></li>
 <li data-name="science.experimentBreakdown"><a href="#channel-science.experimentBreakdown" title="science.experimentBreakdown">experimentBreakdown</a></li>
@@ -1263,7 +1263,11 @@ pre code {
 </ul>
 <p class="nav-sub">Commands</p><ul>
 <li data-name="science.experiment.deploy"><a href="#channel-science.experiment.deploy" title="science.experiment.deploy">experiment.deploy</a></li>
+<li data-name="science.experiment.start"><a href="#channel-science.experiment.start" title="science.experiment.start">experiment.start</a></li>
+<li data-name="science.experiment.stop"><a href="#channel-science.experiment.stop" title="science.experiment.stop">experiment.stop</a></li>
 <li data-name="science.experiment.transmit"><a href="#channel-science.experiment.transmit" title="science.experiment.transmit">experiment.transmit</a></li>
+<li data-name="science.lab.start"><a href="#channel-science.lab.start" title="science.lab.start">lab.start</a></li>
+<li data-name="science.lab.stop"><a href="#channel-science.lab.stop" title="science.lab.stop">lab.stop</a></li>
 </ul>
 </details></li>
 <li class="nav-group" data-view="ns-settings"><details>
@@ -1382,7 +1386,7 @@ pre code {
 <p class="nav-heading">Reference</p>
 <ul>
 <li class="nav-group" data-view="schemas"><details>
-<summary>Shared types <span class="count">126</span></summary>
+<summary>Shared types <span class="count">128</span></summary>
 <ul>
 <li data-name="ActionBinding"><a href="#schema-ActionBinding" title="ActionBinding">ActionBinding</a></li>
 <li data-name="ActionGroupState"><a href="#schema-ActionGroupState" title="ActionGroupState">ActionGroupState</a></li>
@@ -1398,6 +1402,7 @@ pre code {
 <li data-name="CareerStrategy"><a href="#schema-CareerStrategy" title="CareerStrategy">CareerStrategy</a></li>
 <li data-name="CareerTech"><a href="#schema-CareerTech" title="CareerTech">CareerTech</a></li>
 <li data-name="CareerTechNode"><a href="#schema-CareerTechNode" title="CareerTechNode">CareerTechNode</a></li>
+<li data-name="CareerTechPart"><a href="#schema-CareerTechPart" title="CareerTechPart">CareerTechPart</a></li>
 <li data-name="CatalogContact"><a href="#schema-CatalogContact" title="CatalogContact">CatalogContact</a></li>
 <li data-name="CatalogCrew"><a href="#schema-CatalogCrew" title="CatalogCrew">CatalogCrew</a></li>
 <li data-name="CatalogEnd"><a href="#schema-CatalogEnd" title="CatalogEnd">CatalogEnd</a></li>
@@ -1479,6 +1484,7 @@ pre code {
 <li data-name="ResourceAmount"><a href="#schema-ResourceAmount" title="ResourceAmount">ResourceAmount</a></li>
 <li data-name="RosterCommsControlSource"><a href="#schema-RosterCommsControlSource" title="RosterCommsControlSource">RosterCommsControlSource</a></li>
 <li data-name="RosterPlaceSource"><a href="#schema-RosterPlaceSource" title="RosterPlaceSource">RosterPlaceSource</a></li>
+<li data-name="RunStateChange"><a href="#schema-RunStateChange" title="RunStateChange">RunStateChange</a></li>
 <li data-name="SasMode"><a href="#schema-SasMode" title="SasMode">SasMode</a></li>
 <li data-name="ScetAlarmAction"><a href="#schema-ScetAlarmAction" title="ScetAlarmAction">ScetAlarmAction</a></li>
 <li data-name="ScetAlarmActionKind"><a href="#schema-ScetAlarmActionKind" title="ScetAlarmActionKind">ScetAlarmActionKind</a></li>
@@ -1518,7 +1524,7 @@ pre code {
 <section class="view" data-view="start" id="overview" aria-labelledby="overview-title">
 <h1 id="overview-title">Gonogo WebSocket API</h1>
 <div class="lede"><p>The WebSocket API of the Gonogo mod: 87 telemetry channels a client
-subscribes to and 65 commands it sends, each with its payload and what it
+subscribes to and 69 commands it sends, each with its payload and what it
 means, all over one socket.</p>
 </div>
 <p class="aside">Building a widget or an Uplink? Use the SDK instead: <a href="https://ksp-gonogo.github.io/uplink-dev-docs/">the Uplink developer docs</a>.</p>
@@ -1533,8 +1539,8 @@ means, all over one socket.</p>
   &quot;type&quot;: &quot;hello&quot;,
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
-  &quot;contractMajor&quot;: 44,
-  &quot;contractMinor&quot;: 13
+  &quot;contractMajor&quot;: 45,
+  &quot;contractMinor&quot;: 1
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -4593,21 +4599,26 @@ when unknown, not surface-anchored, or the centre is a moving vessel.</p>
 <p class="facts"><a class="chip" href="#overview-channel-properties" title="Only the newest value is kept, so a client that falls behind skips the ones it missed"><span class="chip-label">Delivery</span> Latest value only</a><a class="chip" href="#overview-channel-properties" title="The value is what this connection's command centre knew one signal delay ago"><span class="chip-label">Delay</span> After signal delay</a><a class="chip" href="#overview-channel-properties" title="Each value holds until the next sample, so draw a step"><span class="chip-label">Samples</span> Holds until changed</a><a class="chip" href="#overview-channel-properties" title="Sent again with nothing changed after this much game time"><span class="chip-label">Repeats</span> every 30 s of game time</a></p>
 <div class="description"><p>Whether the active vessel has a control link home right now, and the degree
 of control it has. Read from the comms mod in force: ground-side truth, with
-all three fields describing the same tick. Nothing is published while no
-craft is on screen (an editor, the space centre, the tracking station): a
-link report is about a craft.</p>
+all three fields describing the same tick. While no craft is on screen (an
+editor, the space centre, the tracking station), and for the moment the game
+takes to solve a craft&#39;s link after it comes on screen, nothing is reported:
+<a class="code-ref" href="#schema-CommsConnectivity"><code>CommsConnectivity.connected</code></a> is <code>null</code>, <a class="code-ref" href="#schema-CommsConnectivity"><code>CommsConnectivity.controlSource</code></a>
+is <a class="code-ref" href="#schema-CommsControlSource"><code>3 (Unknown)</code></a> and <a class="code-ref" href="#schema-CommsConnectivity"><code>CommsConnectivity.hasLocalControl</code></a> is
+false and says nothing.</p>
 </div>
 <details class="fields-block" id="schema-CommsConnectivity">
 <summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-CommsConnectivity">CommsConnectivity</a></span> <span class="count">3 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
-<td class="field">connected</td>
-<td class="type">boolean</td>
+<td class="field">connected <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
 <td class="unit"></td>
 <td><p>True when the backend resolved a control path home for the active vessel.
 False when it has none, and also when no link state could be read (then
-<a class="code-ref" href="#schema-CommsConnectivity"><code>CommsConnectivity.controlSource</code></a> is <a class="code-ref" href="#schema-CommsControlSource"><code>0 (None)</code></a>).</p>
+<a class="code-ref" href="#schema-CommsConnectivity"><code>CommsConnectivity.controlSource</code></a> is <a class="code-ref" href="#schema-CommsControlSource"><code>0 (None)</code></a>). <code>null</code> when
+nothing is reported yet, which is not a lost link: no craft is on screen, or
+the game has not yet solved the link of one that just came on screen.</p>
 </td>
 </tr><tr>
 <td class="field">controlSource</td>
@@ -4631,7 +4642,7 @@ uncrewed probe has over its link. False alongside
   &quot;type&quot;: &quot;stream-data&quot;,
   &quot;topic&quot;: &quot;comms.connectivity&quot;,
   &quot;payload&quot;: {
-    &quot;connected&quot;: &quot;&lt;connected: true or false&gt;&quot;,
+    &quot;connected&quot;: &quot;&lt;connected: true or false or null&gt;&quot;,
     &quot;controlSource&quot;: &quot;&lt;controlSource: 0 None, 1 Partial, 2 Full, 3 Unknown&gt;&quot;,
     &quot;hasLocalControl&quot;: &quot;&lt;hasLocalControl: true or false&gt;&quot;
   },
@@ -5066,11 +5077,13 @@ but do freeze: they hold their last value through the outage.</p>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
-<td class="field">connected</td>
-<td class="type">boolean</td>
+<td class="field">connected <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
 <td class="unit"></td>
 <td><p>True while the active vessel has a control link home, as of one signal delay
-ago; false through a blackout.</p>
+ago; false through a blackout. <code>null</code> when nothing is reported yet, which is
+not a lost link: no craft is on screen, or the game has not yet solved the
+link of one that just came on screen.</p>
 </td>
 </tr><tr>
 <td class="field">meta</td>
@@ -5084,7 +5097,7 @@ ago; false through a blackout.</p>
   &quot;type&quot;: &quot;stream-data&quot;,
   &quot;topic&quot;: &quot;comms.link&quot;,
   &quot;payload&quot;: {
-    &quot;connected&quot;: &quot;&lt;connected: true or false&gt;&quot;,
+    &quot;connected&quot;: &quot;&lt;connected: true or false or null&gt;&quot;,
     &quot;meta&quot;: {
       &quot;source&quot;: &quot;&lt;source&gt;&quot;
     }
@@ -7409,7 +7422,7 @@ battery, electric-charge converter or alternator. The parts themselves are
 itemised on <a class="code-ref" href="#channel-vessel.parts"><code>vessel.parts</code></a>.</p>
 </div>
 <details class="fields-block" id="schema-PartsPower">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-PartsPower">PartsPower</a></span> <span class="count">1 field</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-PartsPower">PartsPower</a></span> <span class="count">4 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -7420,13 +7433,45 @@ itemised on <a class="code-ref" href="#channel-vessel.parts"><code>vessel.parts<
 panel&#39;s live flow rate and every alternator&#39;s live output rate. Fuel cells
 are not included. Null when no finite total could be read.</p>
 </td>
+</tr><tr>
+<td class="field">netChargeRateEc <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">units/s</td>
+<td><p>How fast the vessel&#39;s stored electric charge is changing, in EC per second:
+negative while the batteries drain, positive while they charge. Measured
+from the stored amount over the last ten seconds of game time, so it
+includes every draw and every source whatever reports it. Null while it
+cannot be known: with the batteries full or empty the stored amount does not
+move, and for ten seconds after leaving either, after a change of vessel, a
+staging or docking, or a revert. Null is not zero.</p>
+</td>
+</tr><tr>
+<td class="field">totalConsumptionEc <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">units/s</td>
+<td><p>The vessel&#39;s total electric-charge draw in EC per second, as a positive
+figure: what the itemised producers on <a class="code-ref" href="#channel-vessel.parts"><code>vessel.parts</code></a> add, less
+<a class="code-ref" href="#schema-PartsPower"><code>PartsPower.netChargeRateEc</code></a>. It counts draw the parts do not itemise. Null
+whenever <a class="code-ref" href="#schema-PartsPower"><code>PartsPower.netChargeRateEc</code></a> is null.</p>
+</td>
+</tr><tr>
+<td class="field">unattributedConsumptionEc <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">units/s</td>
+<td><p>The part of <a class="code-ref" href="#schema-PartsPower"><code>PartsPower.totalConsumptionEc</code></a> that no part on <a class="code-ref" href="#channel-vessel.parts"><code>vessel.parts</code></a>
+reports a draw for, in EC per second: the total less the itemised consumers,
+never below zero. Null whenever <a class="code-ref" href="#schema-PartsPower"><code>PartsPower.netChargeRateEc</code></a> is null.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 <details class="example"><summary>Shape of its stream-data frame, with placeholder values</summary><pre class="json"><code>{
   &quot;type&quot;: &quot;stream-data&quot;,
   &quot;topic&quot;: &quot;parts.power&quot;,
   &quot;payload&quot;: {
-    &quot;totalProductionEc&quot;: &quot;&lt;totalProductionEc: number units/s or null&gt;&quot;
+    &quot;totalProductionEc&quot;: &quot;&lt;totalProductionEc: number units/s or null&gt;&quot;,
+    &quot;netChargeRateEc&quot;: &quot;&lt;netChargeRateEc: number units/s or null&gt;&quot;,
+    &quot;totalConsumptionEc&quot;: &quot;&lt;totalConsumptionEc: number units/s or null&gt;&quot;,
+    &quot;unattributedConsumptionEc&quot;: &quot;&lt;unattributedConsumptionEc: number units/s or null&gt;&quot;
   },
   &quot;meta&quot;: {
     &quot;source&quot;: &quot;system&quot;,
@@ -8306,7 +8351,7 @@ carries.</p>
 <nav class="pager" aria-label="Namespaces"><a href="#ns-recovery">Previous: <code>recovery</code></a><a href="#ns-science">Next: <code>science</code></a></nav>
 </section>
 <section class="view" data-view="ns-science" id="ns-science" aria-labelledby="ns-science-title">
-<h2 id="ns-science-title"><code>science</code> <span class="count" aria-hidden="true">6 telemetry, 2 commands</span></h2>
+<h2 id="ns-science-title"><code>science</code> <span class="count" aria-hidden="true">6 telemetry, 6 commands</span></h2>
 <p class="namespace-description">Experiments, the science archive and transmission</p>
 <h3 class="group-title">Telemetry <span class="count" aria-hidden="true">6</span></h3>
 <article class="card channel channel-telemetry" id="channel-science.archive">
@@ -8764,7 +8809,7 @@ is no active vessel or it carries no experiment module. Every field is
 nullable, and is <code>null</code> whenever the raw value is absent.</p>
 </div>
 <details class="fields-block" id="schema-InstrumentEntry">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-InstrumentEntry">InstrumentEntry</a>[]</span> <span class="count">10 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-InstrumentEntry">InstrumentEntry</a>[]</span> <span class="count">14 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -8837,6 +8882,45 @@ one-shot experiment.</p>
 <code>ModuleScienceExperiment.dataIsCollectable</code>).</p>
 </td>
 </tr><tr>
+<td class="field">continuous <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether the instrument runs over time once switched on, rather than being
+deployed once. A continuous instrument has no deploy or transmit: it is
+started and stopped with <a class="code-ref" href="#channel-science.experiment.start"><code>science.experiment.start</code></a> and
+<a class="code-ref" href="#channel-science.experiment.stop"><code>science.experiment.stop</code></a>, and its <a class="code-ref" href="#schema-InstrumentEntry"><code>InstrumentEntry.deployed</code></a> is <code>null</code>.
+Stock writes <code>false</code> for every experiment. <code>null</code> is the one-shot model, so
+a provider that never sets it changes nothing.</p>
+</td>
+</tr><tr>
+<td class="field">running <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether a continuous instrument is switched on, whether or not it is
+producing right now. <code>null</code> on an instrument that is not continuous or whose
+state is unknown, which is neither answer: a client then offers neither
+Start nor Stop.</p>
+</td>
+</tr><tr>
+<td class="field">producing <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether a continuous instrument is generating science right now. An
+instrument can be <a class="code-ref" href="#schema-InstrumentEntry"><code>InstrumentEntry.running</code></a> and not producing, for example
+with no electric charge or with its subject exhausted, so this is the field
+a client branches on to tell a working instrument from an idle one. <code>null</code>
+where the provider cannot say.</p>
+</td>
+</tr><tr>
+<td class="field">runIssue <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>Why a switched-on instrument is not producing, in the provider&#39;s own words,
+for display. <code>null</code> when nothing is in the way. Prose in the game&#39;s
+language, so never branch on it, and never a signal or return fact: it
+answers why nothing is being generated, not why nothing is arriving home.</p>
+</td>
+</tr><tr>
 <td class="field">extensions <span class="optional">optional</span></td>
 <td class="type">map of any | null</td>
 <td class="unit"></td>
@@ -8866,6 +8950,10 @@ the reason here.</p>
       &quot;rerunnable&quot;: &quot;&lt;rerunnable: true or false or null&gt;&quot;,
       &quot;resettable&quot;: &quot;&lt;resettable: true or false or null&gt;&quot;,
       &quot;dataIsCollectable&quot;: &quot;&lt;dataIsCollectable: true or false or null&gt;&quot;,
+      &quot;continuous&quot;: &quot;&lt;continuous: true or false or null&gt;&quot;,
+      &quot;running&quot;: &quot;&lt;running: true or false or null&gt;&quot;,
+      &quot;producing&quot;: &quot;&lt;producing: true or false or null&gt;&quot;,
+      &quot;runIssue&quot;: &quot;&lt;runIssue, or null&gt;&quot;,
       &quot;extensions&quot;: {}
     }
   ],
@@ -8897,7 +8985,7 @@ no lab. Every field is nullable, and is <code>null</code> whenever the raw value
 absent or non-finite.</p>
 </div>
 <details class="fields-block" id="schema-LabEntry">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-LabEntry">LabEntry</a>[]</span> <span class="count">13 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-LabEntry">LabEntry</a>[]</span> <span class="count">16 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -8985,6 +9073,31 @@ rate could not be read.</p>
 <code>ModuleScienceLab.IsOperational()</code>).</p>
 </td>
 </tr><tr>
+<td class="field">running <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether the lab&#39;s research is switched on (KSP&#39;s <code>BaseConverter.IsActivated</code>
+on the lab&#39;s converter), whether or not it is producing.
+<a class="code-ref" href="#schema-LabEntry"><code>LabEntry.processingData</code></a> is not this: it means a data transfer into the lab
+is in progress. <code>null</code> when the lab has no converter or it could not be
+read. Switched with <a class="code-ref" href="#channel-science.lab.start"><code>science.lab.start</code></a> and <a class="code-ref" href="#channel-science.lab.stop"><code>science.lab.stop</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">producing <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether the lab is turning stored data into science right now: switched on,
+operational, holding data and below its science cap. <code>null</code> where it could
+not be read.</p>
+</td>
+</tr><tr>
+<td class="field">runIssue <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>Why a switched-on lab is not producing, in the game&#39;s own words, for
+display. <code>null</code> when nothing is in the way. Never branch on it.</p>
+</td>
+</tr><tr>
 <td class="field">valueModel <span class="optional">optional</span></td>
 <td class="type">string | null</td>
 <td class="unit"></td>
@@ -9024,6 +9137,9 @@ rule as <a class="code-ref" href="#schema-ExperimentEntry"><code>ExperimentEntry
       &quot;scientistCount&quot;: &quot;&lt;scientistCount: number count or null&gt;&quot;,
       &quot;scienceRate&quot;: &quot;&lt;scienceRate: number science/day or null&gt;&quot;,
       &quot;isOperational&quot;: &quot;&lt;isOperational: true or false or null&gt;&quot;,
+      &quot;running&quot;: &quot;&lt;running: true or false or null&gt;&quot;,
+      &quot;producing&quot;: &quot;&lt;producing: true or false or null&gt;&quot;,
+      &quot;runIssue&quot;: &quot;&lt;runIssue, or null&gt;&quot;,
       &quot;valueModel&quot;: &quot;&lt;valueModel, or null&gt;&quot;,
       &quot;extensions&quot;: {}
     }
@@ -9126,7 +9242,7 @@ e.g. &quot;293.1K&quot; or &quot;Off&quot;).</p>
   }
 }</code></pre></details>
 </article>
-<h3 class="group-title">Commands <span class="count" aria-hidden="true">2</span></h3>
+<h3 class="group-title">Commands <span class="count" aria-hidden="true">6</span></h3>
 <article class="card channel channel-command" id="channel-science.experiment.deploy">
 <header>
 <span class="kind kind-command">Command</span>
@@ -9142,6 +9258,180 @@ e.g. &quot;293.1K&quot; or &quot;Off&quot;).</p>
   &quot;requestId&quot;: &quot;&quot;,
   &quot;command&quot;: &quot;science.experiment.deploy&quot;,
   &quot;label&quot;: &quot;science.experiment.deploy&quot;,
+  &quot;topic&quot;: &quot;&quot;,
+  &quot;args&quot;: {
+    &quot;partId&quot;: &quot;&lt;partId&gt;&quot;
+  },
+  &quot;sentAt&quot;: 0
+}</code></pre></details>
+</article>
+<article class="card channel channel-command" id="channel-science.experiment.start">
+<header>
+<span class="kind kind-command">Command</span>
+<h4><code>science.experiment.start</code></h4>
+<button class="try" type="button" data-op="channel:science.experiment.start" aria-label="Open science.experiment.start in the console">Open in console</button>
+</header>
+<p class="facts"><a class="chip" href="#overview-channel-properties" title="The command travels from the command centre and runs when it arrives"><span class="chip-label">Takes effect</span> after the signal delay</a><a class="chip" href="#overview-channel-properties" title="When the signal delay is more than zero, a command-accepted frame arrives before the command-response"><span class="chip-label">Receipt</span> command-accepted when delayed</a></p>
+<div class="description"><p>Switch a continuous science instrument on.</p>
+</div>
+<p class="type-line"><span class="type-label">Arguments</span> <span class="type"><a class="type-ref" href="#schema-ExperimentActionArgs">ExperimentActionArgs</a></span></p><details class="fields-block">
+<summary><span class="type-label">Result</span> <span class="type"><a class="type-ref" href="#schema-CommandResult">CommandResult</a> & object</span> <span class="count">6 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">success</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether the command ran. False means the game refused it, and
+<a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> says why.</p>
+</td>
+</tr><tr>
+<td class="field">errorCode <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-CommandErrorCode">CommandErrorCode</a> | null</td>
+<td class="unit"></td>
+<td><p>Why it was refused, null on success. On the wire this is the root&#39;s id, so
+every client can classify it; a refinement&#39;s own id travels beside it as
+<a class="code-ref" href="#schema-CommandResult"><code>CommandResult.reason</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">reason <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The id of the more specific refusal, when there is one, such as
+<code>example.notManaging</code>, a kind of <code>careerModeRequired</code>. Absent when the
+refusal is a root. An id this client does not know is still a refusal of
+kind <a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">breach <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-LimitBreach">LimitBreach</a> | null</td>
+<td class="unit"></td>
+<td><p>The numbers behind the refusal, when the refusal has any: the cap and the
+count, the tier and the top tier, the price and the balance. Null on success
+and on every refusal that is not a comparison.</p>
+<p><a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> says which refusal it is and this holds its
+numbers, as in &quot;16 of 16 active crew&quot;.</p>
+<p>The same <a class="code-ref" href="#schema-LimitBreach"><code>LimitBreach</code></a> shape a declared gate carries on
+<a class="code-ref" href="#schema-GateVerdict"><code>GateVerdict.breach</code></a>, so a refusal reads the same whether it came from a
+gate or from the command&#39;s own handler. Omitted from the wire when null.</p>
+</td>
+</tr><tr>
+<td class="field">detail <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The refusal in the game&#39;s own words, when the game had any: the member of
+<code>ClearToSaveStatus</code> it came back with,
+<code>Strategies.Strategy.CanBeActivated(out string reason)</code>&#39;s reason,
+<code>GameVariables.GetEVALockedReason</code>&#39;s sentence, a
+<code>PreFlightTests.IPreFlightTest</code>&#39;s <code>GetWarningTitle()</code>, a
+<code>[Description]</code>-tagged state member&#39;s name. Null when the refusal had
+nothing to quote, and then omitted from the wire, never sent as an empty
+string.</p>
+<p>The text is the game&#39;s own, so it is in the game&#39;s language.</p>
+<p>Prose for a human, never parsed: <a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> is the
+machine-readable half. The same split, and the same field name, as
+<a class="code-ref" href="#schema-GateVerdict"><code>GateVerdict.detail</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">payload <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-RunStateChange">RunStateChange</a> | null</td>
+<td class="unit"></td>
+<td><p>The value the command returns; absent on a refusal.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+<details class="example"><summary>Shape of its command-request, with placeholder values</summary><pre class="json"><code>{
+  &quot;type&quot;: &quot;command-request&quot;,
+  &quot;requestId&quot;: &quot;&quot;,
+  &quot;command&quot;: &quot;science.experiment.start&quot;,
+  &quot;label&quot;: &quot;science.experiment.start&quot;,
+  &quot;topic&quot;: &quot;&quot;,
+  &quot;args&quot;: {
+    &quot;partId&quot;: &quot;&lt;partId&gt;&quot;
+  },
+  &quot;sentAt&quot;: 0
+}</code></pre></details>
+</article>
+<article class="card channel channel-command" id="channel-science.experiment.stop">
+<header>
+<span class="kind kind-command">Command</span>
+<h4><code>science.experiment.stop</code></h4>
+<button class="try" type="button" data-op="channel:science.experiment.stop" aria-label="Open science.experiment.stop in the console">Open in console</button>
+</header>
+<p class="facts"><a class="chip" href="#overview-channel-properties" title="The command travels from the command centre and runs when it arrives"><span class="chip-label">Takes effect</span> after the signal delay</a><a class="chip" href="#overview-channel-properties" title="When the signal delay is more than zero, a command-accepted frame arrives before the command-response"><span class="chip-label">Receipt</span> command-accepted when delayed</a></p>
+<div class="description"><p>Switch a continuous science instrument off.</p>
+</div>
+<p class="type-line"><span class="type-label">Arguments</span> <span class="type"><a class="type-ref" href="#schema-ExperimentActionArgs">ExperimentActionArgs</a></span></p><details class="fields-block">
+<summary><span class="type-label">Result</span> <span class="type"><a class="type-ref" href="#schema-CommandResult">CommandResult</a> & object</span> <span class="count">6 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">success</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether the command ran. False means the game refused it, and
+<a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> says why.</p>
+</td>
+</tr><tr>
+<td class="field">errorCode <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-CommandErrorCode">CommandErrorCode</a> | null</td>
+<td class="unit"></td>
+<td><p>Why it was refused, null on success. On the wire this is the root&#39;s id, so
+every client can classify it; a refinement&#39;s own id travels beside it as
+<a class="code-ref" href="#schema-CommandResult"><code>CommandResult.reason</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">reason <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The id of the more specific refusal, when there is one, such as
+<code>example.notManaging</code>, a kind of <code>careerModeRequired</code>. Absent when the
+refusal is a root. An id this client does not know is still a refusal of
+kind <a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">breach <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-LimitBreach">LimitBreach</a> | null</td>
+<td class="unit"></td>
+<td><p>The numbers behind the refusal, when the refusal has any: the cap and the
+count, the tier and the top tier, the price and the balance. Null on success
+and on every refusal that is not a comparison.</p>
+<p><a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> says which refusal it is and this holds its
+numbers, as in &quot;16 of 16 active crew&quot;.</p>
+<p>The same <a class="code-ref" href="#schema-LimitBreach"><code>LimitBreach</code></a> shape a declared gate carries on
+<a class="code-ref" href="#schema-GateVerdict"><code>GateVerdict.breach</code></a>, so a refusal reads the same whether it came from a
+gate or from the command&#39;s own handler. Omitted from the wire when null.</p>
+</td>
+</tr><tr>
+<td class="field">detail <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The refusal in the game&#39;s own words, when the game had any: the member of
+<code>ClearToSaveStatus</code> it came back with,
+<code>Strategies.Strategy.CanBeActivated(out string reason)</code>&#39;s reason,
+<code>GameVariables.GetEVALockedReason</code>&#39;s sentence, a
+<code>PreFlightTests.IPreFlightTest</code>&#39;s <code>GetWarningTitle()</code>, a
+<code>[Description]</code>-tagged state member&#39;s name. Null when the refusal had
+nothing to quote, and then omitted from the wire, never sent as an empty
+string.</p>
+<p>The text is the game&#39;s own, so it is in the game&#39;s language.</p>
+<p>Prose for a human, never parsed: <a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> is the
+machine-readable half. The same split, and the same field name, as
+<a class="code-ref" href="#schema-GateVerdict"><code>GateVerdict.detail</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">payload <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-RunStateChange">RunStateChange</a> | null</td>
+<td class="unit"></td>
+<td><p>The value the command returns; absent on a refusal.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+<details class="example"><summary>Shape of its command-request, with placeholder values</summary><pre class="json"><code>{
+  &quot;type&quot;: &quot;command-request&quot;,
+  &quot;requestId&quot;: &quot;&quot;,
+  &quot;command&quot;: &quot;science.experiment.stop&quot;,
+  &quot;label&quot;: &quot;science.experiment.stop&quot;,
   &quot;topic&quot;: &quot;&quot;,
   &quot;args&quot;: {
     &quot;partId&quot;: &quot;&lt;partId&gt;&quot;
@@ -9229,6 +9519,180 @@ machine-readable half. The same split, and the same field name, as
   &quot;requestId&quot;: &quot;&quot;,
   &quot;command&quot;: &quot;science.experiment.transmit&quot;,
   &quot;label&quot;: &quot;science.experiment.transmit&quot;,
+  &quot;topic&quot;: &quot;&quot;,
+  &quot;args&quot;: {
+    &quot;partId&quot;: &quot;&lt;partId&gt;&quot;
+  },
+  &quot;sentAt&quot;: 0
+}</code></pre></details>
+</article>
+<article class="card channel channel-command" id="channel-science.lab.start">
+<header>
+<span class="kind kind-command">Command</span>
+<h4><code>science.lab.start</code></h4>
+<button class="try" type="button" data-op="channel:science.lab.start" aria-label="Open science.lab.start in the console">Open in console</button>
+</header>
+<p class="facts"><a class="chip" href="#overview-channel-properties" title="The command travels from the command centre and runs when it arrives"><span class="chip-label">Takes effect</span> after the signal delay</a><a class="chip" href="#overview-channel-properties" title="When the signal delay is more than zero, a command-accepted frame arrives before the command-response"><span class="chip-label">Receipt</span> command-accepted when delayed</a></p>
+<div class="description"><p>Start a Mobile Processing Lab&#39;s research.</p>
+</div>
+<p class="type-line"><span class="type-label">Arguments</span> <span class="type"><a class="type-ref" href="#schema-ExperimentActionArgs">ExperimentActionArgs</a></span></p><details class="fields-block">
+<summary><span class="type-label">Result</span> <span class="type"><a class="type-ref" href="#schema-CommandResult">CommandResult</a> & object</span> <span class="count">6 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">success</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether the command ran. False means the game refused it, and
+<a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> says why.</p>
+</td>
+</tr><tr>
+<td class="field">errorCode <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-CommandErrorCode">CommandErrorCode</a> | null</td>
+<td class="unit"></td>
+<td><p>Why it was refused, null on success. On the wire this is the root&#39;s id, so
+every client can classify it; a refinement&#39;s own id travels beside it as
+<a class="code-ref" href="#schema-CommandResult"><code>CommandResult.reason</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">reason <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The id of the more specific refusal, when there is one, such as
+<code>example.notManaging</code>, a kind of <code>careerModeRequired</code>. Absent when the
+refusal is a root. An id this client does not know is still a refusal of
+kind <a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">breach <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-LimitBreach">LimitBreach</a> | null</td>
+<td class="unit"></td>
+<td><p>The numbers behind the refusal, when the refusal has any: the cap and the
+count, the tier and the top tier, the price and the balance. Null on success
+and on every refusal that is not a comparison.</p>
+<p><a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> says which refusal it is and this holds its
+numbers, as in &quot;16 of 16 active crew&quot;.</p>
+<p>The same <a class="code-ref" href="#schema-LimitBreach"><code>LimitBreach</code></a> shape a declared gate carries on
+<a class="code-ref" href="#schema-GateVerdict"><code>GateVerdict.breach</code></a>, so a refusal reads the same whether it came from a
+gate or from the command&#39;s own handler. Omitted from the wire when null.</p>
+</td>
+</tr><tr>
+<td class="field">detail <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The refusal in the game&#39;s own words, when the game had any: the member of
+<code>ClearToSaveStatus</code> it came back with,
+<code>Strategies.Strategy.CanBeActivated(out string reason)</code>&#39;s reason,
+<code>GameVariables.GetEVALockedReason</code>&#39;s sentence, a
+<code>PreFlightTests.IPreFlightTest</code>&#39;s <code>GetWarningTitle()</code>, a
+<code>[Description]</code>-tagged state member&#39;s name. Null when the refusal had
+nothing to quote, and then omitted from the wire, never sent as an empty
+string.</p>
+<p>The text is the game&#39;s own, so it is in the game&#39;s language.</p>
+<p>Prose for a human, never parsed: <a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> is the
+machine-readable half. The same split, and the same field name, as
+<a class="code-ref" href="#schema-GateVerdict"><code>GateVerdict.detail</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">payload <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-RunStateChange">RunStateChange</a> | null</td>
+<td class="unit"></td>
+<td><p>The value the command returns; absent on a refusal.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+<details class="example"><summary>Shape of its command-request, with placeholder values</summary><pre class="json"><code>{
+  &quot;type&quot;: &quot;command-request&quot;,
+  &quot;requestId&quot;: &quot;&quot;,
+  &quot;command&quot;: &quot;science.lab.start&quot;,
+  &quot;label&quot;: &quot;science.lab.start&quot;,
+  &quot;topic&quot;: &quot;&quot;,
+  &quot;args&quot;: {
+    &quot;partId&quot;: &quot;&lt;partId&gt;&quot;
+  },
+  &quot;sentAt&quot;: 0
+}</code></pre></details>
+</article>
+<article class="card channel channel-command" id="channel-science.lab.stop">
+<header>
+<span class="kind kind-command">Command</span>
+<h4><code>science.lab.stop</code></h4>
+<button class="try" type="button" data-op="channel:science.lab.stop" aria-label="Open science.lab.stop in the console">Open in console</button>
+</header>
+<p class="facts"><a class="chip" href="#overview-channel-properties" title="The command travels from the command centre and runs when it arrives"><span class="chip-label">Takes effect</span> after the signal delay</a><a class="chip" href="#overview-channel-properties" title="When the signal delay is more than zero, a command-accepted frame arrives before the command-response"><span class="chip-label">Receipt</span> command-accepted when delayed</a></p>
+<div class="description"><p>Stop a Mobile Processing Lab&#39;s research.</p>
+</div>
+<p class="type-line"><span class="type-label">Arguments</span> <span class="type"><a class="type-ref" href="#schema-ExperimentActionArgs">ExperimentActionArgs</a></span></p><details class="fields-block">
+<summary><span class="type-label">Result</span> <span class="type"><a class="type-ref" href="#schema-CommandResult">CommandResult</a> & object</span> <span class="count">6 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">success</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether the command ran. False means the game refused it, and
+<a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> says why.</p>
+</td>
+</tr><tr>
+<td class="field">errorCode <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-CommandErrorCode">CommandErrorCode</a> | null</td>
+<td class="unit"></td>
+<td><p>Why it was refused, null on success. On the wire this is the root&#39;s id, so
+every client can classify it; a refinement&#39;s own id travels beside it as
+<a class="code-ref" href="#schema-CommandResult"><code>CommandResult.reason</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">reason <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The id of the more specific refusal, when there is one, such as
+<code>example.notManaging</code>, a kind of <code>careerModeRequired</code>. Absent when the
+refusal is a root. An id this client does not know is still a refusal of
+kind <a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">breach <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-LimitBreach">LimitBreach</a> | null</td>
+<td class="unit"></td>
+<td><p>The numbers behind the refusal, when the refusal has any: the cap and the
+count, the tier and the top tier, the price and the balance. Null on success
+and on every refusal that is not a comparison.</p>
+<p><a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> says which refusal it is and this holds its
+numbers, as in &quot;16 of 16 active crew&quot;.</p>
+<p>The same <a class="code-ref" href="#schema-LimitBreach"><code>LimitBreach</code></a> shape a declared gate carries on
+<a class="code-ref" href="#schema-GateVerdict"><code>GateVerdict.breach</code></a>, so a refusal reads the same whether it came from a
+gate or from the command&#39;s own handler. Omitted from the wire when null.</p>
+</td>
+</tr><tr>
+<td class="field">detail <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The refusal in the game&#39;s own words, when the game had any: the member of
+<code>ClearToSaveStatus</code> it came back with,
+<code>Strategies.Strategy.CanBeActivated(out string reason)</code>&#39;s reason,
+<code>GameVariables.GetEVALockedReason</code>&#39;s sentence, a
+<code>PreFlightTests.IPreFlightTest</code>&#39;s <code>GetWarningTitle()</code>, a
+<code>[Description]</code>-tagged state member&#39;s name. Null when the refusal had
+nothing to quote, and then omitted from the wire, never sent as an empty
+string.</p>
+<p>The text is the game&#39;s own, so it is in the game&#39;s language.</p>
+<p>Prose for a human, never parsed: <a class="code-ref" href="#schema-CommandResult"><code>CommandResult.errorCode</code></a> is the
+machine-readable half. The same split, and the same field name, as
+<a class="code-ref" href="#schema-GateVerdict"><code>GateVerdict.detail</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">payload <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-RunStateChange">RunStateChange</a> | null</td>
+<td class="unit"></td>
+<td><p>The value the command returns; absent on a refusal.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+<details class="example"><summary>Shape of its command-request, with placeholder values</summary><pre class="json"><code>{
+  &quot;type&quot;: &quot;command-request&quot;,
+  &quot;requestId&quot;: &quot;&quot;,
+  &quot;command&quot;: &quot;science.lab.stop&quot;,
+  &quot;label&quot;: &quot;science.lab.stop&quot;,
   &quot;topic&quot;: &quot;&quot;,
   &quot;args&quot;: {
     &quot;partId&quot;: &quot;&lt;partId&gt;&quot;
@@ -13394,6 +13858,11 @@ an empty list.</p>
           &quot;y&quot;: &quot;&lt;y: number&gt;&quot;,
           &quot;z&quot;: &quot;&lt;z: number&gt;&quot;
         },
+        &quot;forward&quot;: {
+          &quot;x&quot;: &quot;&lt;x: number&gt;&quot;,
+          &quot;y&quot;: &quot;&lt;y: number&gt;&quot;,
+          &quot;z&quot;: &quot;&lt;z: number&gt;&quot;
+        },
         &quot;bounds&quot;: {
           &quot;size&quot;: {
             &quot;x&quot;: null,
@@ -16027,10 +16496,8 @@ never null).</p>
 <td class="field">unlockedIds</td>
 <td class="type">string[]</td>
 <td class="unit"></td>
-<td><p>The ids of the unlocked tech nodes, in no particular order. Derived from the
-loaded parts (each part&#39;s <code>TechRequired</code> whose tech is available), so a node
-that unlocks no part never appears here even when it is researched;
-<a class="code-ref" href="#schema-CareerTechNode"><code>CareerTechNode.unlocked</code></a> is the per-node reading.</p>
+<td><p>The ids of the unlocked tech nodes, in no particular order: exactly the
+nodes of <a class="code-ref" href="#schema-CareerTech"><code>CareerTech.nodes</code></a> whose <a class="code-ref" href="#schema-CareerTechNode"><code>CareerTechNode.unlocked</code></a> is true.</p>
 </td>
 </tr><tr>
 <td class="field">nodes</td>
@@ -16047,7 +16514,7 @@ replaced. Empty when the tree is not loaded yet.</p>
 <p class="type-line"><span class="type">object</span></p>
 <div class="description"><p>One node in <a class="code-ref" href="#schema-CareerTech"><code>CareerTech.nodes</code></a>.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">6 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">7 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -16093,6 +16560,61 @@ description in whatever tree the save is playing.</p>
 <td><p>The tech ids of the node&#39;s prerequisites, from the tree&#39;s parent edges.
 Empty for a root node. Whether a locked node is researchable is left to the
 client, from these edges and each parent&#39;s <a class="code-ref" href="#schema-CareerTechNode"><code>CareerTechNode.unlocked</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">parts</td>
+<td class="type"><a class="type-ref" href="#schema-CareerTechPart">CareerTechPart</a>[]</td>
+<td class="unit"></td>
+<td><p>The parts researching the node unlocks, in the order the game loads them.
+Empty for a node that unlocks no part.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+</article>
+<article class="card" id="schema-CareerTechPart">
+<header><h3><code>CareerTechPart</code></h3></header>
+<p class="type-line"><span class="type">object</span></p>
+<div class="description"><p>One part in <a class="code-ref" href="#schema-CareerTechNode"><code>CareerTechNode.parts</code></a>.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">6 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">name <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The part&#39;s internal name, KSP&#39;s <code>AvailablePart.name</code>.</p>
+</td>
+</tr><tr>
+<td class="field">title <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The part&#39;s display title.</p>
+</td>
+</tr><tr>
+<td class="field">manufacturer <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The part&#39;s manufacturer, as the part&#39;s config names it.</p>
+</td>
+</tr><tr>
+<td class="field">category <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The part&#39;s category (e.g. <code>&quot;Propulsion&quot;</code>, <code>&quot;Pods&quot;</code>).</p>
+</td>
+</tr><tr>
+<td class="field">entryCost <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">funds</td>
+<td><p>The funds it costs to purchase the part once its node is researched.</p>
+</td>
+</tr><tr>
+<td class="field">purchased <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether the save has purchased the part, which is what makes it placeable
+once its node is researched.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -18112,15 +18634,18 @@ from <code>KerbalEVA.HelmetUnsafeReason</code>, or <code>null</code> when it can
 <article class="card" id="schema-ExperimentActionArgs">
 <header><h3><code>ExperimentActionArgs</code></h3></header>
 <p class="type-line"><span class="type">object</span></p>
-<div class="description"><p>Deploy or transmit a science experiment on a part. Args shared by every
-science-experiment actuation command (<a class="code-ref" href="#channel-science.experiment.deploy"><code>science.experiment.deploy</code></a> and
-<a class="code-ref" href="#channel-science.experiment.transmit"><code>science.experiment.transmit</code></a>): the experiment is named by
-<a class="code-ref" href="#schema-ExperimentActionArgs"><code>ExperimentActionArgs.partId</code></a>, the part&#39;s flight id as a string, the same id
-<a class="code-ref" href="#channel-science.instruments"><code>science.instruments</code></a> carries on each experiment entry. It is looked up
-among the active vessel&#39;s parts, never by array index. An empty or unknown
-<a class="code-ref" href="#schema-ExperimentActionArgs"><code>ExperimentActionArgs.partId</code></a> fails with <a class="code-ref" href="#schema-CommandErrorCode"><code>&quot;notFound&quot;</code></a>.</p>
+<div class="description"><p>Act on a science experiment or lab on a part. Args shared by every science
+actuation command (<a class="code-ref" href="#channel-science.experiment.deploy"><code>science.experiment.deploy</code></a>,
+<a class="code-ref" href="#channel-science.experiment.transmit"><code>science.experiment.transmit</code></a>, <a class="code-ref" href="#channel-science.experiment.start"><code>science.experiment.start</code></a>,
+<a class="code-ref" href="#channel-science.experiment.stop"><code>science.experiment.stop</code></a>, <a class="code-ref" href="#channel-science.lab.start"><code>science.lab.start</code></a> and <a class="code-ref" href="#channel-science.lab.stop"><code>science.lab.stop</code></a>): the
+part is named by <a class="code-ref" href="#schema-ExperimentActionArgs"><code>ExperimentActionArgs.partId</code></a>, the part&#39;s flight id as a
+string, the same id <a class="code-ref" href="#channel-science.instruments"><code>science.instruments</code></a> carries on each experiment entry.
+It is looked up among the active vessel&#39;s parts, never by array index. An
+empty or unknown <a class="code-ref" href="#schema-ExperimentActionArgs"><code>ExperimentActionArgs.partId</code></a> fails with
+<a class="code-ref" href="#schema-CommandErrorCode"><code>&quot;notFound&quot;</code></a>. The lab commands act on the lab on the part and
+ignore <a class="code-ref" href="#schema-ExperimentActionArgs"><code>ExperimentActionArgs.experimentId</code></a>.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">1 field</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">2 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -18130,6 +18655,19 @@ among the active vessel&#39;s parts, never by array index. An empty or unknown
 <td><p>The experiment&#39;s part, as its flight id in a string: the same id
 <a class="code-ref" href="#channel-science.instruments"><code>science.instruments</code></a> keys its entries by. Resolved against the active
 vessel&#39;s parts; empty or unknown yields <a class="code-ref" href="#schema-CommandErrorCode"><code>&quot;notFound&quot;</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">experimentId <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>Which experiment on the part is meant, as the <code>experimentId</code> of its
+<a class="code-ref" href="#channel-science.instruments"><code>science.instruments</code></a> entry. Optional: an empty value means the part&#39;s only
+candidate. A part can carry several experiments, so
+<a class="code-ref" href="#channel-science.experiment.start"><code>science.experiment.start</code></a> and <a class="code-ref" href="#channel-science.experiment.stop"><code>science.experiment.stop</code></a> are refused with
+<a class="code-ref" href="#schema-CommandErrorCode"><code>&quot;notFound&quot;</code></a> when this is empty and the part holds more than
+one continuous experiment. Deploy and transmit take the first eligible
+experiment when it is empty. An id the part does not carry fails with
+<a class="code-ref" href="#schema-CommandErrorCode"><code>&quot;notFound&quot;</code></a>.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -19633,15 +20171,12 @@ can advance a coast and cannot advance osculating elements.</p>
 <article class="card" id="schema-PartBounds">
 <header><h3><code>PartBounds</code></h3></header>
 <p class="type-line"><span class="type">object</span></p>
-<div class="description"><p>A <a class="code-ref" href="#schema-VesselPart"><code>VesselPart</code></a>&#39;s local bounding box: <a class="code-ref" href="#schema-PartBounds"><code>PartBounds.size</code></a> is the part&#39;s
-<code>prefabSize</code> (a per-part-type constant approximating its rendered bounds),
-<a class="code-ref" href="#schema-PartBounds"><code>PartBounds.center</code></a> the mesh-centre offset from the part&#39;s own origin
-(<code>Part.boundsCentroidOffset</code>). A fuel-line part reports bounds wrapping the
-whole conduit, as KSP does.</p>
-<p>Both are in the part&#39;s own frame (<code>part-local</code>), never the vessel&#39;s: they
-are authored fields of the part&#39;s config node, so one value has to serve
-every instance of that part however it was assembled. A consumer placing the
-box on a ship rotates both by that part&#39;s <code>orgRot</code> before adding
+<div class="description"><p>A <a class="code-ref" href="#schema-VesselPart"><code>VesselPart</code></a>&#39;s box: the union of the bounds of every mesh in the part&#39;s
+own model, whatever its deploy or animation state, so an engine&#39;s hidden
+shroud still counts. Parts attached to this one are not included.</p>
+<p>Its size and centre are in the part&#39;s own frame (<code>part-local</code>), never the
+vessel&#39;s. A consumer placing the box on a ship rotates both by the part&#39;s
+rotation (<a class="code-ref" href="#schema-VesselPart"><code>VesselPart.up</code></a> and <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.forward</code></a>) before adding
 <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.position</code></a>, which is <code>vessel-local</code>.</p>
 </div>
 <details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">2 fields</span></summary>
@@ -19651,7 +20186,8 @@ box on a ship rotates both by that part&#39;s <code>orgRot</code> before adding
 <td class="field">size</td>
 <td class="type">object</td>
 <td class="unit"></td>
-<td><p><code>Part.prefabSize</code>: the part&#39;s untransformed bounding-box extents (metres).</p>
+<td><p>The box&#39;s extent along the part&#39;s own axes (metres). Zero when the part&#39;s
+model has no mesh.</p>
 <details><summary>Fields</summary><div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -19674,13 +20210,9 @@ box on a ship rotates both by that part&#39;s <code>orgRot</code> before adding
 <td class="field">center <span class="optional">optional</span></td>
 <td class="type">object | null</td>
 <td class="unit"></td>
-<td><p><code>Part.boundsCentroidOffset</code>: mesh-centre offset from the part&#39;s own origin
-(metres, part-local); <code>null</code> when absent.</p>
-<p>Part-local, not vessel-local: an authored per-part-type constant like
-<a class="code-ref" href="#schema-PartBounds"><code>PartBounds.size</code></a> beside it, so one value serves every instance of the part
-at whatever attitude it was assembled at. <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.position</code></a> is
-<code>vessel-local</code>, so adding the two raw mixes frames and lands the box
-somewhere the part is not; rotate this one by the part&#39;s <code>orgRot</code> first.</p>
+<td><p>The box&#39;s centre as an offset from the part&#39;s own origin (metres,
+part-local); <code>null</code> when the part&#39;s model has no mesh. Turn it by the part&#39;s
+rotation before adding it to <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.position</code></a>.</p>
 <details><summary>Fields</summary><div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -20357,6 +20889,36 @@ level simply has no tier here yet.</td>
 <td class="field">1</td>
 <td class="field">Seen</td>
 <td>The centre saw the vessel there, with nothing between them.</td>
+</tr></tbody></table></div>
+</details>
+</article>
+<article class="card" id="schema-RunStateChange">
+<header><h3><code>RunStateChange</code></h3></header>
+<p class="type-line"><span class="type">object</span></p>
+<div class="description"><p>What <a class="code-ref" href="#channel-science.experiment.start"><code>science.experiment.start</code></a>, <a class="code-ref" href="#channel-science.experiment.stop"><code>science.experiment.stop</code></a>,
+<a class="code-ref" href="#channel-science.lab.start"><code>science.lab.start</code></a> and <a class="code-ref" href="#channel-science.lab.stop"><code>science.lab.stop</code></a> answer with: whether the press
+changed anything. Start and stop are idempotent, so a press on something
+already in the requested state succeeds with <a class="code-ref" href="#schema-RunStateChange"><code>RunStateChange.changed</code></a> false
+rather than refusing, and a command that reaches the craft after the state
+changed on its own tells the operator so instead of reporting a start that
+did nothing.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">2 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">changed</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether the command switched the instrument or lab. False when it was
+already in the requested state (&quot;already running&quot;, &quot;already stopped&quot;).</p>
+</td>
+</tr><tr>
+<td class="field">running</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether the instrument or lab is switched on after the command.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 </article>
@@ -21660,16 +22222,16 @@ command.</p>
 <div class="description"><p>One part in the <a class="code-ref" href="#schema-VesselParts"><code>VesselParts.parts</code></a> tree. <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.id</code></a>,
 <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.name</code></a>, <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.position</code></a>, <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.dryMass</code></a>,
 <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.inverseStage</code></a> and <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.maxTemp</code></a> are always present;
-<a class="code-ref" href="#schema-VesselPart"><code>VesselPart.parentId</code></a> (null for the root), <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.up</code></a>, the current and
-skin temperatures (unset before physics runs) and
-<a class="code-ref" href="#schema-VesselPart"><code>VesselPart.fuelLineTargetId</code></a> are nullable.</p>
+<a class="code-ref" href="#schema-VesselPart"><code>VesselPart.parentId</code></a> (null for the root), <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.up</code></a>,
+<a class="code-ref" href="#schema-VesselPart"><code>VesselPart.forward</code></a>, the current and skin temperatures (unset before
+physics runs) and <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.fuelLineTargetId</code></a> are nullable.</p>
 <p><strong>Join key.</strong> <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.id</code></a> is <code>Part.flightID</code> as a string, the same form
 the <code>partId</code> of <a class="code-ref" href="#channel-parts.power"><code>parts.power</code></a> and <code>parts.robotics</code> uses, so a part can be
 joined across those channels. <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.parentId</code></a> and
 <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.fuelLineTargetId</code></a> use the same form. Whether a flightID survives
 docking and undocking is up to KSP.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">22 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">23 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -21729,6 +22291,32 @@ frame).</p>
 <td class="unit"></td>
 <td><p>The part&#39;s local up axis (<code>Part.orgRot * Vector3.up</code>), for orienting flow or
 thrust glyphs, as a unit vector in the vessel&#39;s frame. <code>null</code> when absent.</p>
+<details><summary>Fields</summary><div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">x</td>
+<td class="type">number</td>
+<td class="unit">1</td>
+<td></td>
+</tr><tr>
+<td class="field">y</td>
+<td class="type">number</td>
+<td class="unit">1</td>
+<td></td>
+</tr><tr>
+<td class="field">z</td>
+<td class="type">number</td>
+<td class="unit">1</td>
+<td></td>
+</tr></tbody></table></div></details></td>
+</tr><tr>
+<td class="field">forward <span class="optional">optional</span></td>
+<td class="type">object | null</td>
+<td class="unit"></td>
+<td><p>The part&#39;s local forward axis (<code>Part.orgRot * Vector3.forward</code>) as a unit
+vector in the vessel&#39;s frame. With <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.up</code></a> it fixes the part&#39;s whole
+rotation, including the turn about its up axis that sets which way a fin or
+a radial part faces. <code>null</code> when absent.</p>
 <details><summary>Fields</summary><div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -22010,7 +22598,7 @@ neither matches.</p>
 <optgroup label="robotics: telemetry"><option value="channel:robotics.available">robotics.available</option><option value="channel:robotics.servos">robotics.servos</option></optgroup>
 <optgroup label="robotics: commands"><option value="channel:robotics.rotor.reverse">robotics.rotor.reverse</option><option value="channel:robotics.rotor.setBrake">robotics.rotor.setBrake</option><option value="channel:robotics.rotor.setLock">robotics.rotor.setLock</option><option value="channel:robotics.rotor.setMotor">robotics.rotor.setMotor</option><option value="channel:robotics.rotor.setRpmLimit">robotics.rotor.setRpmLimit</option><option value="channel:robotics.rotor.setTorqueLimit">robotics.rotor.setTorqueLimit</option><option value="channel:robotics.servo.setAngle">robotics.servo.setAngle</option><option value="channel:robotics.servo.setExtension">robotics.servo.setExtension</option><option value="channel:robotics.servo.setLock">robotics.servo.setLock</option><option value="channel:robotics.servo.setMotor">robotics.servo.setMotor</option></optgroup>
 <optgroup label="science: telemetry"><option value="channel:science.archive">science.archive</option><option value="channel:science.experimentBreakdown">science.experimentBreakdown</option><option value="channel:science.experiments">science.experiments</option><option value="channel:science.instruments">science.instruments</option><option value="channel:science.lab">science.lab</option><option value="channel:science.sensors">science.sensors</option></optgroup>
-<optgroup label="science: commands"><option value="channel:science.experiment.deploy">science.experiment.deploy</option><option value="channel:science.experiment.transmit">science.experiment.transmit</option></optgroup>
+<optgroup label="science: commands"><option value="channel:science.experiment.deploy">science.experiment.deploy</option><option value="channel:science.experiment.start">science.experiment.start</option><option value="channel:science.experiment.stop">science.experiment.stop</option><option value="channel:science.experiment.transmit">science.experiment.transmit</option><option value="channel:science.lab.start">science.lab.start</option><option value="channel:science.lab.stop">science.lab.stop</option></optgroup>
 <optgroup label="settings: telemetry"><option value="channel:settings.gonogo">settings.gonogo</option></optgroup>
 <optgroup label="settings: commands"><option value="channel:settings.mod.write">settings.mod.write</option><option value="channel:settings.save">settings.save</option></optgroup>
 <optgroup label="spaceCenter: telemetry"><option value="channel:spaceCenter.astronautComplex">spaceCenter.astronautComplex</option><option value="channel:spaceCenter.crewRoster">spaceCenter.crewRoster</option><option value="channel:spaceCenter.launchSites">spaceCenter.launchSites</option><option value="channel:spaceCenter.partsAvailable">spaceCenter.partsAvailable</option><option value="channel:spaceCenter.pois">spaceCenter.pois</option><option value="channel:spaceCenter.savedShips">spaceCenter.savedShips</option><option value="channel:spaceCenter.scene">spaceCenter.scene</option></optgroup>
@@ -22048,7 +22636,7 @@ neither matches.</p>
 <ol id="log" aria-label="Frames sent and received"><li id="log-empty" class="log-note">Frames sent and received appear here.</li></ol>
 </aside>
 </div>
-<script type="application/json" id="operations">[{"id":"frame:command-request","group":"Connection frames","label":"command-request","frame":{"type":"command-request","requestId":"","command":"time.setPaused","label":"time.setPaused","topic":"","args":{"paused":"\u003cpaused: true or false>"},"sentAt":0}},{"id":"frame:subscribe","group":"Connection frames","label":"subscribe","frame":{"type":"subscribe","topic":"vessel.flight"}},{"id":"frame:unsubscribe","group":"Connection frames","label":"unsubscribe","frame":{"type":"unsubscribe","topic":""}},{"id":"frame:set-vantage","group":"Connection frames","label":"set-vantage","frame":{"type":"set-vantage","centreId":""}},{"id":"frame:claim","group":"Connection frames","label":"claim","frame":{"type":"claim","requestIds":[]}},{"id":"frame:ping","group":"Connection frames","label":"ping","frame":{"type":"ping","nonce":""}},{"id":"frame:command-group","group":"Connection frames","label":"command-group","frame":{"type":"command-group","groupId":"","members":[]}},{"id":"channel:alarm.activeList","group":"alarm: telemetry","label":"alarm.activeList","frame":{"type":"subscribe","topic":"alarm.activeList"}},{"id":"channel:alarm.scet.fired","group":"alarm: telemetry","label":"alarm.scet.fired","frame":{"type":"subscribe","topic":"alarm.scet.fired"}},{"id":"channel:alarm.scet.topics","group":"alarm: telemetry","label":"alarm.scet.topics","frame":{"type":"subscribe","topic":"alarm.scet.topics"}},{"id":"channel:alarm.scet.arm","group":"alarm: commands","label":"alarm.scet.arm","frame":{"type":"command-request","requestId":"","command":"alarm.scet.arm","label":"alarm.scet.arm","topic":"","args":{"id":"\u003cid>","name":"\u003cname>","vantage":"\u003cvantage>","subject":"\u003csubject>","condition":{"kind":"\u003ckind: 0 Time, 1 Threshold, 2 ContractParameter, 3 TopicInstant>","ut":"\u003cut: number ut>","leadSeconds":"\u003cleadSeconds: number s>","topic":"\u003ctopic>","fieldPath":"\u003cfieldPath>","op":"\u003cop: 0 GreaterThan, 1 GreaterThanOrEqual, 2 LessThan, 3 LessThanOrEqual, 4 Equal, 5 NotEqual>","threshold":"\u003cthreshold: number>","sustainSeconds":"\u003csustainSeconds: number s>","contractId":"\u003ccontractId>","parameterTitle":"\u003cparameterTitle>","targetState":"\u003ctargetState: 0 Incomplete, 1 Complete, 2 Failed>"},"onFire":[],"actsOn":"\u003cactsOn>"},"sentAt":0}},{"id":"channel:alarm.scet.disarm","group":"alarm: commands","label":"alarm.scet.disarm","frame":{"type":"command-request","requestId":"","command":"alarm.scet.disarm","label":"alarm.scet.disarm","topic":"","args":{"id":"\u003cid>"},"sentAt":0}},{"id":"channel:career.facilities","group":"career: telemetry","label":"career.facilities","frame":{"type":"subscribe","topic":"career.facilities"}},{"id":"channel:career.mode","group":"career: telemetry","label":"career.mode","frame":{"type":"subscribe","topic":"career.mode"}},{"id":"channel:career.status","group":"career: telemetry","label":"career.status","frame":{"type":"subscribe","topic":"career.status"}},{"id":"channel:career.contract.accept","group":"career: commands","label":"career.contract.accept","frame":{"type":"command-request","requestId":"","command":"career.contract.accept","label":"career.contract.accept","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.contract.cancel","group":"career: commands","label":"career.contract.cancel","frame":{"type":"command-request","requestId":"","command":"career.contract.cancel","label":"career.contract.cancel","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.contract.decline","group":"career: commands","label":"career.contract.decline","frame":{"type":"command-request","requestId":"","command":"career.contract.decline","label":"career.contract.decline","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.crew.fire","group":"career: commands","label":"career.crew.fire","frame":{"type":"command-request","requestId":"","command":"career.crew.fire","label":"career.crew.fire","topic":"","args":{"kerbalName":"\u003ckerbalName>"},"sentAt":0}},{"id":"channel:career.crew.hire","group":"career: commands","label":"career.crew.hire","frame":{"type":"command-request","requestId":"","command":"career.crew.hire","label":"career.crew.hire","topic":"","args":{"applicantName":"\u003capplicantName>"},"sentAt":0}},{"id":"channel:career.facility.upgrade","group":"career: commands","label":"career.facility.upgrade","frame":{"type":"command-request","requestId":"","command":"career.facility.upgrade","label":"career.facility.upgrade","topic":"","args":{"facilityId":"\u003cfacilityId>"},"sentAt":0}},{"id":"channel:career.strategy.activate","group":"career: commands","label":"career.strategy.activate","frame":{"type":"command-request","requestId":"","command":"career.strategy.activate","label":"career.strategy.activate","topic":"","args":{"strategyId":"\u003cstrategyId>","factor":"\u003cfactor: number ratio>"},"sentAt":0}},{"id":"channel:career.strategy.deactivate","group":"career: commands","label":"career.strategy.deactivate","frame":{"type":"command-request","requestId":"","command":"career.strategy.deactivate","label":"career.strategy.deactivate","topic":"","args":{"strategyId":"\u003cstrategyId>"},"sentAt":0}},{"id":"channel:career.tech.unlock","group":"career: commands","label":"career.tech.unlock","frame":{"type":"command-request","requestId":"","command":"career.tech.unlock","label":"career.tech.unlock","topic":"","args":{"techId":"\u003ctechId>"},"sentAt":0}},{"id":"channel:commandCentre.activeVesselDelay","group":"commandCentre: telemetry","label":"commandCentre.activeVesselDelay","frame":{"type":"subscribe","topic":"commandCentre.activeVesselDelay"}},{"id":"channel:commandCentre.roster","group":"commandCentre: telemetry","label":"commandCentre.roster","frame":{"type":"subscribe","topic":"commandCentre.roster"}},{"id":"channel:commandCentre.separation","group":"commandCentre: telemetry","label":"commandCentre.separation","frame":{"type":"subscribe","topic":"commandCentre.separation"}},{"id":"channel:commandCentre.unreachable","group":"commandCentre: telemetry","label":"commandCentre.unreachable","frame":{"type":"subscribe","topic":"commandCentre.unreachable"}},{"id":"channel:commcast.traffic","group":"commcast: telemetry","label":"commcast.traffic","frame":{"type":"subscribe","topic":"commcast.traffic"}},{"id":"channel:commcast.transmissions","group":"commcast: telemetry","label":"commcast.transmissions","frame":{"type":"subscribe","topic":"commcast.transmissions"}},{"id":"channel:commcast.group.add","group":"commcast: commands","label":"commcast.group.add","frame":{"type":"command-request","requestId":"","command":"commcast.group.add","label":"commcast.group.add","topic":"","args":{"groupId":"\u003cgroupId>","added":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.group.open","group":"commcast: commands","label":"commcast.group.open","frame":{"type":"command-request","requestId":"","command":"commcast.group.open","label":"commcast.group.open","topic":"","args":{"groupId":"\u003cgroupId>","members":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.message.ack","group":"commcast: commands","label":"commcast.message.ack","frame":{"type":"command-request","requestId":"","command":"commcast.message.ack","label":"commcast.message.ack","topic":"","args":{"messageId":"\u003cmessageId>","author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.message.send","group":"commcast: commands","label":"commcast.message.send","frame":{"type":"command-request","requestId":"","command":"commcast.message.send","label":"commcast.message.send","topic":"","args":{"id":"\u003cid>","groupId":"\u003cgroupId>","body":"\u003cbody>","to":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.radio.transmit","group":"commcast: commands","label":"commcast.radio.transmit","frame":{"type":"command-request","requestId":"","command":"commcast.radio.transmit","label":"commcast.radio.transmit","topic":"","args":{"transmissionId":"\u003ctransmissionId>","groupId":"\u003cgroupId>","seq":"\u003cseq: number count>","chunks":[],"end":"\u003cend: true or false>","author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:comms.commandCentre","group":"comms: telemetry","label":"comms.commandCentre","frame":{"type":"subscribe","topic":"comms.commandCentre"}},{"id":"channel:comms.connectivity","group":"comms: telemetry","label":"comms.connectivity","frame":{"type":"subscribe","topic":"comms.connectivity"}},{"id":"channel:comms.contacts","group":"comms: telemetry","label":"comms.contacts","frame":{"type":"subscribe","topic":"comms.contacts"}},{"id":"channel:comms.control","group":"comms: telemetry","label":"comms.control","frame":{"type":"subscribe","topic":"comms.control"}},{"id":"channel:comms.degrade","group":"comms: telemetry","label":"comms.degrade","frame":{"type":"subscribe","topic":"comms.degrade"}},{"id":"channel:comms.delay","group":"comms: telemetry","label":"comms.delay","frame":{"type":"subscribe","topic":"comms.delay"}},{"id":"channel:comms.journey","group":"comms: telemetry","label":"comms.journey","frame":{"type":"subscribe","topic":"comms.journey"}},{"id":"channel:comms.link","group":"comms: telemetry","label":"comms.link","frame":{"type":"subscribe","topic":"comms.link"}},{"id":"channel:comms.network","group":"comms: telemetry","label":"comms.network","frame":{"type":"subscribe","topic":"comms.network"}},{"id":"channel:comms.nextLoss","group":"comms: telemetry","label":"comms.nextLoss","frame":{"type":"subscribe","topic":"comms.nextLoss"}},{"id":"channel:comms.occlusion","group":"comms: telemetry","label":"comms.occlusion","frame":{"type":"subscribe","topic":"comms.occlusion"}},{"id":"channel:comms.path","group":"comms: telemetry","label":"comms.path","frame":{"type":"subscribe","topic":"comms.path"}},{"id":"channel:comms.route","group":"comms: telemetry","label":"comms.route","frame":{"type":"subscribe","topic":"comms.route"}},{"id":"channel:comms.signal","group":"comms: telemetry","label":"comms.signal","frame":{"type":"subscribe","topic":"comms.signal"}},{"id":"channel:crash.hasRecent","group":"crash: telemetry","label":"crash.hasRecent","frame":{"type":"subscribe","topic":"crash.hasRecent"}},{"id":"channel:crash.lastCrash","group":"crash: telemetry","label":"crash.lastCrash","frame":{"type":"subscribe","topic":"crash.lastCrash"}},{"id":"channel:deployed.bases","group":"deployed: telemetry","label":"deployed.bases","frame":{"type":"subscribe","topic":"deployed.bases"}},{"id":"channel:dv.stages","group":"dv: telemetry","label":"dv.stages","frame":{"type":"subscribe","topic":"dv.stages"}},{"id":"channel:dv.summary","group":"dv: telemetry","label":"dv.summary","frame":{"type":"subscribe","topic":"dv.summary"}},{"id":"channel:eva.crew","group":"eva: telemetry","label":"eva.crew","frame":{"type":"subscribe","topic":"eva.crew"}},{"id":"channel:flight.current","group":"flight: telemetry","label":"flight.current","frame":{"type":"subscribe","topic":"flight.current"}},{"id":"channel:flight.ended","group":"flight: telemetry","label":"flight.ended","frame":{"type":"subscribe","topic":"flight.ended"}},{"id":"channel:flight.started","group":"flight: telemetry","label":"flight.started","frame":{"type":"subscribe","topic":"flight.started"}},{"id":"channel:flight.vesselChanged","group":"flight: telemetry","label":"flight.vesselChanged","frame":{"type":"subscribe","topic":"flight.vesselChanged"}},{"id":"channel:game.dlc","group":"game: telemetry","label":"game.dlc","frame":{"type":"subscribe","topic":"game.dlc"}},{"id":"channel:isru.converters","group":"isru: telemetry","label":"isru.converters","frame":{"type":"subscribe","topic":"isru.converters"}},{"id":"channel:isru.drills","group":"isru: telemetry","label":"isru.drills","frame":{"type":"subscribe","topic":"isru.drills"}},{"id":"channel:ksp.revertAvailability","group":"ksp: telemetry","label":"ksp.revertAvailability","frame":{"type":"subscribe","topic":"ksp.revertAvailability"}},{"id":"channel:ksp.launch","group":"ksp: commands","label":"ksp.launch","frame":{"type":"command-request","requestId":"","command":"ksp.launch","label":"ksp.launch","topic":"","args":{"shipName":"\u003cshipName>","facility":"\u003cfacility>","site":"\u003csite>","crew":[]},"sentAt":0}},{"id":"channel:ksp.recover","group":"ksp: commands","label":"ksp.recover","frame":{"type":"command-request","requestId":"","command":"ksp.recover","label":"ksp.recover","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.revertToEditor","group":"ksp: commands","label":"ksp.revertToEditor","frame":{"type":"command-request","requestId":"","command":"ksp.revertToEditor","label":"ksp.revertToEditor","topic":"","args":{"editor":"\u003ceditor>"},"sentAt":0}},{"id":"channel:ksp.revertToLaunch","group":"ksp: commands","label":"ksp.revertToLaunch","frame":{"type":"command-request","requestId":"","command":"ksp.revertToLaunch","label":"ksp.revertToLaunch","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.switchVessel","group":"ksp: commands","label":"ksp.switchVessel","frame":{"type":"command-request","requestId":"","command":"ksp.switchVessel","label":"ksp.switchVessel","topic":"","args":{"vesselId":"\u003cvesselId>"},"sentAt":0}},{"id":"channel:ksp.toSpaceCenter","group":"ksp: commands","label":"ksp.toSpaceCenter","frame":{"type":"command-request","requestId":"","command":"ksp.toSpaceCenter","label":"ksp.toSpaceCenter","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.toTrackingStation","group":"ksp: commands","label":"ksp.toTrackingStation","frame":{"type":"command-request","requestId":"","command":"ksp.toTrackingStation","label":"ksp.toTrackingStation","topic":"","args":{},"sentAt":0}},{"id":"channel:missions.active","group":"missions: telemetry","label":"missions.active","frame":{"type":"subscribe","topic":"missions.active"}},{"id":"channel:parts.power","group":"parts: telemetry","label":"parts.power","frame":{"type":"subscribe","topic":"parts.power"}},{"id":"channel:recovery.hasRecent","group":"recovery: telemetry","label":"recovery.hasRecent","frame":{"type":"subscribe","topic":"recovery.hasRecent"}},{"id":"channel:recovery.lastSummary","group":"recovery: telemetry","label":"recovery.lastSummary","frame":{"type":"subscribe","topic":"recovery.lastSummary"}},{"id":"channel:robotics.available","group":"robotics: telemetry","label":"robotics.available","frame":{"type":"subscribe","topic":"robotics.available"}},{"id":"channel:robotics.servos","group":"robotics: telemetry","label":"robotics.servos","frame":{"type":"subscribe","topic":"robotics.servos"}},{"id":"channel:robotics.rotor.reverse","group":"robotics: commands","label":"robotics.rotor.reverse","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.reverse","label":"robotics.rotor.reverse","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:robotics.rotor.setBrake","group":"robotics: commands","label":"robotics.rotor.setBrake","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setBrake","label":"robotics.rotor.setBrake","topic":"","args":{"partId":"\u003cpartId>","percent":"\u003cpercent: number %>"},"sentAt":0}},{"id":"channel:robotics.rotor.setLock","group":"robotics: commands","label":"robotics.rotor.setLock","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setLock","label":"robotics.rotor.setLock","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.rotor.setMotor","group":"robotics: commands","label":"robotics.rotor.setMotor","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setMotor","label":"robotics.rotor.setMotor","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.rotor.setRpmLimit","group":"robotics: commands","label":"robotics.rotor.setRpmLimit","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setRpmLimit","label":"robotics.rotor.setRpmLimit","topic":"","args":{"partId":"\u003cpartId>","rpm":"\u003crpm: number rpm>"},"sentAt":0}},{"id":"channel:robotics.rotor.setTorqueLimit","group":"robotics: commands","label":"robotics.rotor.setTorqueLimit","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setTorqueLimit","label":"robotics.rotor.setTorqueLimit","topic":"","args":{"partId":"\u003cpartId>","percent":"\u003cpercent: number %>"},"sentAt":0}},{"id":"channel:robotics.servo.setAngle","group":"robotics: commands","label":"robotics.servo.setAngle","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setAngle","label":"robotics.servo.setAngle","topic":"","args":{"partId":"\u003cpartId>","degrees":"\u003cdegrees: number °>"},"sentAt":0}},{"id":"channel:robotics.servo.setExtension","group":"robotics: commands","label":"robotics.servo.setExtension","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setExtension","label":"robotics.servo.setExtension","topic":"","args":{"partId":"\u003cpartId>","metres":"\u003cmetres: number m>"},"sentAt":0}},{"id":"channel:robotics.servo.setLock","group":"robotics: commands","label":"robotics.servo.setLock","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setLock","label":"robotics.servo.setLock","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.servo.setMotor","group":"robotics: commands","label":"robotics.servo.setMotor","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setMotor","label":"robotics.servo.setMotor","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:science.archive","group":"science: telemetry","label":"science.archive","frame":{"type":"subscribe","topic":"science.archive"}},{"id":"channel:science.experimentBreakdown","group":"science: telemetry","label":"science.experimentBreakdown","frame":{"type":"subscribe","topic":"science.experimentBreakdown"}},{"id":"channel:science.experiments","group":"science: telemetry","label":"science.experiments","frame":{"type":"subscribe","topic":"science.experiments"}},{"id":"channel:science.instruments","group":"science: telemetry","label":"science.instruments","frame":{"type":"subscribe","topic":"science.instruments"}},{"id":"channel:science.lab","group":"science: telemetry","label":"science.lab","frame":{"type":"subscribe","topic":"science.lab"}},{"id":"channel:science.sensors","group":"science: telemetry","label":"science.sensors","frame":{"type":"subscribe","topic":"science.sensors"}},{"id":"channel:science.experiment.deploy","group":"science: commands","label":"science.experiment.deploy","frame":{"type":"command-request","requestId":"","command":"science.experiment.deploy","label":"science.experiment.deploy","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.transmit","group":"science: commands","label":"science.experiment.transmit","frame":{"type":"command-request","requestId":"","command":"science.experiment.transmit","label":"science.experiment.transmit","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:settings.gonogo","group":"settings: telemetry","label":"settings.gonogo","frame":{"type":"subscribe","topic":"settings.gonogo"}},{"id":"channel:settings.mod.write","group":"settings: commands","label":"settings.mod.write","frame":{"type":"command-request","requestId":"","command":"settings.mod.write","label":"settings.mod.write","topic":"","args":{"uplink":"\u003cuplink>","id":"\u003cid>","value":"\u003cvalue>"},"sentAt":0}},{"id":"channel:settings.save","group":"settings: commands","label":"settings.save","frame":{"type":"command-request","requestId":"","command":"settings.save","label":"settings.save","topic":"","args":{"changes":[]},"sentAt":0}},{"id":"channel:spaceCenter.astronautComplex","group":"spaceCenter: telemetry","label":"spaceCenter.astronautComplex","frame":{"type":"subscribe","topic":"spaceCenter.astronautComplex"}},{"id":"channel:spaceCenter.crewRoster","group":"spaceCenter: telemetry","label":"spaceCenter.crewRoster","frame":{"type":"subscribe","topic":"spaceCenter.crewRoster"}},{"id":"channel:spaceCenter.launchSites","group":"spaceCenter: telemetry","label":"spaceCenter.launchSites","frame":{"type":"subscribe","topic":"spaceCenter.launchSites"}},{"id":"channel:spaceCenter.partsAvailable","group":"spaceCenter: telemetry","label":"spaceCenter.partsAvailable","frame":{"type":"subscribe","topic":"spaceCenter.partsAvailable"}},{"id":"channel:spaceCenter.pois","group":"spaceCenter: telemetry","label":"spaceCenter.pois","frame":{"type":"subscribe","topic":"spaceCenter.pois"}},{"id":"channel:spaceCenter.savedShips","group":"spaceCenter: telemetry","label":"spaceCenter.savedShips","frame":{"type":"subscribe","topic":"spaceCenter.savedShips"}},{"id":"channel:spaceCenter.scene","group":"spaceCenter: telemetry","label":"spaceCenter.scene","frame":{"type":"subscribe","topic":"spaceCenter.scene"}},{"id":"channel:system.frame","group":"system: telemetry","label":"system.frame","frame":{"type":"subscribe","topic":"system.frame"}},{"id":"channel:system.frame.set","group":"system: commands","label":"system.frame.set","frame":{"type":"command-request","requestId":"","command":"system.frame.set","label":"system.frame.set","topic":"","args":{"kind":"\u003ckind: 0 Unspecified, 1 BodyCentredInertial, 2 BodyCentredBodyDirection, 3 BarycentricRotating, 4 RotatingPulsating, 5 BodySurface>"},"sentAt":0}},{"id":"channel:system.gate.check","group":"system: commands","label":"system.gate.check","frame":{"type":"command-request","requestId":"","command":"system.gate.check","label":"system.gate.check","topic":"","args":{"command":"\u003ccommand>","args":{}},"sentAt":0}},{"id":"channel:system.log.recent","group":"system: commands","label":"system.log.recent","frame":{"type":"command-request","requestId":"","command":"system.log.recent","label":"system.log.recent","topic":"","args":{"maxLines":"\u003cmaxLines: number count>"},"sentAt":0}},{"id":"channel:system.uplink.cancel","group":"system: commands","label":"system.uplink.cancel","frame":{"type":"command-request","requestId":"","command":"system.uplink.cancel","label":"system.uplink.cancel","topic":"","args":{"epoch":"\u003cepoch: number count>","craft":"\u003ccraft>","laneSeq":"\u003claneSeq: number count>","andBehind":"\u003candBehind: true or false>"},"sentAt":0}},{"id":"channel:system.uplink.resend","group":"system: commands","label":"system.uplink.resend","frame":{"type":"command-request","requestId":"","command":"system.uplink.resend","label":"system.uplink.resend","topic":"","args":{"epoch":"\u003cepoch: number count>","craft":"\u003ccraft>","laneSeq":"\u003claneSeq: number count>"},"sentAt":0}},{"id":"channel:target.available","group":"target: telemetry","label":"target.available","frame":{"type":"subscribe","topic":"target.available"}},{"id":"channel:time.calendar","group":"time: telemetry","label":"time.calendar","frame":{"type":"subscribe","topic":"time.calendar"}},{"id":"channel:time.warp","group":"time: telemetry","label":"time.warp","frame":{"type":"subscribe","topic":"time.warp"}},{"id":"channel:time.setPaused","group":"time: commands","label":"time.setPaused","frame":{"type":"command-request","requestId":"","command":"time.setPaused","label":"time.setPaused","topic":"","args":{"paused":"\u003cpaused: true or false>"},"sentAt":0}},{"id":"channel:time.setWarpIndex","group":"time: commands","label":"time.setWarpIndex","frame":{"type":"command-request","requestId":"","command":"time.setWarpIndex","label":"time.setWarpIndex","topic":"","args":{"index":"\u003cindex: number>"},"sentAt":0}},{"id":"channel:trackingStation.bodies","group":"trackingStation: telemetry","label":"trackingStation.bodies","frame":{"type":"subscribe","topic":"trackingStation.bodies"}},{"id":"channel:trackingStation.catalog","group":"trackingStation: telemetry","label":"trackingStation.catalog","frame":{"type":"subscribe","topic":"trackingStation.catalog"}},{"id":"channel:trackingStation.bodies.statesAt","group":"trackingStation: commands","label":"trackingStation.bodies.statesAt","frame":{"type":"command-request","requestId":"","command":"trackingStation.bodies.statesAt","label":"trackingStation.bodies.statesAt","topic":"","args":{"bodyIndex":"\u003cbodyIndex: number>","centreBodyIndex":"\u003ccentreBodyIndex: number>","uts":[],"certification":"\u003ccertification: 0 Unspecified, 1 Unbounded, 2 CertifiedOnly>"},"sentAt":0}},{"id":"channel:trackingStation.catalog.dismiss","group":"trackingStation: commands","label":"trackingStation.catalog.dismiss","frame":{"type":"command-request","requestId":"","command":"trackingStation.catalog.dismiss","label":"trackingStation.catalog.dismiss","topic":"","args":{"vesselId":"\u003cvesselId>"},"sentAt":0}},{"id":"channel:vessel.attitude","group":"vessel: telemetry","label":"vessel.attitude","frame":{"type":"subscribe","topic":"vessel.attitude"}},{"id":"channel:vessel.comms","group":"vessel: telemetry","label":"vessel.comms","frame":{"type":"subscribe","topic":"vessel.comms"}},{"id":"channel:vessel.control","group":"vessel: telemetry","label":"vessel.control","frame":{"type":"subscribe","topic":"vessel.control"}},{"id":"channel:vessel.crew","group":"vessel: telemetry","label":"vessel.crew","frame":{"type":"subscribe","topic":"vessel.crew"}},{"id":"channel:vessel.dock","group":"vessel: telemetry","label":"vessel.dock","frame":{"type":"subscribe","topic":"vessel.dock"}},{"id":"channel:vessel.flight","group":"vessel: telemetry","label":"vessel.flight","frame":{"type":"subscribe","topic":"vessel.flight"}},{"id":"channel:vessel.identity","group":"vessel: telemetry","label":"vessel.identity","frame":{"type":"subscribe","topic":"vessel.identity"}},{"id":"channel:vessel.inventory","group":"vessel: telemetry","label":"vessel.inventory","frame":{"type":"subscribe","topic":"vessel.inventory"}},{"id":"channel:vessel.landing","group":"vessel: telemetry","label":"vessel.landing","frame":{"type":"subscribe","topic":"vessel.landing"}},{"id":"channel:vessel.light","group":"vessel: telemetry","label":"vessel.light","frame":{"type":"subscribe","topic":"vessel.light"}},{"id":"channel:vessel.maneuver","group":"vessel: telemetry","label":"vessel.maneuver","frame":{"type":"subscribe","topic":"vessel.maneuver"}},{"id":"channel:vessel.orbit","group":"vessel: telemetry","label":"vessel.orbit","frame":{"type":"subscribe","topic":"vessel.orbit"}},{"id":"channel:vessel.orbit.truth","group":"vessel: telemetry","label":"vessel.orbit.truth","frame":{"type":"subscribe","topic":"vessel.orbit.truth"}},{"id":"channel:vessel.parts","group":"vessel: telemetry","label":"vessel.parts","frame":{"type":"subscribe","topic":"vessel.parts"}},{"id":"channel:vessel.physics.mode","group":"vessel: telemetry","label":"vessel.physics.mode","frame":{"type":"subscribe","topic":"vessel.physics.mode"}},{"id":"channel:vessel.propulsion","group":"vessel: telemetry","label":"vessel.propulsion","frame":{"type":"subscribe","topic":"vessel.propulsion"}},{"id":"channel:vessel.resources","group":"vessel: telemetry","label":"vessel.resources","frame":{"type":"subscribe","topic":"vessel.resources"}},{"id":"channel:vessel.structure","group":"vessel: telemetry","label":"vessel.structure","frame":{"type":"subscribe","topic":"vessel.structure"}},{"id":"channel:vessel.surface","group":"vessel: telemetry","label":"vessel.surface","frame":{"type":"subscribe","topic":"vessel.surface"}},{"id":"channel:vessel.target","group":"vessel: telemetry","label":"vessel.target","frame":{"type":"subscribe","topic":"vessel.target"}},{"id":"channel:vessel.thermal","group":"vessel: telemetry","label":"vessel.thermal","frame":{"type":"subscribe","topic":"vessel.thermal"}},{"id":"channel:vessel.control.setAbort","group":"vessel: commands","label":"vessel.control.setAbort","frame":{"type":"command-request","requestId":"","command":"vessel.control.setAbort","label":"vessel.control.setAbort","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setActionGroup","group":"vessel: commands","label":"vessel.control.setActionGroup","frame":{"type":"command-request","requestId":"","command":"vessel.control.setActionGroup","label":"vessel.control.setActionGroup","topic":"","args":{"group":"\u003cgroup: number>","state":"\u003cstate: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setAxes","group":"vessel: commands","label":"vessel.control.setAxes","frame":{"type":"command-request","requestId":"","command":"vessel.control.setAxes","label":"vessel.control.setAxes","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.control.setBrakes","group":"vessel: commands","label":"vessel.control.setBrakes","frame":{"type":"command-request","requestId":"","command":"vessel.control.setBrakes","label":"vessel.control.setBrakes","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setFlyByWire","group":"vessel: commands","label":"vessel.control.setFlyByWire","frame":{"type":"command-request","requestId":"","command":"vessel.control.setFlyByWire","label":"vessel.control.setFlyByWire","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setGear","group":"vessel: commands","label":"vessel.control.setGear","frame":{"type":"command-request","requestId":"","command":"vessel.control.setGear","label":"vessel.control.setGear","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setLights","group":"vessel: commands","label":"vessel.control.setLights","frame":{"type":"command-request","requestId":"","command":"vessel.control.setLights","label":"vessel.control.setLights","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setPrecisionControl","group":"vessel: commands","label":"vessel.control.setPrecisionControl","frame":{"type":"command-request","requestId":"","command":"vessel.control.setPrecisionControl","label":"vessel.control.setPrecisionControl","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setRcs","group":"vessel: commands","label":"vessel.control.setRcs","frame":{"type":"command-request","requestId":"","command":"vessel.control.setRcs","label":"vessel.control.setRcs","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setSas","group":"vessel: commands","label":"vessel.control.setSas","frame":{"type":"command-request","requestId":"","command":"vessel.control.setSas","label":"vessel.control.setSas","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setSasMode","group":"vessel: commands","label":"vessel.control.setSasMode","frame":{"type":"command-request","requestId":"","command":"vessel.control.setSasMode","label":"vessel.control.setSasMode","topic":"","args":{"mode":"\u003cmode: 0 StabilityAssist, 1 Prograde, 2 Retrograde, 3 Normal, 4 Antinormal, 5 RadialIn, 6 RadialOut, 7 Target, 8 AntiTarget, 9 Maneuver, 10 Unknown>"},"sentAt":0}},{"id":"channel:vessel.control.setThrottle","group":"vessel: commands","label":"vessel.control.setThrottle","frame":{"type":"command-request","requestId":"","command":"vessel.control.setThrottle","label":"vessel.control.setThrottle","topic":"","args":{"value":"\u003cvalue: number ratio>"},"sentAt":0}},{"id":"channel:vessel.control.stage","group":"vessel: commands","label":"vessel.control.stage","frame":{"type":"command-request","requestId":"","command":"vessel.control.stage","label":"vessel.control.stage","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.invokePartAction","group":"vessel: commands","label":"vessel.invokePartAction","frame":{"type":"command-request","requestId":"","command":"vessel.invokePartAction","label":"vessel.invokePartAction","topic":"","args":{"partId":"\u003cpartId>","eventName":"\u003ceventName>"},"sentAt":0}},{"id":"channel:vessel.maneuver.add","group":"vessel: commands","label":"vessel.maneuver.add","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.add","label":"vessel.maneuver.add","topic":"","args":{"ut":"\u003cut: number ut>","prograde":"\u003cprograde: number m/s>","normal":"\u003cnormal: number m/s>","radialOut":"\u003cradialOut: number m/s>"},"sentAt":0}},{"id":"channel:vessel.maneuver.remove","group":"vessel: commands","label":"vessel.maneuver.remove","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.remove","label":"vessel.maneuver.remove","topic":"","args":{"nodeId":"\u003cnodeId>"},"sentAt":0}},{"id":"channel:vessel.maneuver.update","group":"vessel: commands","label":"vessel.maneuver.update","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.update","label":"vessel.maneuver.update","topic":"","args":{"nodeId":"\u003cnodeId>","ut":"\u003cut: number ut>","prograde":"\u003cprograde: number m/s>","normal":"\u003cnormal: number m/s>","radialOut":"\u003cradialOut: number m/s>"},"sentAt":0}},{"id":"channel:vessel.target.clear","group":"vessel: commands","label":"vessel.target.clear","frame":{"type":"command-request","requestId":"","command":"vessel.target.clear","label":"vessel.target.clear","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.target.set","group":"vessel: commands","label":"vessel.target.set","frame":{"type":"command-request","requestId":"","command":"vessel.target.set","label":"vessel.target.set","topic":"","args":{"kind":"\u003ckind: 0 Vessel, 1 Body, 2 Other, 3 Position, 4 Part>"},"sentAt":0}}]</script>
+<script type="application/json" id="operations">[{"id":"frame:command-request","group":"Connection frames","label":"command-request","frame":{"type":"command-request","requestId":"","command":"time.setPaused","label":"time.setPaused","topic":"","args":{"paused":"\u003cpaused: true or false>"},"sentAt":0}},{"id":"frame:subscribe","group":"Connection frames","label":"subscribe","frame":{"type":"subscribe","topic":"vessel.flight"}},{"id":"frame:unsubscribe","group":"Connection frames","label":"unsubscribe","frame":{"type":"unsubscribe","topic":""}},{"id":"frame:set-vantage","group":"Connection frames","label":"set-vantage","frame":{"type":"set-vantage","centreId":""}},{"id":"frame:claim","group":"Connection frames","label":"claim","frame":{"type":"claim","requestIds":[]}},{"id":"frame:ping","group":"Connection frames","label":"ping","frame":{"type":"ping","nonce":""}},{"id":"frame:command-group","group":"Connection frames","label":"command-group","frame":{"type":"command-group","groupId":"","members":[]}},{"id":"channel:alarm.activeList","group":"alarm: telemetry","label":"alarm.activeList","frame":{"type":"subscribe","topic":"alarm.activeList"}},{"id":"channel:alarm.scet.fired","group":"alarm: telemetry","label":"alarm.scet.fired","frame":{"type":"subscribe","topic":"alarm.scet.fired"}},{"id":"channel:alarm.scet.topics","group":"alarm: telemetry","label":"alarm.scet.topics","frame":{"type":"subscribe","topic":"alarm.scet.topics"}},{"id":"channel:alarm.scet.arm","group":"alarm: commands","label":"alarm.scet.arm","frame":{"type":"command-request","requestId":"","command":"alarm.scet.arm","label":"alarm.scet.arm","topic":"","args":{"id":"\u003cid>","name":"\u003cname>","vantage":"\u003cvantage>","subject":"\u003csubject>","condition":{"kind":"\u003ckind: 0 Time, 1 Threshold, 2 ContractParameter, 3 TopicInstant>","ut":"\u003cut: number ut>","leadSeconds":"\u003cleadSeconds: number s>","topic":"\u003ctopic>","fieldPath":"\u003cfieldPath>","op":"\u003cop: 0 GreaterThan, 1 GreaterThanOrEqual, 2 LessThan, 3 LessThanOrEqual, 4 Equal, 5 NotEqual>","threshold":"\u003cthreshold: number>","sustainSeconds":"\u003csustainSeconds: number s>","contractId":"\u003ccontractId>","parameterTitle":"\u003cparameterTitle>","targetState":"\u003ctargetState: 0 Incomplete, 1 Complete, 2 Failed>"},"onFire":[],"actsOn":"\u003cactsOn>"},"sentAt":0}},{"id":"channel:alarm.scet.disarm","group":"alarm: commands","label":"alarm.scet.disarm","frame":{"type":"command-request","requestId":"","command":"alarm.scet.disarm","label":"alarm.scet.disarm","topic":"","args":{"id":"\u003cid>"},"sentAt":0}},{"id":"channel:career.facilities","group":"career: telemetry","label":"career.facilities","frame":{"type":"subscribe","topic":"career.facilities"}},{"id":"channel:career.mode","group":"career: telemetry","label":"career.mode","frame":{"type":"subscribe","topic":"career.mode"}},{"id":"channel:career.status","group":"career: telemetry","label":"career.status","frame":{"type":"subscribe","topic":"career.status"}},{"id":"channel:career.contract.accept","group":"career: commands","label":"career.contract.accept","frame":{"type":"command-request","requestId":"","command":"career.contract.accept","label":"career.contract.accept","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.contract.cancel","group":"career: commands","label":"career.contract.cancel","frame":{"type":"command-request","requestId":"","command":"career.contract.cancel","label":"career.contract.cancel","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.contract.decline","group":"career: commands","label":"career.contract.decline","frame":{"type":"command-request","requestId":"","command":"career.contract.decline","label":"career.contract.decline","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.crew.fire","group":"career: commands","label":"career.crew.fire","frame":{"type":"command-request","requestId":"","command":"career.crew.fire","label":"career.crew.fire","topic":"","args":{"kerbalName":"\u003ckerbalName>"},"sentAt":0}},{"id":"channel:career.crew.hire","group":"career: commands","label":"career.crew.hire","frame":{"type":"command-request","requestId":"","command":"career.crew.hire","label":"career.crew.hire","topic":"","args":{"applicantName":"\u003capplicantName>"},"sentAt":0}},{"id":"channel:career.facility.upgrade","group":"career: commands","label":"career.facility.upgrade","frame":{"type":"command-request","requestId":"","command":"career.facility.upgrade","label":"career.facility.upgrade","topic":"","args":{"facilityId":"\u003cfacilityId>"},"sentAt":0}},{"id":"channel:career.strategy.activate","group":"career: commands","label":"career.strategy.activate","frame":{"type":"command-request","requestId":"","command":"career.strategy.activate","label":"career.strategy.activate","topic":"","args":{"strategyId":"\u003cstrategyId>","factor":"\u003cfactor: number ratio>"},"sentAt":0}},{"id":"channel:career.strategy.deactivate","group":"career: commands","label":"career.strategy.deactivate","frame":{"type":"command-request","requestId":"","command":"career.strategy.deactivate","label":"career.strategy.deactivate","topic":"","args":{"strategyId":"\u003cstrategyId>"},"sentAt":0}},{"id":"channel:career.tech.unlock","group":"career: commands","label":"career.tech.unlock","frame":{"type":"command-request","requestId":"","command":"career.tech.unlock","label":"career.tech.unlock","topic":"","args":{"techId":"\u003ctechId>"},"sentAt":0}},{"id":"channel:commandCentre.activeVesselDelay","group":"commandCentre: telemetry","label":"commandCentre.activeVesselDelay","frame":{"type":"subscribe","topic":"commandCentre.activeVesselDelay"}},{"id":"channel:commandCentre.roster","group":"commandCentre: telemetry","label":"commandCentre.roster","frame":{"type":"subscribe","topic":"commandCentre.roster"}},{"id":"channel:commandCentre.separation","group":"commandCentre: telemetry","label":"commandCentre.separation","frame":{"type":"subscribe","topic":"commandCentre.separation"}},{"id":"channel:commandCentre.unreachable","group":"commandCentre: telemetry","label":"commandCentre.unreachable","frame":{"type":"subscribe","topic":"commandCentre.unreachable"}},{"id":"channel:commcast.traffic","group":"commcast: telemetry","label":"commcast.traffic","frame":{"type":"subscribe","topic":"commcast.traffic"}},{"id":"channel:commcast.transmissions","group":"commcast: telemetry","label":"commcast.transmissions","frame":{"type":"subscribe","topic":"commcast.transmissions"}},{"id":"channel:commcast.group.add","group":"commcast: commands","label":"commcast.group.add","frame":{"type":"command-request","requestId":"","command":"commcast.group.add","label":"commcast.group.add","topic":"","args":{"groupId":"\u003cgroupId>","added":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.group.open","group":"commcast: commands","label":"commcast.group.open","frame":{"type":"command-request","requestId":"","command":"commcast.group.open","label":"commcast.group.open","topic":"","args":{"groupId":"\u003cgroupId>","members":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.message.ack","group":"commcast: commands","label":"commcast.message.ack","frame":{"type":"command-request","requestId":"","command":"commcast.message.ack","label":"commcast.message.ack","topic":"","args":{"messageId":"\u003cmessageId>","author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.message.send","group":"commcast: commands","label":"commcast.message.send","frame":{"type":"command-request","requestId":"","command":"commcast.message.send","label":"commcast.message.send","topic":"","args":{"id":"\u003cid>","groupId":"\u003cgroupId>","body":"\u003cbody>","to":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.radio.transmit","group":"commcast: commands","label":"commcast.radio.transmit","frame":{"type":"command-request","requestId":"","command":"commcast.radio.transmit","label":"commcast.radio.transmit","topic":"","args":{"transmissionId":"\u003ctransmissionId>","groupId":"\u003cgroupId>","seq":"\u003cseq: number count>","chunks":[],"end":"\u003cend: true or false>","author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:comms.commandCentre","group":"comms: telemetry","label":"comms.commandCentre","frame":{"type":"subscribe","topic":"comms.commandCentre"}},{"id":"channel:comms.connectivity","group":"comms: telemetry","label":"comms.connectivity","frame":{"type":"subscribe","topic":"comms.connectivity"}},{"id":"channel:comms.contacts","group":"comms: telemetry","label":"comms.contacts","frame":{"type":"subscribe","topic":"comms.contacts"}},{"id":"channel:comms.control","group":"comms: telemetry","label":"comms.control","frame":{"type":"subscribe","topic":"comms.control"}},{"id":"channel:comms.degrade","group":"comms: telemetry","label":"comms.degrade","frame":{"type":"subscribe","topic":"comms.degrade"}},{"id":"channel:comms.delay","group":"comms: telemetry","label":"comms.delay","frame":{"type":"subscribe","topic":"comms.delay"}},{"id":"channel:comms.journey","group":"comms: telemetry","label":"comms.journey","frame":{"type":"subscribe","topic":"comms.journey"}},{"id":"channel:comms.link","group":"comms: telemetry","label":"comms.link","frame":{"type":"subscribe","topic":"comms.link"}},{"id":"channel:comms.network","group":"comms: telemetry","label":"comms.network","frame":{"type":"subscribe","topic":"comms.network"}},{"id":"channel:comms.nextLoss","group":"comms: telemetry","label":"comms.nextLoss","frame":{"type":"subscribe","topic":"comms.nextLoss"}},{"id":"channel:comms.occlusion","group":"comms: telemetry","label":"comms.occlusion","frame":{"type":"subscribe","topic":"comms.occlusion"}},{"id":"channel:comms.path","group":"comms: telemetry","label":"comms.path","frame":{"type":"subscribe","topic":"comms.path"}},{"id":"channel:comms.route","group":"comms: telemetry","label":"comms.route","frame":{"type":"subscribe","topic":"comms.route"}},{"id":"channel:comms.signal","group":"comms: telemetry","label":"comms.signal","frame":{"type":"subscribe","topic":"comms.signal"}},{"id":"channel:crash.hasRecent","group":"crash: telemetry","label":"crash.hasRecent","frame":{"type":"subscribe","topic":"crash.hasRecent"}},{"id":"channel:crash.lastCrash","group":"crash: telemetry","label":"crash.lastCrash","frame":{"type":"subscribe","topic":"crash.lastCrash"}},{"id":"channel:deployed.bases","group":"deployed: telemetry","label":"deployed.bases","frame":{"type":"subscribe","topic":"deployed.bases"}},{"id":"channel:dv.stages","group":"dv: telemetry","label":"dv.stages","frame":{"type":"subscribe","topic":"dv.stages"}},{"id":"channel:dv.summary","group":"dv: telemetry","label":"dv.summary","frame":{"type":"subscribe","topic":"dv.summary"}},{"id":"channel:eva.crew","group":"eva: telemetry","label":"eva.crew","frame":{"type":"subscribe","topic":"eva.crew"}},{"id":"channel:flight.current","group":"flight: telemetry","label":"flight.current","frame":{"type":"subscribe","topic":"flight.current"}},{"id":"channel:flight.ended","group":"flight: telemetry","label":"flight.ended","frame":{"type":"subscribe","topic":"flight.ended"}},{"id":"channel:flight.started","group":"flight: telemetry","label":"flight.started","frame":{"type":"subscribe","topic":"flight.started"}},{"id":"channel:flight.vesselChanged","group":"flight: telemetry","label":"flight.vesselChanged","frame":{"type":"subscribe","topic":"flight.vesselChanged"}},{"id":"channel:game.dlc","group":"game: telemetry","label":"game.dlc","frame":{"type":"subscribe","topic":"game.dlc"}},{"id":"channel:isru.converters","group":"isru: telemetry","label":"isru.converters","frame":{"type":"subscribe","topic":"isru.converters"}},{"id":"channel:isru.drills","group":"isru: telemetry","label":"isru.drills","frame":{"type":"subscribe","topic":"isru.drills"}},{"id":"channel:ksp.revertAvailability","group":"ksp: telemetry","label":"ksp.revertAvailability","frame":{"type":"subscribe","topic":"ksp.revertAvailability"}},{"id":"channel:ksp.launch","group":"ksp: commands","label":"ksp.launch","frame":{"type":"command-request","requestId":"","command":"ksp.launch","label":"ksp.launch","topic":"","args":{"shipName":"\u003cshipName>","facility":"\u003cfacility>","site":"\u003csite>","crew":[]},"sentAt":0}},{"id":"channel:ksp.recover","group":"ksp: commands","label":"ksp.recover","frame":{"type":"command-request","requestId":"","command":"ksp.recover","label":"ksp.recover","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.revertToEditor","group":"ksp: commands","label":"ksp.revertToEditor","frame":{"type":"command-request","requestId":"","command":"ksp.revertToEditor","label":"ksp.revertToEditor","topic":"","args":{"editor":"\u003ceditor>"},"sentAt":0}},{"id":"channel:ksp.revertToLaunch","group":"ksp: commands","label":"ksp.revertToLaunch","frame":{"type":"command-request","requestId":"","command":"ksp.revertToLaunch","label":"ksp.revertToLaunch","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.switchVessel","group":"ksp: commands","label":"ksp.switchVessel","frame":{"type":"command-request","requestId":"","command":"ksp.switchVessel","label":"ksp.switchVessel","topic":"","args":{"vesselId":"\u003cvesselId>"},"sentAt":0}},{"id":"channel:ksp.toSpaceCenter","group":"ksp: commands","label":"ksp.toSpaceCenter","frame":{"type":"command-request","requestId":"","command":"ksp.toSpaceCenter","label":"ksp.toSpaceCenter","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.toTrackingStation","group":"ksp: commands","label":"ksp.toTrackingStation","frame":{"type":"command-request","requestId":"","command":"ksp.toTrackingStation","label":"ksp.toTrackingStation","topic":"","args":{},"sentAt":0}},{"id":"channel:missions.active","group":"missions: telemetry","label":"missions.active","frame":{"type":"subscribe","topic":"missions.active"}},{"id":"channel:parts.power","group":"parts: telemetry","label":"parts.power","frame":{"type":"subscribe","topic":"parts.power"}},{"id":"channel:recovery.hasRecent","group":"recovery: telemetry","label":"recovery.hasRecent","frame":{"type":"subscribe","topic":"recovery.hasRecent"}},{"id":"channel:recovery.lastSummary","group":"recovery: telemetry","label":"recovery.lastSummary","frame":{"type":"subscribe","topic":"recovery.lastSummary"}},{"id":"channel:robotics.available","group":"robotics: telemetry","label":"robotics.available","frame":{"type":"subscribe","topic":"robotics.available"}},{"id":"channel:robotics.servos","group":"robotics: telemetry","label":"robotics.servos","frame":{"type":"subscribe","topic":"robotics.servos"}},{"id":"channel:robotics.rotor.reverse","group":"robotics: commands","label":"robotics.rotor.reverse","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.reverse","label":"robotics.rotor.reverse","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:robotics.rotor.setBrake","group":"robotics: commands","label":"robotics.rotor.setBrake","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setBrake","label":"robotics.rotor.setBrake","topic":"","args":{"partId":"\u003cpartId>","percent":"\u003cpercent: number %>"},"sentAt":0}},{"id":"channel:robotics.rotor.setLock","group":"robotics: commands","label":"robotics.rotor.setLock","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setLock","label":"robotics.rotor.setLock","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.rotor.setMotor","group":"robotics: commands","label":"robotics.rotor.setMotor","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setMotor","label":"robotics.rotor.setMotor","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.rotor.setRpmLimit","group":"robotics: commands","label":"robotics.rotor.setRpmLimit","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setRpmLimit","label":"robotics.rotor.setRpmLimit","topic":"","args":{"partId":"\u003cpartId>","rpm":"\u003crpm: number rpm>"},"sentAt":0}},{"id":"channel:robotics.rotor.setTorqueLimit","group":"robotics: commands","label":"robotics.rotor.setTorqueLimit","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setTorqueLimit","label":"robotics.rotor.setTorqueLimit","topic":"","args":{"partId":"\u003cpartId>","percent":"\u003cpercent: number %>"},"sentAt":0}},{"id":"channel:robotics.servo.setAngle","group":"robotics: commands","label":"robotics.servo.setAngle","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setAngle","label":"robotics.servo.setAngle","topic":"","args":{"partId":"\u003cpartId>","degrees":"\u003cdegrees: number °>"},"sentAt":0}},{"id":"channel:robotics.servo.setExtension","group":"robotics: commands","label":"robotics.servo.setExtension","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setExtension","label":"robotics.servo.setExtension","topic":"","args":{"partId":"\u003cpartId>","metres":"\u003cmetres: number m>"},"sentAt":0}},{"id":"channel:robotics.servo.setLock","group":"robotics: commands","label":"robotics.servo.setLock","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setLock","label":"robotics.servo.setLock","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.servo.setMotor","group":"robotics: commands","label":"robotics.servo.setMotor","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setMotor","label":"robotics.servo.setMotor","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:science.archive","group":"science: telemetry","label":"science.archive","frame":{"type":"subscribe","topic":"science.archive"}},{"id":"channel:science.experimentBreakdown","group":"science: telemetry","label":"science.experimentBreakdown","frame":{"type":"subscribe","topic":"science.experimentBreakdown"}},{"id":"channel:science.experiments","group":"science: telemetry","label":"science.experiments","frame":{"type":"subscribe","topic":"science.experiments"}},{"id":"channel:science.instruments","group":"science: telemetry","label":"science.instruments","frame":{"type":"subscribe","topic":"science.instruments"}},{"id":"channel:science.lab","group":"science: telemetry","label":"science.lab","frame":{"type":"subscribe","topic":"science.lab"}},{"id":"channel:science.sensors","group":"science: telemetry","label":"science.sensors","frame":{"type":"subscribe","topic":"science.sensors"}},{"id":"channel:science.experiment.deploy","group":"science: commands","label":"science.experiment.deploy","frame":{"type":"command-request","requestId":"","command":"science.experiment.deploy","label":"science.experiment.deploy","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.start","group":"science: commands","label":"science.experiment.start","frame":{"type":"command-request","requestId":"","command":"science.experiment.start","label":"science.experiment.start","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.stop","group":"science: commands","label":"science.experiment.stop","frame":{"type":"command-request","requestId":"","command":"science.experiment.stop","label":"science.experiment.stop","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.transmit","group":"science: commands","label":"science.experiment.transmit","frame":{"type":"command-request","requestId":"","command":"science.experiment.transmit","label":"science.experiment.transmit","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.lab.start","group":"science: commands","label":"science.lab.start","frame":{"type":"command-request","requestId":"","command":"science.lab.start","label":"science.lab.start","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.lab.stop","group":"science: commands","label":"science.lab.stop","frame":{"type":"command-request","requestId":"","command":"science.lab.stop","label":"science.lab.stop","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:settings.gonogo","group":"settings: telemetry","label":"settings.gonogo","frame":{"type":"subscribe","topic":"settings.gonogo"}},{"id":"channel:settings.mod.write","group":"settings: commands","label":"settings.mod.write","frame":{"type":"command-request","requestId":"","command":"settings.mod.write","label":"settings.mod.write","topic":"","args":{"uplink":"\u003cuplink>","id":"\u003cid>","value":"\u003cvalue>"},"sentAt":0}},{"id":"channel:settings.save","group":"settings: commands","label":"settings.save","frame":{"type":"command-request","requestId":"","command":"settings.save","label":"settings.save","topic":"","args":{"changes":[]},"sentAt":0}},{"id":"channel:spaceCenter.astronautComplex","group":"spaceCenter: telemetry","label":"spaceCenter.astronautComplex","frame":{"type":"subscribe","topic":"spaceCenter.astronautComplex"}},{"id":"channel:spaceCenter.crewRoster","group":"spaceCenter: telemetry","label":"spaceCenter.crewRoster","frame":{"type":"subscribe","topic":"spaceCenter.crewRoster"}},{"id":"channel:spaceCenter.launchSites","group":"spaceCenter: telemetry","label":"spaceCenter.launchSites","frame":{"type":"subscribe","topic":"spaceCenter.launchSites"}},{"id":"channel:spaceCenter.partsAvailable","group":"spaceCenter: telemetry","label":"spaceCenter.partsAvailable","frame":{"type":"subscribe","topic":"spaceCenter.partsAvailable"}},{"id":"channel:spaceCenter.pois","group":"spaceCenter: telemetry","label":"spaceCenter.pois","frame":{"type":"subscribe","topic":"spaceCenter.pois"}},{"id":"channel:spaceCenter.savedShips","group":"spaceCenter: telemetry","label":"spaceCenter.savedShips","frame":{"type":"subscribe","topic":"spaceCenter.savedShips"}},{"id":"channel:spaceCenter.scene","group":"spaceCenter: telemetry","label":"spaceCenter.scene","frame":{"type":"subscribe","topic":"spaceCenter.scene"}},{"id":"channel:system.frame","group":"system: telemetry","label":"system.frame","frame":{"type":"subscribe","topic":"system.frame"}},{"id":"channel:system.frame.set","group":"system: commands","label":"system.frame.set","frame":{"type":"command-request","requestId":"","command":"system.frame.set","label":"system.frame.set","topic":"","args":{"kind":"\u003ckind: 0 Unspecified, 1 BodyCentredInertial, 2 BodyCentredBodyDirection, 3 BarycentricRotating, 4 RotatingPulsating, 5 BodySurface>"},"sentAt":0}},{"id":"channel:system.gate.check","group":"system: commands","label":"system.gate.check","frame":{"type":"command-request","requestId":"","command":"system.gate.check","label":"system.gate.check","topic":"","args":{"command":"\u003ccommand>","args":{}},"sentAt":0}},{"id":"channel:system.log.recent","group":"system: commands","label":"system.log.recent","frame":{"type":"command-request","requestId":"","command":"system.log.recent","label":"system.log.recent","topic":"","args":{"maxLines":"\u003cmaxLines: number count>"},"sentAt":0}},{"id":"channel:system.uplink.cancel","group":"system: commands","label":"system.uplink.cancel","frame":{"type":"command-request","requestId":"","command":"system.uplink.cancel","label":"system.uplink.cancel","topic":"","args":{"epoch":"\u003cepoch: number count>","craft":"\u003ccraft>","laneSeq":"\u003claneSeq: number count>","andBehind":"\u003candBehind: true or false>"},"sentAt":0}},{"id":"channel:system.uplink.resend","group":"system: commands","label":"system.uplink.resend","frame":{"type":"command-request","requestId":"","command":"system.uplink.resend","label":"system.uplink.resend","topic":"","args":{"epoch":"\u003cepoch: number count>","craft":"\u003ccraft>","laneSeq":"\u003claneSeq: number count>"},"sentAt":0}},{"id":"channel:target.available","group":"target: telemetry","label":"target.available","frame":{"type":"subscribe","topic":"target.available"}},{"id":"channel:time.calendar","group":"time: telemetry","label":"time.calendar","frame":{"type":"subscribe","topic":"time.calendar"}},{"id":"channel:time.warp","group":"time: telemetry","label":"time.warp","frame":{"type":"subscribe","topic":"time.warp"}},{"id":"channel:time.setPaused","group":"time: commands","label":"time.setPaused","frame":{"type":"command-request","requestId":"","command":"time.setPaused","label":"time.setPaused","topic":"","args":{"paused":"\u003cpaused: true or false>"},"sentAt":0}},{"id":"channel:time.setWarpIndex","group":"time: commands","label":"time.setWarpIndex","frame":{"type":"command-request","requestId":"","command":"time.setWarpIndex","label":"time.setWarpIndex","topic":"","args":{"index":"\u003cindex: number>"},"sentAt":0}},{"id":"channel:trackingStation.bodies","group":"trackingStation: telemetry","label":"trackingStation.bodies","frame":{"type":"subscribe","topic":"trackingStation.bodies"}},{"id":"channel:trackingStation.catalog","group":"trackingStation: telemetry","label":"trackingStation.catalog","frame":{"type":"subscribe","topic":"trackingStation.catalog"}},{"id":"channel:trackingStation.bodies.statesAt","group":"trackingStation: commands","label":"trackingStation.bodies.statesAt","frame":{"type":"command-request","requestId":"","command":"trackingStation.bodies.statesAt","label":"trackingStation.bodies.statesAt","topic":"","args":{"bodyIndex":"\u003cbodyIndex: number>","centreBodyIndex":"\u003ccentreBodyIndex: number>","uts":[],"certification":"\u003ccertification: 0 Unspecified, 1 Unbounded, 2 CertifiedOnly>"},"sentAt":0}},{"id":"channel:trackingStation.catalog.dismiss","group":"trackingStation: commands","label":"trackingStation.catalog.dismiss","frame":{"type":"command-request","requestId":"","command":"trackingStation.catalog.dismiss","label":"trackingStation.catalog.dismiss","topic":"","args":{"vesselId":"\u003cvesselId>"},"sentAt":0}},{"id":"channel:vessel.attitude","group":"vessel: telemetry","label":"vessel.attitude","frame":{"type":"subscribe","topic":"vessel.attitude"}},{"id":"channel:vessel.comms","group":"vessel: telemetry","label":"vessel.comms","frame":{"type":"subscribe","topic":"vessel.comms"}},{"id":"channel:vessel.control","group":"vessel: telemetry","label":"vessel.control","frame":{"type":"subscribe","topic":"vessel.control"}},{"id":"channel:vessel.crew","group":"vessel: telemetry","label":"vessel.crew","frame":{"type":"subscribe","topic":"vessel.crew"}},{"id":"channel:vessel.dock","group":"vessel: telemetry","label":"vessel.dock","frame":{"type":"subscribe","topic":"vessel.dock"}},{"id":"channel:vessel.flight","group":"vessel: telemetry","label":"vessel.flight","frame":{"type":"subscribe","topic":"vessel.flight"}},{"id":"channel:vessel.identity","group":"vessel: telemetry","label":"vessel.identity","frame":{"type":"subscribe","topic":"vessel.identity"}},{"id":"channel:vessel.inventory","group":"vessel: telemetry","label":"vessel.inventory","frame":{"type":"subscribe","topic":"vessel.inventory"}},{"id":"channel:vessel.landing","group":"vessel: telemetry","label":"vessel.landing","frame":{"type":"subscribe","topic":"vessel.landing"}},{"id":"channel:vessel.light","group":"vessel: telemetry","label":"vessel.light","frame":{"type":"subscribe","topic":"vessel.light"}},{"id":"channel:vessel.maneuver","group":"vessel: telemetry","label":"vessel.maneuver","frame":{"type":"subscribe","topic":"vessel.maneuver"}},{"id":"channel:vessel.orbit","group":"vessel: telemetry","label":"vessel.orbit","frame":{"type":"subscribe","topic":"vessel.orbit"}},{"id":"channel:vessel.orbit.truth","group":"vessel: telemetry","label":"vessel.orbit.truth","frame":{"type":"subscribe","topic":"vessel.orbit.truth"}},{"id":"channel:vessel.parts","group":"vessel: telemetry","label":"vessel.parts","frame":{"type":"subscribe","topic":"vessel.parts"}},{"id":"channel:vessel.physics.mode","group":"vessel: telemetry","label":"vessel.physics.mode","frame":{"type":"subscribe","topic":"vessel.physics.mode"}},{"id":"channel:vessel.propulsion","group":"vessel: telemetry","label":"vessel.propulsion","frame":{"type":"subscribe","topic":"vessel.propulsion"}},{"id":"channel:vessel.resources","group":"vessel: telemetry","label":"vessel.resources","frame":{"type":"subscribe","topic":"vessel.resources"}},{"id":"channel:vessel.structure","group":"vessel: telemetry","label":"vessel.structure","frame":{"type":"subscribe","topic":"vessel.structure"}},{"id":"channel:vessel.surface","group":"vessel: telemetry","label":"vessel.surface","frame":{"type":"subscribe","topic":"vessel.surface"}},{"id":"channel:vessel.target","group":"vessel: telemetry","label":"vessel.target","frame":{"type":"subscribe","topic":"vessel.target"}},{"id":"channel:vessel.thermal","group":"vessel: telemetry","label":"vessel.thermal","frame":{"type":"subscribe","topic":"vessel.thermal"}},{"id":"channel:vessel.control.setAbort","group":"vessel: commands","label":"vessel.control.setAbort","frame":{"type":"command-request","requestId":"","command":"vessel.control.setAbort","label":"vessel.control.setAbort","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setActionGroup","group":"vessel: commands","label":"vessel.control.setActionGroup","frame":{"type":"command-request","requestId":"","command":"vessel.control.setActionGroup","label":"vessel.control.setActionGroup","topic":"","args":{"group":"\u003cgroup: number>","state":"\u003cstate: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setAxes","group":"vessel: commands","label":"vessel.control.setAxes","frame":{"type":"command-request","requestId":"","command":"vessel.control.setAxes","label":"vessel.control.setAxes","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.control.setBrakes","group":"vessel: commands","label":"vessel.control.setBrakes","frame":{"type":"command-request","requestId":"","command":"vessel.control.setBrakes","label":"vessel.control.setBrakes","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setFlyByWire","group":"vessel: commands","label":"vessel.control.setFlyByWire","frame":{"type":"command-request","requestId":"","command":"vessel.control.setFlyByWire","label":"vessel.control.setFlyByWire","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setGear","group":"vessel: commands","label":"vessel.control.setGear","frame":{"type":"command-request","requestId":"","command":"vessel.control.setGear","label":"vessel.control.setGear","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setLights","group":"vessel: commands","label":"vessel.control.setLights","frame":{"type":"command-request","requestId":"","command":"vessel.control.setLights","label":"vessel.control.setLights","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setPrecisionControl","group":"vessel: commands","label":"vessel.control.setPrecisionControl","frame":{"type":"command-request","requestId":"","command":"vessel.control.setPrecisionControl","label":"vessel.control.setPrecisionControl","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setRcs","group":"vessel: commands","label":"vessel.control.setRcs","frame":{"type":"command-request","requestId":"","command":"vessel.control.setRcs","label":"vessel.control.setRcs","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setSas","group":"vessel: commands","label":"vessel.control.setSas","frame":{"type":"command-request","requestId":"","command":"vessel.control.setSas","label":"vessel.control.setSas","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setSasMode","group":"vessel: commands","label":"vessel.control.setSasMode","frame":{"type":"command-request","requestId":"","command":"vessel.control.setSasMode","label":"vessel.control.setSasMode","topic":"","args":{"mode":"\u003cmode: 0 StabilityAssist, 1 Prograde, 2 Retrograde, 3 Normal, 4 Antinormal, 5 RadialIn, 6 RadialOut, 7 Target, 8 AntiTarget, 9 Maneuver, 10 Unknown>"},"sentAt":0}},{"id":"channel:vessel.control.setThrottle","group":"vessel: commands","label":"vessel.control.setThrottle","frame":{"type":"command-request","requestId":"","command":"vessel.control.setThrottle","label":"vessel.control.setThrottle","topic":"","args":{"value":"\u003cvalue: number ratio>"},"sentAt":0}},{"id":"channel:vessel.control.stage","group":"vessel: commands","label":"vessel.control.stage","frame":{"type":"command-request","requestId":"","command":"vessel.control.stage","label":"vessel.control.stage","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.invokePartAction","group":"vessel: commands","label":"vessel.invokePartAction","frame":{"type":"command-request","requestId":"","command":"vessel.invokePartAction","label":"vessel.invokePartAction","topic":"","args":{"partId":"\u003cpartId>","eventName":"\u003ceventName>"},"sentAt":0}},{"id":"channel:vessel.maneuver.add","group":"vessel: commands","label":"vessel.maneuver.add","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.add","label":"vessel.maneuver.add","topic":"","args":{"ut":"\u003cut: number ut>","prograde":"\u003cprograde: number m/s>","normal":"\u003cnormal: number m/s>","radialOut":"\u003cradialOut: number m/s>"},"sentAt":0}},{"id":"channel:vessel.maneuver.remove","group":"vessel: commands","label":"vessel.maneuver.remove","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.remove","label":"vessel.maneuver.remove","topic":"","args":{"nodeId":"\u003cnodeId>"},"sentAt":0}},{"id":"channel:vessel.maneuver.update","group":"vessel: commands","label":"vessel.maneuver.update","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.update","label":"vessel.maneuver.update","topic":"","args":{"nodeId":"\u003cnodeId>","ut":"\u003cut: number ut>","prograde":"\u003cprograde: number m/s>","normal":"\u003cnormal: number m/s>","radialOut":"\u003cradialOut: number m/s>"},"sentAt":0}},{"id":"channel:vessel.target.clear","group":"vessel: commands","label":"vessel.target.clear","frame":{"type":"command-request","requestId":"","command":"vessel.target.clear","label":"vessel.target.clear","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.target.set","group":"vessel: commands","label":"vessel.target.set","frame":{"type":"command-request","requestId":"","command":"vessel.target.set","label":"vessel.target.set","topic":"","args":{"kind":"\u003ckind: 0 Vessel, 1 Body, 2 Other, 3 Position, 4 Part>"},"sentAt":0}}]</script>
 <script>
 /*
  * The page's behaviour: one view at a time, the contents drawer, the theme
