@@ -1,7 +1,8 @@
 // ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/index.tsx
 import {
   registerComponent,
-  stillTrue,
+  registerDynamicTopicPrefix,
+  stillTrue as stillTrue2,
   useTelemetry
 } from "@ksp-gonogo/sitrep-sdk";
 import { EmptyState, Panel, Section } from "@ksp-gonogo/ui-kit";
@@ -16,136 +17,33 @@ var BREAKING_GROUND = defineUplinkClient({
   description: "Drives Breaking Ground robotic joints and rotors from the console, and reports deployed surface bases on every body while you fly something else."
 });
 
-// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/DeployedBaseCard.tsx
-import { AugmentSlot, combineReadings, value } from "@ksp-gonogo/sitrep-sdk";
+// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/DeployedStationCard.tsx
+import {
+  AugmentSlot,
+  CatalogContact,
+  combineReadings,
+  observedValue,
+  stillTrue,
+  useStream,
+  value
+} from "@ksp-gonogo/sitrep-sdk";
 import {
   Badge,
   Box,
   Cluster,
   Meter,
+  MissionDate,
   Stack,
   Text,
   Tooltip,
   Unit
 } from "@ksp-gonogo/ui-kit";
 
-// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/power.ts
-function powerState(base) {
-  if (base.powered === null) return "unknown";
-  return base.powered ? "powered" : "unpowered";
-}
-var POWER_LABEL = {
-  powered: "Powered",
-  unpowered: "Unpowered",
-  unknown: "Power unknown"
-};
-var POWER_TONE = {
-  powered: "go",
-  unpowered: "nogo",
-  // Neutral, not `nogo`: a red pill is a verdict, and there is none here.
-  unknown: "neutral"
-};
-function powerBalance(base) {
-  const { powerAvailable, powerRequired } = base;
-  if (powerAvailable === null || powerRequired === null) return null;
-  return `Power ${Math.round(powerAvailable)}/${Math.round(powerRequired)}`;
-}
-
-// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/DeployedBaseCard.tsx
-import { jsx, jsxs } from "react/jsx-runtime";
-var XS2_STYLE = { fontSize: "var(--font-size-caption)" };
-var FIGURE_AND_BADGE = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "var(--gap-related)"
-};
-function progressPercentReading(source, fraction) {
-  return combineReadings([source], () => value("%", fraction * 100));
-}
-function progressRatioReading(source, fraction) {
-  return combineReadings([source], () => value("ratio", fraction));
-}
-var titleCase = (name) => name.charAt(0) + name.slice(1).toLowerCase().replace(/_/g, " ");
-function siteLine(base) {
-  const parts = [
-    base.biome,
-    base.situation === null ? null : titleCase(base.situation),
-    base.deployedOnGround === false ? "not on the ground" : null
-  ].filter((p) => p !== null && p !== "");
-  return parts.length === 0 ? null : parts.join(" \xB7 ");
-}
-function DeployedBaseCard({
-  base,
-  basesReading
-}) {
-  const state = powerState(base);
-  return /* @__PURE__ */ jsx(
-    Box,
-    {
-      bordered: true,
-      radius: "regular",
-      style: {
-        padding: "var(--inset-surface)",
-        borderColor: "var(--color-surface-raised)"
-      },
-      children: /* @__PURE__ */ jsxs(Stack, { children: [
-        /* @__PURE__ */ jsxs(Cluster, { justify: "start", wrap: true, children: [
-          /* @__PURE__ */ jsx(Text, { size: "sm", style: { fontWeight: 600 }, children: base.body || "Surface base" }),
-          /* @__PURE__ */ jsx(
-            Badge,
-            {
-              tone: POWER_TONE[state],
-              "data-tone": POWER_TONE[state],
-              held: basesReading,
-              live: true,
-              children: POWER_LABEL[state]
-            }
-          )
-        ] }),
-        siteLine(base) && /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: siteLine(base) }),
-        /* @__PURE__ */ jsxs(Text, { level: "muted", style: XS2_STYLE, children: [
-          powerBalance(base) ?? "Power unknown",
-          base.experiments.length > 0 && /* @__PURE__ */ jsxs(Text, { level: "faint", style: XS2_STYLE, children: [
-            " ",
-            "\xB7 ",
-            base.experiments.length,
-            " exp"
-          ] })
-        ] }),
-        base.experiments.map((exp) => /* @__PURE__ */ jsxs(Stack, { children: [
-          /* @__PURE__ */ jsx(
-            Meter,
-            {
-              label: exp.name,
-              tone: "go",
-              value: exp.progress === null ? null : progressRatioReading(basesReading, exp.progress),
-              valueLabelNode: exp.progress === null ? void 0 : /* @__PURE__ */ jsxs("span", { style: FIGURE_AND_BADGE, children: [
-                /* @__PURE__ */ jsx(
-                  Unit,
-                  {
-                    value: progressPercentReading(basesReading, exp.progress),
-                    decimals: 0
-                  }
-                ),
-                exp.collecting === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment is collecting science now", children: /* @__PURE__ */ jsx(Badge, { tone: "go", size: "sm", children: "Collecting" }) })
-              ] })
-            }
-          ),
-          /* @__PURE__ */ jsx(
-            AugmentSlot,
-            {
-              name: "deployed-science.experiment",
-              props: { experiment: exp, body: base.body, held: basesReading }
-            }
-          )
-        ] }, `${base.id}-${exp.partId}`))
-      ] })
-    }
-  );
-}
-
-// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/parseBases.ts
-import { DeployedPowerState } from "@ksp-gonogo/sitrep-sdk";
+// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/parseStation.ts
+import {
+  DeployedPowerState,
+  VesselType
+} from "@ksp-gonogo/sitrep-sdk";
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/wire.ts
 import { magnitudeOf } from "@ksp-gonogo/ui-kit";
@@ -161,115 +59,272 @@ function boolOrNull(v) {
   return typeof v === "boolean" ? v : null;
 }
 
-// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/parseBases.ts
+// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/parseStation.ts
 var clamp01 = (v) => Math.max(0, Math.min(1, v));
 var clamp01OrNull = (v) => v === null ? null : clamp01(v);
-function parseFlatDeployedEntry(entry) {
-  if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
-  const e = entry;
-  if (typeof e.vesselName !== "string" || !e.vesselName) return null;
-  return {
-    vesselName: e.vesselName,
-    partName: typeof e.partName === "string" ? e.partName : null,
-    body: typeof e.body === "string" ? e.body : null,
-    biome: typeof e.biome === "string" ? e.biome : null,
-    situation: typeof e.situation === "string" ? e.situation : null,
-    deployedOnGround: typeof e.deployedOnGround === "boolean" ? e.deployedOnGround : null,
-    experimentId: typeof e.experimentId === "string" ? e.experimentId : null,
-    scienceCompletedPercentage: numOrNull(e.scienceCompletedPercentage),
-    scienceTransmittedPercentage: numOrNull(e.scienceTransmittedPercentage),
-    scienceValue: numOrNull(e.scienceValue),
-    scienceLimit: numOrNull(e.scienceLimit),
-    powerState: typeof e.powerState === "string" ? e.powerState : null,
-    connectionState: typeof e.connectionState === "string" ? e.connectionState : null,
-    power: typeof e.power === "number" ? e.power : null,
-    controllerConnected: typeof e.controllerConnected === "boolean" ? e.controllerConnected : null,
-    powerAvailable: numOrNull(e.powerAvailable),
-    powerRequired: numOrNull(e.powerRequired)
-  };
-}
+var stringOrNull = (v) => typeof v === "string" ? v : null;
 function poweredFromState(power) {
-  if (power === null || power === void 0) return null;
+  if (typeof power !== "number") return null;
   return power === DeployedPowerState.Powered;
 }
-function experimentFrom(e, index, vesselName) {
-  const progress = clamp01OrNull(
-    e.scienceCompletedPercentage === null ? null : e.scienceCompletedPercentage / 100
-  );
+function experimentFrom(raw, index, stationId) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const e = raw;
+  const completed = numOrNull(e.scienceCompletedPercentage);
+  const transmittedPercent = numOrNull(e.scienceTransmittedPercentage);
+  const value2 = numOrNull(e.scienceValue);
+  const progress = clamp01OrNull(completed === null ? null : completed / 100);
   const transmittedShare = clamp01OrNull(
-    e.scienceTransmittedPercentage === null ? null : e.scienceTransmittedPercentage / 100
+    transmittedPercent === null ? null : transmittedPercent / 100
   );
-  const transmitted = e.scienceValue === null || transmittedShare === null ? null : e.scienceValue * transmittedShare;
+  const experimentId = stringOrNull(e.experimentId);
+  const partName = stringOrNull(e.partName);
   return {
     partId: index,
-    id: e.experimentId ?? `${vesselName}-${index}`,
-    name: e.partName || e.experimentId || "Experiment",
-    total: e.scienceValue,
-    limit: e.scienceLimit,
+    id: experimentId ?? `${stationId}-${index}`,
+    name: partName || experimentId || "Experiment",
+    total: value2,
+    limit: numOrNull(e.scienceLimit),
     progress,
-    stored: e.scienceValue === null || transmitted === null ? null : Math.max(0, e.scienceValue - transmitted),
-    transmitted,
-    collecting: e.scienceCompletedPercentage === null ? null : e.scienceCompletedPercentage < 100
+    backlog: numOrNull(e.storedData),
+    transmitted: value2 === null || transmittedShare === null ? null : value2 * transmittedShare,
+    collecting: completed === null ? null : completed < 100
   };
 }
-function parseBases(raw) {
-  if (!Array.isArray(raw)) return null;
-  const entries = raw;
-  const order = [];
-  const groups = /* @__PURE__ */ new Map();
-  for (const rawEntry of entries) {
-    const entry = parseFlatDeployedEntry(rawEntry);
-    if (!entry) continue;
-    let list = groups.get(entry.vesselName);
-    if (!list) {
-      list = [];
-      groups.set(entry.vesselName, list);
-      order.push(entry.vesselName);
-    }
-    list.push(entry);
-  }
-  return order.map((vesselName, baseIndex) => {
-    const group = groups.get(vesselName) ?? [];
-    const first = group[0];
-    const experiments = group.map((e, i) => experimentFrom(e, i, vesselName));
-    return {
-      id: baseIndex,
-      body: first?.body ?? "",
-      biome: first?.biome ?? null,
-      situation: first?.situation ?? null,
-      deployedOnGround: first?.deployedOnGround ?? null,
-      powered: poweredFromState(first?.power),
-      powerAvailable: first?.powerAvailable ?? null,
-      powerRequired: first?.powerRequired ?? null,
-      // The derived boolean, never the localised `connectionState` prose.
-      controllerEnabled: first?.controllerConnected ?? false,
-      experimentCount: experiments.length,
-      experiments
-    };
-  });
+function parseStation(id, raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const s = raw;
+  const experiments = (Array.isArray(s.experiments) ? s.experiments : []).map((entry, index) => experimentFrom(entry, index, id)).filter((e) => e !== null);
+  return {
+    id,
+    name: stringOrNull(s.stationName),
+    body: stringOrNull(s.body),
+    biome: stringOrNull(s.biome),
+    situation: stringOrNull(s.situation),
+    powered: poweredFromState(s.power),
+    powerAvailable: numOrNull(s.powerAvailable),
+    powerRequired: numOrNull(s.powerRequired),
+    sendPathHome: boolOrNull(s.sendPathHome),
+    dataSendFailed: boolOrNull(s.dataSendFailed),
+    experiments
+  };
 }
+function stationsFromCatalog(catalog) {
+  if (!catalog || !Array.isArray(catalog.entries)) return null;
+  return catalog.entries.filter(
+    (entry) => entry.vesselType === VesselType.DeployedScienceController
+  ).map((entry) => ({
+    vesselId: entry.vesselId,
+    name: entry.name,
+    contact: entry.contact ?? null,
+    lastContactUt: numOrNull(entry.lastContactUt)
+  })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/power.ts
+function powerState(station) {
+  if (station.powered === null) return "unknown";
+  return station.powered ? "powered" : "unpowered";
+}
+var POWER_LABEL = {
+  powered: "Powered",
+  unpowered: "Unpowered",
+  unknown: "Power unknown"
+};
+var POWER_TONE = {
+  powered: "go",
+  unpowered: "nogo",
+  // Neutral, not `nogo`: a red pill is a verdict, and there is none here.
+  unknown: "neutral"
+};
+function powerBalance(station) {
+  const { powerAvailable, powerRequired } = station;
+  if (powerAvailable === null || powerRequired === null) return null;
+  return `Power ${Math.round(powerAvailable)}/${Math.round(powerRequired)}`;
+}
+
+// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/DeployedStationCard.tsx
+import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+var XS2_STYLE = { fontSize: "var(--font-size-caption)" };
+var FIGURE_AND_BADGE = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "var(--gap-related)"
+};
+function progressPercentReading(source, fraction) {
+  return combineReadings([source], () => value("%", fraction * 100));
+}
+function progressRatioReading(source, fraction) {
+  return combineReadings([source], () => value("ratio", fraction));
+}
+function backlogReading(source, mits) {
+  return combineReadings([source], () => value("Mit", mits));
+}
+var titleCase = (name) => name.charAt(0) + name.slice(1).toLowerCase().replace(/_/g, " ");
+function siteLine(station) {
+  const parts = [
+    station.biome,
+    station.situation === null ? null : titleCase(station.situation)
+  ].filter((p) => p !== null && p !== "");
+  return parts.length === 0 ? null : parts.join(" \xB7 ");
+}
+function linkLabel(contact) {
+  switch (contact) {
+    case CatalogContact.InContact:
+      return { label: "In contact", tone: "go" };
+    case CatalogContact.Silent:
+      return { label: "Out of contact", tone: "caution" };
+    case CatalogContact.Overdue:
+      return { label: "Overdue", tone: "nogo" };
+    case CatalogContact.Lost:
+      return { label: "Lost", tone: "nogo" };
+    case CatalogContact.Gone:
+      return { label: "Gone", tone: "nogo" };
+    default:
+      return { label: "Contact unknown", tone: "neutral" };
+  }
+}
+function totalBacklog(station) {
+  if (station.experiments.length === 0) return null;
+  let total = 0;
+  for (const experiment of station.experiments) {
+    if (experiment.backlog === null) return null;
+    total += experiment.backlog;
+  }
+  return total;
+}
+function DeployedStationCard({ listing }) {
+  const reading = useStream(
+    `deployed.station.${listing.vesselId}.report`
+  );
+  const station = parseStation(listing.vesselId, stillTrue(reading, void 0));
+  const current = parseStation(listing.vesselId, observedValue(reading));
+  const link = linkLabel(listing.contact);
+  const heading = station?.name || listing.name || "Surface station";
+  const backlog = station === null ? null : totalBacklog(station);
+  return /* @__PURE__ */ jsx(
+    Box,
+    {
+      role: "group",
+      "aria-label": heading,
+      bordered: true,
+      radius: "regular",
+      style: {
+        padding: "var(--inset-surface)",
+        borderColor: "var(--color-surface-raised)"
+      },
+      children: /* @__PURE__ */ jsxs(Stack, { children: [
+        /* @__PURE__ */ jsxs(Cluster, { justify: "start", wrap: true, children: [
+          /* @__PURE__ */ jsx(Text, { size: "sm", style: { fontWeight: 600 }, children: heading }),
+          station?.body && /* @__PURE__ */ jsx(Text, { level: "muted", size: "sm", children: station.body }),
+          /* @__PURE__ */ jsx(Badge, { tone: link.tone, "data-tone": link.tone, live: true, children: link.label })
+        ] }),
+        /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: listing.contact === CatalogContact.InContact ? (
+          // The catalog dates an entry in contact from when its listing last changed, which is not a running time.
+          "Heard now"
+        ) : listing.lastContactUt === null ? "No contact on record" : /* @__PURE__ */ jsxs(Fragment, { children: [
+          "Last heard ",
+          /* @__PURE__ */ jsx(MissionDate, { value: listing.lastContactUt })
+        ] }) }),
+        station === null ? /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: "Waiting for the station's report" }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsxs(Cluster, { justify: "start", wrap: true, children: [
+            current?.sendPathHome != null && /* @__PURE__ */ jsx(Badge, { tone: current.sendPathHome ? "go" : "nogo", size: "sm", children: current.sendPathHome ? "Sending home" : "No path home" }),
+            current?.dataSendFailed === true && /* @__PURE__ */ jsx(Badge, { tone: "nogo", size: "sm", children: "Last send failed" }),
+            /* @__PURE__ */ jsx(
+              Badge,
+              {
+                tone: POWER_TONE[powerState(station)],
+                "data-tone": POWER_TONE[powerState(station)],
+                held: reading,
+                live: true,
+                size: "sm",
+                children: POWER_LABEL[powerState(station)]
+              }
+            )
+          ] }),
+          siteLine(station) && /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: siteLine(station) }),
+          /* @__PURE__ */ jsxs(Text, { level: "muted", style: XS2_STYLE, children: [
+            powerBalance(station) ?? "Power unknown",
+            station.experiments.length > 0 && /* @__PURE__ */ jsxs(Text, { level: "faint", style: XS2_STYLE, children: [
+              " ",
+              "\xB7 ",
+              station.experiments.length,
+              " exp"
+            ] }),
+            backlog !== null && /* @__PURE__ */ jsxs(Fragment, { children: [
+              " ",
+              "\xB7 Unsent",
+              " ",
+              /* @__PURE__ */ jsx(Unit, { value: backlogReading(reading, backlog), decimals: 1 })
+            ] })
+          ] }),
+          station.experiments.map((exp) => /* @__PURE__ */ jsxs(Stack, { children: [
+            /* @__PURE__ */ jsx(
+              Meter,
+              {
+                label: exp.name,
+                tone: "go",
+                value: exp.progress === null ? null : progressRatioReading(reading, exp.progress),
+                valueLabelNode: exp.progress === null ? void 0 : /* @__PURE__ */ jsxs("span", { style: FIGURE_AND_BADGE, children: [
+                  /* @__PURE__ */ jsx(
+                    Unit,
+                    {
+                      value: progressPercentReading(reading, exp.progress),
+                      decimals: 0
+                    }
+                  ),
+                  exp.collecting === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment is collecting science now", children: /* @__PURE__ */ jsx(Badge, { tone: "go", size: "sm", children: "Collecting" }) })
+                ] })
+              }
+            ),
+            /* @__PURE__ */ jsx(
+              AugmentSlot,
+              {
+                name: "deployed-science.experiment",
+                props: {
+                  experiment: exp,
+                  body: station.body ?? "",
+                  held: reading
+                }
+              }
+            )
+          ] }, `${station.id}-${exp.partId}`))
+        ] })
+      ] })
+    }
+  );
+}
+
+// ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/deployed-science.declarations.g.ts
+var deployed_science_declarations_g_default = {
+  optionalChannels: [],
+  optionalChannelFamilies: ["deployed.station.<vesselId>.report"],
+  commands: []
+};
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/index.tsx
 import { jsx as jsx2 } from "react/jsx-runtime";
-function emptySentence(available, bases) {
+registerDynamicTopicPrefix("deployed.station.");
+function emptySentence(available, stations) {
   if (available === false) return "Breaking Ground not installed";
-  if (bases === null) return "Waiting for the deployed-base roster";
-  return "No deployed bases";
+  if (stations === null) return "Waiting for the deployed-station roster";
+  return "No deployed stations";
 }
 function DeployedScienceComponent(_) {
-  const basesReading = useTelemetry("deployed.bases");
-  const available = stillTrue(
+  const stations = stationsFromCatalog(
+    stillTrue2(useTelemetry("trackingStation.catalog"), void 0)
+  );
+  const available = stillTrue2(
     useTelemetry("game.dlc"),
     void 0
   )?.breakingGround;
-  const bases = parseBases(stillTrue(basesReading, void 0));
-  if (bases === null || bases.length === 0) {
+  if (stations === null || stations.length === 0) {
     return /* @__PURE__ */ jsx2(
       Panel,
       {
         panelTitle: "DEPLOYED SCIENCE",
         compactTitle: ["DEPLOYED SCI", "DEPLOYED"],
-        sections: /* @__PURE__ */ jsx2(Section, { children: /* @__PURE__ */ jsx2(EmptyState, { role: "status", children: emptySentence(available, bases) }) })
+        sections: /* @__PURE__ */ jsx2(Section, { children: /* @__PURE__ */ jsx2(EmptyState, { role: "status", children: emptySentence(available, stations) }) })
       }
     );
   }
@@ -278,20 +333,22 @@ function DeployedScienceComponent(_) {
     {
       panelTitle: "DEPLOYED SCIENCE",
       compactTitle: ["DEPLOYED SCI", "DEPLOYED"],
-      sections: bases.map((base) => /* @__PURE__ */ jsx2(Section, { children: /* @__PURE__ */ jsx2(DeployedBaseCard, { base, basesReading }) }, base.id))
+      sections: stations.map((listing) => /* @__PURE__ */ jsx2(Section, { children: /* @__PURE__ */ jsx2(DeployedStationCard, { listing }) }, listing.vesselId))
     }
   );
 }
 registerComponent({
   id: "deployed-science",
   name: "Deployed Science",
-  description: "Power balance and per-experiment science progress for Breaking Ground deployed surface bases on every body, reported even while you fly something else. Read-only.",
+  description: "Whether each Breaking Ground deployed station's science is reaching home and when it was last heard, with its power balance and per-experiment science progress, reported even while you fly something else. Read-only.",
   tags: ["telemetry", "science"],
   defaultSize: { w: 5, h: 9 },
-  // Five columns hold an experiment's figure beside its collecting badge, and seven rows keep a base's header, site line, power line and first experiment on screen with the held badge wrapped onto its own line.
+  // Five columns hold an experiment's figure beside its collecting badge, and seven rows keep a station's header, contact line, send and power badges and first experiment on screen with the held badge wrapped onto its own line.
   minSize: { w: 5, h: 7 },
   component: DeployedScienceComponent,
-  dataRequirements: ["deployed.bases", "game.dlc.breakingGround"],
+  channels: ["trackingStation.catalog", "game.dlc"],
+  // The station reports are optional: with Breaking Ground absent the widget says so itself rather than giving way to the Uplink's reason.
+  ...deployed_science_declarations_g_default,
   defaultConfig: {},
   actions: [],
   augmentSlots: ["deployed-science.experiment"],
@@ -302,7 +359,7 @@ registerComponent({
 // ../../mod/GonogoBreakingGroundUplink/client/src/RoboticsConsole/index.tsx
 import {
   registerComponent as registerComponent2,
-  stillTrue as stillTrue2,
+  stillTrue as stillTrue3,
   useActionInput,
   useCommand,
   useTelemetry as useTelemetry2
@@ -425,7 +482,7 @@ function withholdVerdicts(servos) {
 }
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RoboticsConsole/RoboticsConsoleView.tsx
-import { Fragment, jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
+import { Fragment as Fragment2, jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
 function ServoPosition({
   servo,
   of,
@@ -437,7 +494,7 @@ function ServoPosition({
 function ListSuffix({ servo }) {
   if (servo.locked === true) return " \xB7 locked";
   if (servo.atTarget === true) {
-    return /* @__PURE__ */ jsxs2(Fragment, { children: [
+    return /* @__PURE__ */ jsxs2(Fragment2, { children: [
       " \xB7 ",
       /* @__PURE__ */ jsx3("span", { role: "img", "aria-label": "at target", children: "\u2713" })
     ] });
@@ -589,12 +646,12 @@ function RoboticsConsoleComponent({
   h
 }) {
   const roboticsReading = useTelemetry2("robotics.servos");
-  const roboticsRaw = stillTrue2(roboticsReading, void 0);
-  const available = stillTrue2(
+  const roboticsRaw = stillTrue3(roboticsReading, void 0);
+  const available = stillTrue3(
     useTelemetry2("robotics.available"),
     void 0
   )?.available;
-  const breakingGround = stillTrue2(
+  const breakingGround = stillTrue3(
     useTelemetry2("game.dlc"),
     void 0
   )?.breakingGround;
@@ -711,7 +768,7 @@ registerComponent2({
 import {
   value as quantity2,
   registerComponent as registerComponent3,
-  stillTrue as stillTrue3,
+  stillTrue as stillTrue4,
   useActionInput as useActionInput2,
   useCommand as useCommand2,
   useTelemetry as useTelemetry3
@@ -1010,12 +1067,12 @@ function RotorTachometerComponent({
   h
 }) {
   const roboticsReading = useTelemetry3("robotics.servos");
-  const roboticsRaw = stillTrue3(roboticsReading, void 0);
-  const available = stillTrue3(
+  const roboticsRaw = stillTrue4(roboticsReading, void 0);
+  const available = stillTrue4(
     useTelemetry3("robotics.available"),
     void 0
   )?.available;
-  const breakingGround = stillTrue3(
+  const breakingGround = stillTrue4(
     useTelemetry3("game.dlc"),
     void 0
   )?.breakingGround;
@@ -1192,7 +1249,8 @@ export {
   DeployedScienceComponent,
   RoboticsConsoleComponent,
   RotorTachometerComponent,
-  parseBases,
   parseRotors,
-  parseServos
+  parseServos,
+  parseStation,
+  stationsFromCatalog
 };
