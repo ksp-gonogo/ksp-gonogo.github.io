@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 45.1.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 45.6.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 45.1.0</span>
+<span class="version">contract 45.6.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1066,13 +1066,15 @@ pre code {
 <p class="nav-heading">Namespaces</p>
 <ul>
 <li class="nav-group" data-view="ns-alarm"><details>
-<summary>alarm <span class="count">5</span></summary>
+<summary>alarm <span class="count">7</span></summary>
 <p class="nav-sub">Telemetry</p><ul>
 <li data-name="alarm.activeList"><a href="#channel-alarm.activeList" title="alarm.activeList">activeList</a></li>
+<li data-name="alarm.game.list"><a href="#channel-alarm.game.list" title="alarm.game.list">game.list</a></li>
 <li data-name="alarm.scet.fired"><a href="#channel-alarm.scet.fired" title="alarm.scet.fired">scet.fired</a></li>
 <li data-name="alarm.scet.topics"><a href="#channel-alarm.scet.topics" title="alarm.scet.topics">scet.topics</a></li>
 </ul>
 <p class="nav-sub">Commands</p><ul>
+<li data-name="alarm.game.delete"><a href="#channel-alarm.game.delete" title="alarm.game.delete">game.delete</a></li>
 <li data-name="alarm.scet.arm"><a href="#channel-alarm.scet.arm" title="alarm.scet.arm">scet.arm</a></li>
 <li data-name="alarm.scet.disarm"><a href="#channel-alarm.scet.disarm" title="alarm.scet.disarm">scet.disarm</a></li>
 </ul>
@@ -1196,13 +1198,14 @@ pre code {
 
 </details></li>
 <li class="nav-group" data-view="ns-ksp"><details>
-<summary>ksp <span class="count">8</span></summary>
+<summary>ksp <span class="count">9</span></summary>
 <p class="nav-sub">Telemetry</p><ul>
 <li data-name="ksp.revertAvailability"><a href="#channel-ksp.revertAvailability" title="ksp.revertAvailability">revertAvailability</a></li>
 </ul>
 <p class="nav-sub">Commands</p><ul>
 <li data-name="ksp.launch"><a href="#channel-ksp.launch" title="ksp.launch">launch</a></li>
 <li data-name="ksp.recover"><a href="#channel-ksp.recover" title="ksp.recover">recover</a></li>
+<li data-name="ksp.recoverVessel"><a href="#channel-ksp.recoverVessel" title="ksp.recoverVessel">recoverVessel</a></li>
 <li data-name="ksp.revertToEditor"><a href="#channel-ksp.revertToEditor" title="ksp.revertToEditor">revertToEditor</a></li>
 <li data-name="ksp.revertToLaunch"><a href="#channel-ksp.revertToLaunch" title="ksp.revertToLaunch">revertToLaunch</a></li>
 <li data-name="ksp.switchVessel"><a href="#channel-ksp.switchVessel" title="ksp.switchVessel">switchVessel</a></li>
@@ -1386,7 +1389,7 @@ pre code {
 <p class="nav-heading">Reference</p>
 <ul>
 <li class="nav-group" data-view="schemas"><details>
-<summary>Shared types <span class="count">128</span></summary>
+<summary>Shared types <span class="count">131</span></summary>
 <ul>
 <li data-name="ActionBinding"><a href="#schema-ActionBinding" title="ActionBinding">ActionBinding</a></li>
 <li data-name="ActionGroupState"><a href="#schema-ActionGroupState" title="ActionGroupState">ActionGroupState</a></li>
@@ -1441,6 +1444,9 @@ pre code {
 <li data-name="ExperimentActionArgs"><a href="#schema-ExperimentActionArgs" title="ExperimentActionArgs">ExperimentActionArgs</a></li>
 <li data-name="FaultCode"><a href="#schema-FaultCode" title="FaultCode">FaultCode</a></li>
 <li data-name="FlightEndReason"><a href="#schema-FlightEndReason" title="FlightEndReason">FlightEndReason</a></li>
+<li data-name="GameAlarm"><a href="#schema-GameAlarm" title="GameAlarm">GameAlarm</a></li>
+<li data-name="GameAlarmKind"><a href="#schema-GameAlarmKind" title="GameAlarmKind">GameAlarmKind</a></li>
+<li data-name="GameAlarmWarp"><a href="#schema-GameAlarmWarp" title="GameAlarmWarp">GameAlarmWarp</a></li>
 <li data-name="GameMode"><a href="#schema-GameMode" title="GameMode">GameMode</a></li>
 <li data-name="GateOutcome"><a href="#schema-GateOutcome" title="GateOutcome">GateOutcome</a></li>
 <li data-name="InboundFrame"><a href="#schema-InboundFrame" title="InboundFrame">InboundFrame</a></li>
@@ -1523,8 +1529,8 @@ pre code {
 <p id="hash-missing" class="notice" hidden>Nothing on this page has that address, so the overview is shown.</p>
 <section class="view" data-view="start" id="overview" aria-labelledby="overview-title">
 <h1 id="overview-title">Gonogo WebSocket API</h1>
-<div class="lede"><p>The WebSocket API of the Gonogo mod: 87 telemetry channels a client
-subscribes to and 69 commands it sends, each with its payload and what it
+<div class="lede"><p>The WebSocket API of the Gonogo mod: 88 telemetry channels a client
+subscribes to and 71 commands it sends, each with its payload and what it
 means, all over one socket.</p>
 </div>
 <p class="aside">Building a widget or an Uplink? Use the SDK instead: <a href="https://ksp-gonogo.github.io/uplink-dev-docs/">the Uplink developer docs</a>.</p>
@@ -1540,7 +1546,7 @@ means, all over one socket.</p>
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
   &quot;contractMajor&quot;: 45,
-  &quot;contractMinor&quot;: 1
+  &quot;contractMinor&quot;: 6
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -2603,9 +2609,9 @@ as on a <a class="code-ref" href="#frame-stream-data"><code>stream-data</code></
 </article>
 </section>
 <section class="view" data-view="ns-alarm" id="ns-alarm" aria-labelledby="ns-alarm-title">
-<h2 id="ns-alarm-title"><code>alarm</code> <span class="count" aria-hidden="true">3 telemetry, 2 commands</span></h2>
+<h2 id="ns-alarm-title"><code>alarm</code> <span class="count" aria-hidden="true">4 telemetry, 3 commands</span></h2>
 <p class="namespace-description">Alarms set to fire at a game time</p>
-<h3 class="group-title">Telemetry <span class="count" aria-hidden="true">3</span></h3>
+<h3 class="group-title">Telemetry <span class="count" aria-hidden="true">4</span></h3>
 <article class="card channel channel-telemetry" id="channel-alarm.activeList">
 <header>
 <span class="kind kind-telemetry">Telemetry</span>
@@ -2623,7 +2629,7 @@ It is a list of what somebody asked for, not a reading of any craft, so the
 channel is not delayed by signal delay.</p>
 </div>
 <details class="fields-block" id="schema-ScetAlarm">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-ScetAlarm">ScetAlarm</a>[]</span> <span class="count">11 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-ScetAlarm">ScetAlarm</a>[]</span> <span class="count">12 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -2742,6 +2748,16 @@ fires, and are withheld otherwise: a time condition belongs to the game
 rather than to any craft, so after a vessel switch its actions would
 otherwise land on whatever happened to be active.</p>
 </td>
+</tr><tr>
+<td class="field">gameAlarmId <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit"></td>
+<td><p>The <a class="code-ref" href="#schema-GameAlarm"><code>GameAlarm.id</code></a> of this alarm&#39;s copy in the game&#39;s own alarm clock, or
+null when it has none.</p>
+<p>Only an alarm on a universal time is copied into the game, and only while
+the game runs an alarm clock. The copy leaves time warp to this alarm.
+Deleting either one deletes the other.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 <details class="example"><summary>Shape of its stream-data frame, with placeholder values</summary><pre class="json"><code>{
@@ -2756,7 +2772,7 @@ otherwise land on whatever happened to be active.</p>
       &quot;subject&quot;: &quot;&lt;subject&gt;&quot;,
       &quot;condition&quot;: &quot;&lt;condition&gt;&quot;,
       &quot;withheld&quot;: &quot;&lt;withheld: true or false&gt;&quot;,
-      &quot;state&quot;: &quot;&lt;state: 0 Armed, 1 Fired, 2 Unreachable, 3 Cancelled&gt;&quot;,
+      &quot;state&quot;: &quot;&lt;state: 0 Armed, 1 Fired, 2 Unreachable, 3 Cancelled, 4 DeletedInGame&gt;&quot;,
       &quot;firedAtUt&quot;: &quot;&lt;firedAtUt: number ut or null&gt;&quot;,
       &quot;onFire&quot;: [
         {
@@ -2764,9 +2780,74 @@ otherwise land on whatever happened to be active.</p>
           &quot;group&quot;: &quot;&lt;group: number&gt;&quot;
         }
       ],
-      &quot;actsOn&quot;: &quot;&lt;actsOn&gt;&quot;
+      &quot;actsOn&quot;: &quot;&lt;actsOn&gt;&quot;,
+      &quot;gameAlarmId&quot;: &quot;&lt;gameAlarmId: number or null&gt;&quot;
     }
   ],
+  &quot;meta&quot;: {
+    &quot;source&quot;: &quot;system&quot;,
+    &quot;validAt&quot;: 1842006.5,
+    &quot;seq&quot;: 918,
+    &quot;deliveredAt&quot;: 1842006.5,
+    &quot;vantage&quot;: &quot;ground:Kerbal Space Center&quot;,
+    &quot;quality&quot;: 1,
+    &quot;active&quot;: true,
+    &quot;staleness&quot;: 0,
+    &quot;timelineEpoch&quot;: 3,
+    &quot;sampleId&quot;: 4127
+  }
+}</code></pre></details>
+</article>
+<article class="card channel channel-telemetry" id="channel-alarm.game.list">
+<header>
+<span class="kind kind-telemetry">Telemetry</span>
+<h4><code>alarm.game.list</code></h4>
+<button class="try" type="button" data-op="channel:alarm.game.list" aria-label="Open alarm.game.list in the console">Open in console</button>
+</header>
+<p class="facts"><a class="chip" href="#overview-channel-properties" title="Every value is sent, in order, and none may be dropped"><span class="chip-label">Delivery</span> Every value, in order</a><a class="chip" href="#overview-channel-properties" title="The value is not delayed"><span class="chip-label">Delay</span> Live</a><a class="chip" href="#overview-channel-properties" title="Each value holds until the next sample, so draw a step"><span class="chip-label">Samples</span> Holds until changed</a><a class="chip" href="#overview-channel-properties" title="Sent again with nothing changed after this much game time"><span class="chip-label">Repeats</span> every 3600 s of game time</a></p>
+<div class="description"><p>The game&#39;s alarm clock as every command centre sees it at once: the
+<a class="code-ref" href="#channel-alarm.game.list"><code>alarm.game.list</code></a> Topic.</p>
+<p>Holds only the alarms whose time is not worked out from a craft (see
+<a class="code-ref" href="#schema-GameAlarm"><code>GameAlarm</code></a>).</p>
+</div>
+<details class="fields-block" id="schema-GameAlarmList">
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-GameAlarmList">GameAlarmList</a></span> <span class="count">2 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">available</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether the game is running an alarm clock in the current scene. While
+false, <a class="code-ref" href="#schema-GameAlarmList"><code>GameAlarmList.alarms</code></a> is empty and Gonogo&#39;s own alarms are not
+copied into the game.</p>
+</td>
+</tr><tr>
+<td class="field">alarms</td>
+<td class="type"><a class="type-ref" href="#schema-GameAlarm">GameAlarm</a>[]</td>
+<td class="unit"></td>
+<td><p>The alarms, in order of the time they are due.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+<details class="example"><summary>Shape of its stream-data frame, with placeholder values</summary><pre class="json"><code>{
+  &quot;type&quot;: &quot;stream-data&quot;,
+  &quot;topic&quot;: &quot;alarm.game.list&quot;,
+  &quot;payload&quot;: {
+    &quot;available&quot;: &quot;&lt;available: true or false&gt;&quot;,
+    &quot;alarms&quot;: [
+      {
+        &quot;id&quot;: &quot;&lt;id: number&gt;&quot;,
+        &quot;kind&quot;: &quot;&lt;kind: 0 Time, 1 TransferWindow, 2 SoiChange, 3 Apoapsis, 4 Periapsis, 5 Maneuver, 6 Other&gt;&quot;,
+        &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+        &quot;ut&quot;: &quot;&lt;ut: number ut&gt;&quot;,
+        &quot;vessel&quot;: &quot;&lt;vessel, or null&gt;&quot;,
+        &quot;warp&quot;: &quot;&lt;warp: 0 Nothing, 1 StopWarp, 2 Pause&gt;&quot;,
+        &quot;triggered&quot;: &quot;&lt;triggered: true or false&gt;&quot;,
+        &quot;gonogoId&quot;: &quot;&lt;gonogoId, or null&gt;&quot;
+      }
+    ]
+  },
   &quot;meta&quot;: {
     &quot;source&quot;: &quot;system&quot;,
     &quot;validAt&quot;: 1842006.5,
@@ -2912,7 +2993,42 @@ wire.</p>
   }
 }</code></pre></details>
 </article>
-<h3 class="group-title">Commands <span class="count" aria-hidden="true">2</span></h3>
+<h3 class="group-title">Commands <span class="count" aria-hidden="true">3</span></h3>
+<article class="card channel channel-command" id="channel-alarm.game.delete">
+<header>
+<span class="kind kind-command">Command</span>
+<h4><code>alarm.game.delete</code></h4>
+<button class="try" type="button" data-op="channel:alarm.game.delete" aria-label="Open alarm.game.delete in the console">Open in console</button>
+</header>
+<p class="facts"><a class="chip" href="#overview-channel-properties" title="The command acts at once"><span class="chip-label">Takes effect</span> when sent</a></p>
+<div class="description"><p>Removes one alarm from the game&#39;s alarm clock, addressed by <a class="code-ref" href="#schema-GameAlarm"><code>GameAlarm.id</code></a>.</p>
+<p>Never delayed: it edits the player&#39;s clock and nothing aboard a craft.
+Removing an alarm made for a Gonogo alarm removes that Gonogo alarm too.</p>
+</div>
+<details class="fields-block" id="schema-GameAlarmDeleteArgs">
+<summary><span class="type-label">Arguments</span> <span class="type"><a class="type-ref" href="#schema-GameAlarmDeleteArgs">GameAlarmDeleteArgs</a></span> <span class="count">1 field</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">id</td>
+<td class="type">number</td>
+<td class="unit"></td>
+<td><p>The <a class="code-ref" href="#schema-GameAlarm"><code>GameAlarm.id</code></a> of the alarm to remove.</p>
+</td>
+</tr></tbody></table></div>
+</details><p class="type-line"><span class="type-label">Result</span> <span class="type"><a class="type-ref" href="#schema-CommandResult">CommandResult</a></span></p>
+<details class="example"><summary>Shape of its command-request, with placeholder values</summary><pre class="json"><code>{
+  &quot;type&quot;: &quot;command-request&quot;,
+  &quot;requestId&quot;: &quot;&quot;,
+  &quot;command&quot;: &quot;alarm.game.delete&quot;,
+  &quot;label&quot;: &quot;alarm.game.delete&quot;,
+  &quot;topic&quot;: &quot;&quot;,
+  &quot;args&quot;: {
+    &quot;id&quot;: &quot;&lt;id: number&gt;&quot;
+  },
+  &quot;sentAt&quot;: 0
+}</code></pre></details>
+</article>
 <article class="card channel channel-command" id="channel-alarm.scet.arm">
 <header>
 <span class="kind kind-command">Command</span>
@@ -3655,7 +3771,12 @@ itself.</p>
 <td><p>Stable centre id, the one <a class="code-ref" href="#frame-set-vantage"><code>set-vantage.centreId</code></a> takes: <code>&quot;ground:&lt;name&gt;&quot;</code> or
 <code>&quot;vessel:&lt;guid&gt;&quot;</code>. Every ground station is <code>&quot;ground:&lt;name&gt;&quot;</code>, the home one
 included: which centre is home is <a class="code-ref" href="#schema-CommandCentreEntry"><code>CommandCentreEntry.isHome</code></a>, never a
-special id. Ground stations that share a name are told apart as
+special id. The <code>&lt;name&gt;</code> is the home node name as the active comms provider
+names it, so the same station has a different id under a different provider.
+The space centre is <code>&quot;ground:Kerbin: KSC&quot;</code> with stock CommNet and
+<code>&quot;ground:Kerbal Space Center&quot;</code> with a provider that names its home nodes by
+display name. Read the id from the <a class="code-ref" href="#channel-commandCentre.roster"><code>commandCentre.roster</code></a> entry and never
+hard-code or build it. Ground stations that share a name are told apart as
 <code>&quot;ground:&lt;name&gt;#2&quot;</code>, <code>&quot;#3&quot;</code> and so on.</p>
 </td>
 </tr><tr>
@@ -4728,6 +4849,7 @@ before its <a class="code-ref" href="#schema-CommsContactPair"><code>CommsContac
             &quot;closeUt&quot;: &quot;&lt;closeUt: number ut&gt;&quot;
           }
         ],
+        &quot;noReachReason&quot;: &quot;&lt;noReachReason, or null&gt;&quot;,
         &quot;lowConfidence&quot;: &quot;&lt;lowConfidence: true or false&gt;&quot;
       }
     ]
@@ -6412,16 +6534,16 @@ held.</p>
 <td class="field">flightId</td>
 <td class="type">string</td>
 <td class="unit"></td>
-<td><p>The stable flight id: KSP&#39;s <code>Vessel.id</code> GUID as a string, the same value as
-<a class="code-ref" href="#schema-FlightCurrent"><code>FlightCurrent.vesselId</code></a> and as <a class="code-ref" href="#schema-VesselIdentity"><code>VesselIdentity.VesselId</code></a> and
-<a class="code-ref" href="#schema-CrashReport"><code>CrashReport.VesselId</code></a>, so it joins against those directly.</p>
+<td><p>The id of the flight the active vessel is flying, an opaque string the mod
+makes up when the flight starts. A revert to launch starts a new flight for
+the same vessel, so this changes while <a class="code-ref" href="#schema-FlightCurrent"><code>FlightCurrent.vesselId</code></a> does not.</p>
 </td>
 </tr><tr>
 <td class="field">vesselId</td>
 <td class="type">string</td>
 <td class="unit"></td>
-<td><p>KSP&#39;s <code>Vessel.id</code> GUID of the active vessel, as a string. Always equal to
-<a class="code-ref" href="#schema-FlightCurrent"><code>FlightCurrent.flightId</code></a>.</p>
+<td><p>KSP&#39;s <code>Vessel.id</code> GUID of the active vessel, as a string. Joins against
+<a class="code-ref" href="#schema-VesselIdentity"><code>VesselIdentity.VesselId</code></a> and <a class="code-ref" href="#schema-CrashReport"><code>CrashReport.VesselId</code></a>.</p>
 </td>
 </tr><tr>
 <td class="field">vesselName</td>
@@ -6479,7 +6601,13 @@ command centre at the signal delay of that craft&#39;s link as of its last
 contact, whichever craft is being flown, and a centre that had no route to
 it is sent nothing. A centre that saw the craft go has the end in its
 <a class="code-ref" href="#channel-trackingStation.catalog"><code>trackingStation.catalog</code></a>.</p>
-<p>Debris, flags and vessels of unknown type never end a flight.</p>
+<p>Debris, flags and vessels of unknown type never end a flight. Leaving the
+flight scene or switching to another vessel does not end one either: the
+flight stays open, and <a class="code-ref" href="#channel-flight.current"><code>flight.current</code></a> names it again when its vessel is
+flown again.</p>
+<p>A revert sends one end for every flight still open, and an end for the last
+flight that ended by a crash or a recovery after the revert target. A client
+that already holds an end for a flight keeps it.</p>
 </div>
 <details class="fields-block" id="schema-FlightEnded">
 <summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-FlightEnded">FlightEnded</a></span> <span class="count">5 fields</span></summary>
@@ -6489,8 +6617,7 @@ it is sent nothing. A centre that saw the craft go has the end in its
 <td class="field">flightId</td>
 <td class="type">string</td>
 <td class="unit"></td>
-<td><p>The id of the flight that ended: KSP&#39;s <code>Vessel.id</code> GUID as a string. Always
-equal to <a class="code-ref" href="#schema-FlightEnded"><code>FlightEnded.vesselId</code></a>.</p>
+<td><p>The id of the flight that ended, as <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.flightId</code></a> carried it.</p>
 </td>
 </tr><tr>
 <td class="field">vesselId</td>
@@ -6555,13 +6682,13 @@ revert-target UT, not the moment the player chose to revert.</p>
 by the signal delay like any value about a craft, sent when a new flight
 begins. A flight is new when its vessel id has not been started before in
 this game session (a launch, or a first switch onto a vessel), and every
-vessel active just after a revert or a quickload starts a new flight, even
-one with the same id.</p>
+vessel active just after a revert or a quickload starts a new flight with an
+id of its own, even one with the same vessel id.</p>
 <p>A client that subscribes while a flight is already open receives that
 flight&#39;s <a class="code-ref" href="#channel-flight.started"><code>flight.started</code></a>, carrying its original start <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.ut</code></a>. A
-repeat with an unchanged <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.ut</code></a> is the same flight announced
-again; a new <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.ut</code></a> for the same vessel id is a new flight after
-a rewind.</p>
+repeat with an unchanged <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.flightId</code></a> is the same flight
+announced again; a new <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.flightId</code></a> for the same vessel id is a
+new flight after a rewind.</p>
 </div>
 <details class="fields-block" id="schema-FlightStarted">
 <summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-FlightStarted">FlightStarted</a></span> <span class="count">4 fields</span></summary>
@@ -6571,8 +6698,8 @@ a rewind.</p>
 <td class="field">flightId</td>
 <td class="type">string</td>
 <td class="unit"></td>
-<td><p>The stable flight id: KSP&#39;s <code>Vessel.id</code> GUID as a string. Always equal to
-<a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.vesselId</code></a>.</p>
+<td><p>The id of the flight that began, an opaque string the mod makes up. A flight
+begun by a revert has an id of its own, never the reverted flight&#39;s.</p>
 </td>
 </tr><tr>
 <td class="field">vesselId</td>
@@ -6642,8 +6769,7 @@ sends <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted</code
 <td class="field">flightId</td>
 <td class="type">string</td>
 <td class="unit"></td>
-<td><p>The flight now active: KSP&#39;s <code>Vessel.id</code> GUID as a string. Always equal to
-<a class="code-ref" href="#schema-FlightVesselChanged"><code>FlightVesselChanged.vesselId</code></a>.</p>
+<td><p>The id of the flight now active, as <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.flightId</code></a> carried it.</p>
 </td>
 </tr><tr>
 <td class="field">vesselId</td>
@@ -6983,7 +7109,7 @@ mass: all of those belong here rather than as nullable members above.</p>
 <nav class="pager" aria-label="Namespaces"><a href="#ns-game">Previous: <code>game</code></a><a href="#ns-ksp">Next: <code>ksp</code></a></nav>
 </section>
 <section class="view" data-view="ns-ksp" id="ns-ksp" aria-labelledby="ns-ksp-title">
-<h2 id="ns-ksp-title"><code>ksp</code> <span class="count" aria-hidden="true">1 telemetry, 7 commands</span></h2>
+<h2 id="ns-ksp-title"><code>ksp</code> <span class="count" aria-hidden="true">1 telemetry, 8 commands</span></h2>
 <p class="namespace-description">Launching, reverting and recovering vessels</p>
 <h3 class="group-title">Telemetry <span class="count" aria-hidden="true">1</span></h3>
 <article class="card channel channel-telemetry" id="channel-ksp.revertAvailability">
@@ -7044,7 +7170,7 @@ KSP&#39;s <code>FlightDriver.CanRevertToPostInit</code>.</p>
   }
 }</code></pre></details>
 </article>
-<h3 class="group-title">Commands <span class="count" aria-hidden="true">7</span></h3>
+<h3 class="group-title">Commands <span class="count" aria-hidden="true">8</span></h3>
 <article class="card channel channel-command" id="channel-ksp.launch">
 <header>
 <span class="kind kind-command">Command</span>
@@ -7128,6 +7254,48 @@ and its moons) as the site.</p>
   &quot;label&quot;: &quot;ksp.recover&quot;,
   &quot;topic&quot;: &quot;&quot;,
   &quot;args&quot;: {},
+  &quot;sentAt&quot;: 0
+}</code></pre></details>
+</article>
+<article class="card channel channel-command" id="channel-ksp.recoverVessel">
+<header>
+<span class="kind kind-command">Command</span>
+<h4><code>ksp.recoverVessel</code></h4>
+<button class="try" type="button" data-op="channel:ksp.recoverVessel" aria-label="Open ksp.recoverVessel in the console">Open in console</button>
+</header>
+<p class="facts"><a class="chip" href="#overview-channel-properties" title="The command acts at once"><span class="chip-label">Takes effect</span> when sent</a></p>
+<div class="description"><p>Recover a vessel standing at the Space Center by id, the way the Space
+Center&#39;s own Recover button does: the game books the recovery refund, the
+science and the crew&#39;s return exactly as it does for a flight recovery. A
+vessel on a launch site is one of these. Fails with
+<a class="code-ref" href="#schema-CommandErrorCode"><code>&quot;wrongScene&quot;</code></a> outside the Space Center,
+<a class="code-ref" href="#schema-CommandErrorCode"><code>&quot;notFound&quot;</code></a> for an id that matches no vessel, and
+<a class="code-ref" href="#schema-CommandErrorCode"><code>&quot;notClearToProceed&quot;</code></a> for a vessel that is not landed on the
+home world, is not tracked as ours, or in a game that does not permit
+recovery.</p>
+</div>
+<details class="fields-block" id="schema-RecoverVesselArgs">
+<summary><span class="type-label">Arguments</span> <span class="type"><a class="type-ref" href="#schema-RecoverVesselArgs">RecoverVesselArgs</a></span> <span class="count">1 field</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">vesselId</td>
+<td class="type">string</td>
+<td class="unit"></td>
+<td><p>The vessel to recover: KSP&#39;s <code>Vessel.id</code> guid as a string, as
+<a class="code-ref" href="#channel-trackingStation.catalog"><code>trackingStation.catalog</code></a> and a launch site&#39;s <code>padVesselId</code> carry it.</p>
+</td>
+</tr></tbody></table></div>
+</details><p class="type-line"><span class="type-label">Result</span> <span class="type"><a class="type-ref" href="#schema-CommandResult">CommandResult</a></span></p>
+<details class="example"><summary>Shape of its command-request, with placeholder values</summary><pre class="json"><code>{
+  &quot;type&quot;: &quot;command-request&quot;,
+  &quot;requestId&quot;: &quot;&quot;,
+  &quot;command&quot;: &quot;ksp.recoverVessel&quot;,
+  &quot;label&quot;: &quot;ksp.recoverVessel&quot;,
+  &quot;topic&quot;: &quot;&quot;,
+  &quot;args&quot;: {
+    &quot;vesselId&quot;: &quot;&lt;vesselId&gt;&quot;
+  },
   &quot;sentAt&quot;: 0
 }</code></pre></details>
 </article>
@@ -8809,7 +8977,7 @@ is no active vessel or it carries no experiment module. Every field is
 nullable, and is <code>null</code> whenever the raw value is absent.</p>
 </div>
 <details class="fields-block" id="schema-InstrumentEntry">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-InstrumentEntry">InstrumentEntry</a>[]</span> <span class="count">14 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-InstrumentEntry">InstrumentEntry</a>[]</span> <span class="count">15 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -8878,8 +9046,20 @@ one-shot experiment.</p>
 <td class="field">dataIsCollectable <span class="optional">optional</span></td>
 <td class="type">boolean | null</td>
 <td class="unit"></td>
-<td><p>Whether a kerbal on EVA can collect the experiment&#39;s data (KSP&#39;s
-<code>ModuleScienceExperiment.dataIsCollectable</code>).</p>
+<td><p>Whether a kerbal on EVA can take the experiment&#39;s data out of the part
+(KSP&#39;s <code>ModuleScienceExperiment.dataIsCollectable</code>). A part-config setting
+that says nothing about whether data is stored now: see
+<a class="code-ref" href="#schema-InstrumentEntry"><code>InstrumentEntry.holdsData</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">holdsData <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether the experiment module stores data right now, from at least one
+result being held (KSP&#39;s <code>ModuleScienceExperiment.GetData()</code> is not empty).
+This, not <a class="code-ref" href="#schema-InstrumentEntry"><code>InstrumentEntry.dataIsCollectable</code></a>, is what a client branches on
+to offer transmitting the data. <code>null</code> where the module&#39;s store could not be
+read.</p>
 </td>
 </tr><tr>
 <td class="field">continuous <span class="optional">optional</span></td>
@@ -8950,6 +9130,7 @@ the reason here.</p>
       &quot;rerunnable&quot;: &quot;&lt;rerunnable: true or false or null&gt;&quot;,
       &quot;resettable&quot;: &quot;&lt;resettable: true or false or null&gt;&quot;,
       &quot;dataIsCollectable&quot;: &quot;&lt;dataIsCollectable: true or false or null&gt;&quot;,
+      &quot;holdsData&quot;: &quot;&lt;holdsData: true or false or null&gt;&quot;,
       &quot;continuous&quot;: &quot;&lt;continuous: true or false or null&gt;&quot;,
       &quot;running&quot;: &quot;&lt;running: true or false or null&gt;&quot;,
       &quot;producing&quot;: &quot;&lt;producing: true or false or null&gt;&quot;,
@@ -10259,7 +10440,7 @@ is its vantage, sees a change after the signal delay from home to that
 centre, and at once when both are on the ground network.</p>
 </div>
 <details class="fields-block" id="schema-LaunchSiteEntry">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-LaunchSiteEntry">LaunchSiteEntry</a>[]</span> <span class="count">9 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-LaunchSiteEntry">LaunchSiteEntry</a>[]</span> <span class="count">10 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -10333,6 +10514,15 @@ list is not loaded.</p>
 the one the game names in its own refusal; null when the site is clear or
 occupancy is unknown.</p>
 </td>
+</tr><tr>
+<td class="field">padVesselId <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>Id of the vessel holding this site (<a class="code-ref" href="#schema-LaunchSiteEntry"><code>LaunchSiteEntry.padOccupied</code></a> true):
+KSP&#39;s <code>Vessel.id</code> guid as a string, as <a class="code-ref" href="#channel-trackingStation.catalog"><code>trackingStation.catalog</code></a> carries it,
+the id <a class="code-ref" href="#channel-ksp.recoverVessel"><code>ksp.recoverVessel</code></a> takes. Null when the site is clear or occupancy
+is unknown.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 <details class="example"><summary>Shape of its stream-data frame, with placeholder values</summary><pre class="json"><code>{
@@ -10348,7 +10538,8 @@ occupancy is unknown.</p>
       &quot;longitude&quot;: &quot;&lt;longitude: number ° or null&gt;&quot;,
       &quot;isStock&quot;: &quot;&lt;isStock: true or false or null&gt;&quot;,
       &quot;padOccupied&quot;: &quot;&lt;padOccupied: true or false or null&gt;&quot;,
-      &quot;padVesselTitle&quot;: &quot;&lt;padVesselTitle, or null&gt;&quot;
+      &quot;padVesselTitle&quot;: &quot;&lt;padVesselTitle, or null&gt;&quot;,
+      &quot;padVesselId&quot;: &quot;&lt;padVesselId, or null&gt;&quot;
     }
   ],
   &quot;meta&quot;: {
@@ -10557,7 +10748,7 @@ stock <code>CraftProfileInfo</code> metadata loader.</p>
 no sample has arrived yet. Held at the home command.</p>
 </div>
 <details class="fields-block" id="schema-SavedShipEntry">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-SavedShipEntry">SavedShipEntry</a>[]</span> <span class="count">8 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-SavedShipEntry">SavedShipEntry</a>[]</span> <span class="count">13 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -10622,6 +10813,53 @@ not be read as either editor.</p>
 (<code>CraftProfileInfo.UnavailableShipParts</code>); an empty array when the craft is
 buildable as-is.</p>
 </td>
+</tr><tr>
+<td class="field">crewSeats <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">count</td>
+<td><p>How many kerbals the craft seats in all, summed over its parts. Absent when
+a part of the craft is not installed, since the total cannot be read; absent
+is not zero seats.</p>
+</td>
+</tr><tr>
+<td class="field">canFlyUnmanned <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether a command module on the craft needs no crew, as a probe core does,
+so the craft can launch with nobody aboard. <code>false</code> means it cannot launch
+unmanned, for want of a command module or because every one needs crew (see
+<a class="code-ref" href="#schema-SavedShipEntry"><code>SavedShipEntry.minimumCrew</code></a>). Absent when a part of the craft is not
+installed.</p>
+</td>
+</tr><tr>
+<td class="field">minimumCrew <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">count</td>
+<td><p>The fewest kerbals any command module on the craft needs to fly it, <code>0</code> for
+a probe core. Absent when the craft has no command module, which no crew can
+fix, and when a part of the craft is not installed.</p>
+</td>
+</tr><tr>
+<td class="field">lastLaunchedUt <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">ut</td>
+<td><p>Universal time of the most recent launch from this craft file. KSP keeps no
+launch date on a craft file, so Gonogo records one each time a launch is
+made from it, by the console or by the editor&#39;s own Launch button. For a
+craft launched before Gonogo kept that record, the launch time of the newest
+vessel in the save whose name matches the craft name, and
+<a class="code-ref" href="#schema-SavedShipEntry"><code>SavedShipEntry.lastLaunchedByName</code></a> is <code>true</code>. Absent when the craft has
+never been launched.</p>
+</td>
+</tr><tr>
+<td class="field">lastLaunchedByName <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether <a class="code-ref" href="#schema-SavedShipEntry"><code>SavedShipEntry.lastLaunchedUt</code></a> was found by matching the craft name
+against the vessels in the save rather than from a recorded launch, so a
+vessel the player renamed or a different craft sharing the name can stand in
+for it. Absent when <a class="code-ref" href="#schema-SavedShipEntry"><code>SavedShipEntry.lastLaunchedUt</code></a> is absent.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 <details class="example"><summary>Shape of its stream-data frame, with placeholder values</summary><pre class="json"><code>{
@@ -10638,7 +10876,12 @@ buildable as-is.</p>
       &quot;requiresFunds&quot;: &quot;&lt;requiresFunds: number funds or null&gt;&quot;,
       &quot;missingParts&quot;: [
         &quot;&lt;missingParts item&gt;&quot;
-      ]
+      ],
+      &quot;crewSeats&quot;: &quot;&lt;crewSeats: number count or null&gt;&quot;,
+      &quot;canFlyUnmanned&quot;: &quot;&lt;canFlyUnmanned: true or false or null&gt;&quot;,
+      &quot;minimumCrew&quot;: &quot;&lt;minimumCrew: number count or null&gt;&quot;,
+      &quot;lastLaunchedUt&quot;: &quot;&lt;lastLaunchedUt: number ut or null&gt;&quot;,
+      &quot;lastLaunchedByName&quot;: &quot;&lt;lastLaunchedByName: true or false or null&gt;&quot;
     }
   ],
   &quot;meta&quot;: {
@@ -11826,7 +12069,7 @@ asteroids are included.</p>
       {
         &quot;vesselId&quot;: &quot;&lt;vesselId&gt;&quot;,
         &quot;name&quot;: &quot;&lt;name&gt;&quot;,
-        &quot;vesselType&quot;: &quot;&lt;vesselType: 0 Ship, 1 Station, 2 Lander, 3 Probe, 4 Rover, 5 Base, 6 Relay, 7 EVA, 8 Flag, 9 Debris, 10 SpaceObject, 11 DeployedScienceController, 12 DeployedSciencePart, 13 DroppedPart, 14 Unknown&gt;&quot;,
+        &quot;vesselType&quot;: &quot;&lt;vesselType: 0 Ship, 1 Station, 2 Lander, 3 Probe, 4 Rover, 5 Base, 6 Relay, 7 EVA, 8 Flag, 9 Debris, 10 SpaceObject, 11 DeployedScienceController, 12 DeployedSciencePart, 13 DroppedPart, 14 Unknown, 15 Plane, 16 DeployedGroundPart&gt;&quot;,
         &quot;situation&quot;: &quot;&lt;situation: 0 Landed, 1 Splashed, 2 PreLaunch, 3 Orbiting, 4 Escaping, 5 Flying, 6 SubOrbital, 7 Docked, 8 Unknown&gt;&quot;,
         &quot;bodyIndex&quot;: &quot;&lt;bodyIndex: number or null&gt;&quot;,
         &quot;landedAt&quot;: &quot;&lt;landedAt, or null&gt;&quot;,
@@ -12863,7 +13106,7 @@ unknown, never the current time.</p>
   &quot;payload&quot;: {
     &quot;vesselId&quot;: &quot;&lt;vesselId&gt;&quot;,
     &quot;name&quot;: &quot;&lt;name&gt;&quot;,
-    &quot;vesselType&quot;: &quot;&lt;vesselType: 0 Ship, 1 Station, 2 Lander, 3 Probe, 4 Rover, 5 Base, 6 Relay, 7 EVA, 8 Flag, 9 Debris, 10 SpaceObject, 11 DeployedScienceController, 12 DeployedSciencePart, 13 DroppedPart, 14 Unknown&gt;&quot;,
+    &quot;vesselType&quot;: &quot;&lt;vesselType: 0 Ship, 1 Station, 2 Lander, 3 Probe, 4 Rover, 5 Base, 6 Relay, 7 EVA, 8 Flag, 9 Debris, 10 SpaceObject, 11 DeployedScienceController, 12 DeployedSciencePart, 13 DroppedPart, 14 Unknown, 15 Plane, 16 DeployedGroundPart&gt;&quot;,
     &quot;situation&quot;: &quot;&lt;situation: 0 Landed, 1 Splashed, 2 PreLaunch, 3 Orbiting, 4 Escaping, 5 Flying, 6 SubOrbital, 7 Docked, 8 Unknown&gt;&quot;,
     &quot;parentBodyIndex&quot;: &quot;&lt;parentBodyIndex: number or null&gt;&quot;,
     &quot;launchUt&quot;: &quot;&lt;launchUt: number ut or null&gt;&quot;,
@@ -13873,7 +14116,10 @@ an empty list.</p>
             &quot;x&quot;: null,
             &quot;y&quot;: null,
             &quot;z&quot;: null
-          }
+          },
+          &quot;hull&quot;: [
+            null
+          ]
         },
         &quot;dryMass&quot;: &quot;&lt;dryMass: number t or null&gt;&quot;,
         &quot;inverseStage&quot;: &quot;&lt;inverseStage: number or null&gt;&quot;,
@@ -17360,7 +17606,7 @@ vocabulary (<code>&quot;pilot&quot;</code>, <code>&quot;mission-control&quot;</c
 <p class="type-line"><span class="type">object</span></p>
 <div class="description"><p>Two nodes and the windows the plan predicts contact between them.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">6 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">7 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -17399,6 +17645,15 @@ carry a message, in time order: the dish has no contact on its own aim then,
 the turned dish would close the link, and the other end could already
 receive. A message held at the turning node may use one; nothing else does.
 Empty when no dish would be turned or the backend turns none.</p>
+</td>
+</tr><tr>
+<td class="field">noReachReason <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>Why this pair has no reach and so no windows, from CommsNoReachReasons:
+<code>&quot;unpowered&quot;</code> when either craft has no electric charge aboard. Absent when
+the pair has reach or no reason is known. Useful for telling the operator a
+missing window is the craft&#39;s power, not its orbit.</p>
 </td>
 </tr><tr>
 <td class="field">lowConfidence</td>
@@ -18840,7 +19095,7 @@ this is only the coarse reason.</p>
 <td>The game rewound (a revert or a quickload) to before the flight&#39;s end, or
 the flight was still open when the rewind happened. Also sent for a flight
 that had already ended by crash or recovery on the timeline the rewind
-discarded.</td>
+discarded, in case its first end never reached the client.</td>
 </tr><tr>
 <td class="field">3</td>
 <td class="field">Destroyed</td>
@@ -18851,6 +19106,138 @@ re-entry.</td>
 <td class="field">Terminated</td>
 <td>The player ended the vessel from the Tracking Station. It was neither lost
 nor recovered.</td>
+</tr></tbody></table></div>
+</details>
+</article>
+<article class="card" id="schema-GameAlarm">
+<header><h3><code>GameAlarm</code></h3></header>
+<p class="type-line"><span class="type">object</span></p>
+<div class="description"><p>One alarm in the game&#39;s own alarm clock, as Gonogo shows it.</p>
+<p>An alarm whose time the game works out from a craft&#39;s live state (a sphere
+of influence change, an apsis, a maneuver node) is a prediction made from
+that craft, so it travels like that craft&#39;s telemetry: it is on
+<code>alarm.game.craft.&lt;guid&gt;.list</code>, reaches each command centre one signal delay
+after the craft, and stays at its last known state while the craft is out of
+contact. Every other alarm is on <a class="code-ref" href="#channel-alarm.game.list"><code>alarm.game.list</code></a> and reaches every command
+centre at once.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">8 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">id</td>
+<td class="type">number</td>
+<td class="unit"></td>
+<td><p>The game&#39;s own id for the alarm, which <a class="code-ref" href="#channel-alarm.game.delete"><code>alarm.game.delete</code></a> takes.</p>
+</td>
+</tr><tr>
+<td class="field">kind</td>
+<td class="type"><a class="type-ref" href="#schema-GameAlarmKind">GameAlarmKind</a></td>
+<td class="unit"></td>
+<td><p>What kind of event the game computes the alarm&#39;s time from.</p>
+</td>
+</tr><tr>
+<td class="field">title</td>
+<td class="type">string</td>
+<td class="unit"></td>
+<td><p>The alarm&#39;s title as the game shows it.</p>
+</td>
+</tr><tr>
+<td class="field">ut</td>
+<td class="type">number</td>
+<td class="unit">ut</td>
+<td><p>The universal time the alarm is due.</p>
+</td>
+</tr><tr>
+<td class="field">vessel <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The craft the alarm belongs to, as <code>&quot;vessel:&lt;guid&gt;&quot;</code>, or null for an alarm
+on no craft.</p>
+</td>
+</tr><tr>
+<td class="field">warp</td>
+<td class="type"><a class="type-ref" href="#schema-GameAlarmWarp">GameAlarmWarp</a></td>
+<td class="unit"></td>
+<td><p>What the game does to time warp when the alarm comes due. Gonogo does not
+act on it.</p>
+</td>
+</tr><tr>
+<td class="field">triggered</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether the alarm has come due.</p>
+</td>
+</tr><tr>
+<td class="field">gonogoId <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The <a class="code-ref" href="#schema-ScetAlarm"><code>ScetAlarm.id</code></a> of the Gonogo alarm this game alarm was made for, or null
+for an alarm the player made in the game. A row with an id here is the same
+alarm as that Gonogo alarm, so show it once.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+</article>
+<article class="card" id="schema-GameAlarmKind">
+<header><h3><code>GameAlarmKind</code></h3></header>
+<p class="type-line"><span class="type">enum</span></p>
+<div class="description"><p>What kind of event the game&#39;s alarm clock computes an alarm&#39;s time from.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">7 values</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Value</th><th scope="col">Name</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">0</td>
+<td class="field">Time</td>
+<td>A universal time the player chose, with or without a craft named on it.</td>
+</tr><tr>
+<td class="field">1</td>
+<td class="field">TransferWindow</td>
+<td>A transfer window between two bodies, from their orbits alone.</td>
+</tr><tr>
+<td class="field">2</td>
+<td class="field">SoiChange</td>
+<td>A craft leaving or entering a sphere of influence on its current trajectory.</td>
+</tr><tr>
+<td class="field">3</td>
+<td class="field">Apoapsis</td>
+<td>A craft&#39;s next apoapsis.</td>
+</tr><tr>
+<td class="field">4</td>
+<td class="field">Periapsis</td>
+<td>A craft&#39;s next periapsis.</td>
+</tr><tr>
+<td class="field">5</td>
+<td class="field">Maneuver</td>
+<td>A craft&#39;s next maneuver node.</td>
+</tr><tr>
+<td class="field">6</td>
+<td class="field">Other</td>
+<td>A kind this version of Gonogo does not know, such as one another mod adds.</td>
+</tr></tbody></table></div>
+</details>
+</article>
+<article class="card" id="schema-GameAlarmWarp">
+<header><h3><code>GameAlarmWarp</code></h3></header>
+<p class="type-line"><span class="type">enum</span></p>
+<div class="description"><p>What the game does to time warp when one of its alarms comes due.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 values</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Value</th><th scope="col">Name</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">0</td>
+<td class="field">Nothing</td>
+<td>Leaves time warp alone.</td>
+</tr><tr>
+<td class="field">1</td>
+<td class="field">StopWarp</td>
+<td>Stops time warp.</td>
+</tr><tr>
+<td class="field">2</td>
+<td class="field">Pause</td>
+<td>Stops time warp and pauses the game.</td>
 </tr></tbody></table></div>
 </details>
 </article>
@@ -20179,7 +20566,7 @@ vessel&#39;s. A consumer placing the box on a ship rotates both by the part&#39;
 rotation (<a class="code-ref" href="#schema-VesselPart"><code>VesselPart.up</code></a> and <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.forward</code></a>) before adding
 <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.position</code></a>, which is <code>vessel-local</code>.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">2 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -20231,6 +20618,19 @@ rotation before adding it to <a class="code-ref" href="#schema-VesselPart"><code
 <td class="unit">m</td>
 <td></td>
 </tr></tbody></table></div></details></td>
+</tr><tr>
+<td class="field">hull <span class="optional">optional</span></td>
+<td class="type">number[] | null</td>
+<td class="unit"></td>
+<td><p>The part&#39;s silhouette as the points of a convex hull around its mesh
+vertices (metres, part-local), flattened to x, y, z triples in order, so a
+list of 3n numbers holds n points. A consumer drawing the part from any side
+turns the points by the part&#39;s rotation and keeps the 2D convex hull of the
+result. At most 38 points, rounded to a millimetre. <code>null</code> when the mesh
+could not be read (the box is then the only shape known) or the part&#39;s model
+has no mesh. A convex hull fills in any notch, so a concave part such as a
+cargo bay or an L-shaped bracket reads as its enclosing shape.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 </article>
@@ -20250,8 +20650,7 @@ property.</p>
 <td class="type">string</td>
 <td class="unit"></td>
 <td><p>Discriminator: <code>solarPanel</code> / <code>radiator</code> / <code>antenna</code> / <code>parachute</code> /
-<code>engine</code> / <code>drill</code> / <code>landingGear</code>. <code>cargoBay</code> is a defined vocabulary value
-that no module currently produces.</p>
+<code>engine</code> / <code>drill</code> / <code>landingGear</code> / <code>cargoBay</code>.</p>
 </td>
 </tr><tr>
 <td class="field">state</td>
@@ -20261,7 +20660,8 @@ that no module currently produces.</p>
 <a class="code-ref" href="#schema-PartModuleState"><code>PartModuleState.type</code></a> rather than each module&#39;s own enum spelling.</p>
 <ul>
 <li><code>extended</code> / <code>retracted</code> / <code>deploying</code> / <code>retracting</code>, for anything that
-animates: solar panels, radiators, antennas, landing gear.</li>
+animates: solar panels, radiators, antennas, landing gear, cargo bay doors
+(<code>retracted</code> is closed, <code>extended</code> is open).</li>
 <li><code>stowed</code> / <code>armed</code> / <code>extended</code> / <code>broken</code>, the parachute lifecycle.
 <code>armed</code> means staged and waiting for its atmospheric trigger, which is not
 the same as deployed.</li>
@@ -21242,7 +21642,7 @@ judged on the craft&#39;s own clock, at the subject&#39;s vantage.</td>
 <p><a class="code-ref" href="#schema-ScetAlarmState"><code>1 (Fired)</code></a> is reached once and stays: an alarm whose condition
 keeps holding does not stop the warp again.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">4 values</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">5 values</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Value</th><th scope="col">Name</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -21270,6 +21670,13 @@ pending.</td>
 will never fire. An alarm belongs to the craft being flown when it was set,
 whatever its condition reads, and a switch ends every alarm still watching.
 A kerbal on EVA counts as the craft they stepped out of.</td>
+</tr><tr>
+<td class="field">4</td>
+<td class="field">DeletedInGame</td>
+<td>The copy of this alarm in the game&#39;s own alarm clock (see
+<a class="code-ref" href="#schema-ScetAlarm"><code>ScetAlarm.gameAlarmId</code></a>) was deleted in the game, so the alarm is deleted
+too. Remove the row. Arming the same id again is refused while the game
+holds this row.</td>
 </tr></tbody></table></div>
 </details>
 </article>
@@ -22465,7 +22872,7 @@ action group&#39;s human-readable caption from this.</p>
 same member names. <a class="code-ref" href="#schema-VesselType"><code>14 (Unknown)</code></a> is both KSP&#39;s own <code>Unknown</code> type and
 the value for a type this contract does not recognise.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">15 values</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">17 values</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Value</th><th scope="col">Name</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -22529,6 +22936,15 @@ the value for a type this contract does not recognise.</p>
 <td class="field">14</td>
 <td class="field">Unknown</td>
 <td>KSP&#39;s own unknown type, or a type this contract does not recognise.</td>
+</tr><tr>
+<td class="field">15</td>
+<td class="field">Plane</td>
+<td>A spaceplane or aircraft.</td>
+</tr><tr>
+<td class="field">16</td>
+<td class="field">DeployedGroundPart</td>
+<td>A part deployed on the ground by Breaking Ground that is neither a
+controller nor a science part.</td>
 </tr></tbody></table></div>
 </details>
 </article>
@@ -22575,8 +22991,8 @@ neither matches.</p>
 <p id="mixed-note" hidden>This page came over https, so the browser connects it to a game on this computer (<code>localhost</code>) but blocks a connection to a game on another computer. For that, save this page and open the saved file.</p>
 <label for="frame-pick">Channel or frame</label>
 <select id="frame-pick"><optgroup label="Connection frames"><option value="frame:command-request">command-request</option><option value="frame:subscribe">subscribe</option><option value="frame:unsubscribe">unsubscribe</option><option value="frame:set-vantage">set-vantage</option><option value="frame:claim">claim</option><option value="frame:ping">ping</option><option value="frame:command-group">command-group</option></optgroup>
-<optgroup label="alarm: telemetry"><option value="channel:alarm.activeList">alarm.activeList</option><option value="channel:alarm.scet.fired">alarm.scet.fired</option><option value="channel:alarm.scet.topics">alarm.scet.topics</option></optgroup>
-<optgroup label="alarm: commands"><option value="channel:alarm.scet.arm">alarm.scet.arm</option><option value="channel:alarm.scet.disarm">alarm.scet.disarm</option></optgroup>
+<optgroup label="alarm: telemetry"><option value="channel:alarm.activeList">alarm.activeList</option><option value="channel:alarm.game.list">alarm.game.list</option><option value="channel:alarm.scet.fired">alarm.scet.fired</option><option value="channel:alarm.scet.topics">alarm.scet.topics</option></optgroup>
+<optgroup label="alarm: commands"><option value="channel:alarm.game.delete">alarm.game.delete</option><option value="channel:alarm.scet.arm">alarm.scet.arm</option><option value="channel:alarm.scet.disarm">alarm.scet.disarm</option></optgroup>
 <optgroup label="career: telemetry"><option value="channel:career.facilities">career.facilities</option><option value="channel:career.mode">career.mode</option><option value="channel:career.status">career.status</option></optgroup>
 <optgroup label="career: commands"><option value="channel:career.contract.accept">career.contract.accept</option><option value="channel:career.contract.cancel">career.contract.cancel</option><option value="channel:career.contract.decline">career.contract.decline</option><option value="channel:career.crew.fire">career.crew.fire</option><option value="channel:career.crew.hire">career.crew.hire</option><option value="channel:career.facility.upgrade">career.facility.upgrade</option><option value="channel:career.strategy.activate">career.strategy.activate</option><option value="channel:career.strategy.deactivate">career.strategy.deactivate</option><option value="channel:career.tech.unlock">career.tech.unlock</option></optgroup>
 <optgroup label="commandCentre: telemetry"><option value="channel:commandCentre.activeVesselDelay">commandCentre.activeVesselDelay</option><option value="channel:commandCentre.roster">commandCentre.roster</option><option value="channel:commandCentre.separation">commandCentre.separation</option><option value="channel:commandCentre.unreachable">commandCentre.unreachable</option></optgroup>
@@ -22591,7 +23007,7 @@ neither matches.</p>
 <optgroup label="game: telemetry"><option value="channel:game.dlc">game.dlc</option></optgroup>
 <optgroup label="isru: telemetry"><option value="channel:isru.converters">isru.converters</option><option value="channel:isru.drills">isru.drills</option></optgroup>
 <optgroup label="ksp: telemetry"><option value="channel:ksp.revertAvailability">ksp.revertAvailability</option></optgroup>
-<optgroup label="ksp: commands"><option value="channel:ksp.launch">ksp.launch</option><option value="channel:ksp.recover">ksp.recover</option><option value="channel:ksp.revertToEditor">ksp.revertToEditor</option><option value="channel:ksp.revertToLaunch">ksp.revertToLaunch</option><option value="channel:ksp.switchVessel">ksp.switchVessel</option><option value="channel:ksp.toSpaceCenter">ksp.toSpaceCenter</option><option value="channel:ksp.toTrackingStation">ksp.toTrackingStation</option></optgroup>
+<optgroup label="ksp: commands"><option value="channel:ksp.launch">ksp.launch</option><option value="channel:ksp.recover">ksp.recover</option><option value="channel:ksp.recoverVessel">ksp.recoverVessel</option><option value="channel:ksp.revertToEditor">ksp.revertToEditor</option><option value="channel:ksp.revertToLaunch">ksp.revertToLaunch</option><option value="channel:ksp.switchVessel">ksp.switchVessel</option><option value="channel:ksp.toSpaceCenter">ksp.toSpaceCenter</option><option value="channel:ksp.toTrackingStation">ksp.toTrackingStation</option></optgroup>
 <optgroup label="missions: telemetry"><option value="channel:missions.active">missions.active</option></optgroup>
 <optgroup label="parts: telemetry"><option value="channel:parts.power">parts.power</option></optgroup>
 <optgroup label="recovery: telemetry"><option value="channel:recovery.hasRecent">recovery.hasRecent</option><option value="channel:recovery.lastSummary">recovery.lastSummary</option></optgroup>
@@ -22636,7 +23052,7 @@ neither matches.</p>
 <ol id="log" aria-label="Frames sent and received"><li id="log-empty" class="log-note">Frames sent and received appear here.</li></ol>
 </aside>
 </div>
-<script type="application/json" id="operations">[{"id":"frame:command-request","group":"Connection frames","label":"command-request","frame":{"type":"command-request","requestId":"","command":"time.setPaused","label":"time.setPaused","topic":"","args":{"paused":"\u003cpaused: true or false>"},"sentAt":0}},{"id":"frame:subscribe","group":"Connection frames","label":"subscribe","frame":{"type":"subscribe","topic":"vessel.flight"}},{"id":"frame:unsubscribe","group":"Connection frames","label":"unsubscribe","frame":{"type":"unsubscribe","topic":""}},{"id":"frame:set-vantage","group":"Connection frames","label":"set-vantage","frame":{"type":"set-vantage","centreId":""}},{"id":"frame:claim","group":"Connection frames","label":"claim","frame":{"type":"claim","requestIds":[]}},{"id":"frame:ping","group":"Connection frames","label":"ping","frame":{"type":"ping","nonce":""}},{"id":"frame:command-group","group":"Connection frames","label":"command-group","frame":{"type":"command-group","groupId":"","members":[]}},{"id":"channel:alarm.activeList","group":"alarm: telemetry","label":"alarm.activeList","frame":{"type":"subscribe","topic":"alarm.activeList"}},{"id":"channel:alarm.scet.fired","group":"alarm: telemetry","label":"alarm.scet.fired","frame":{"type":"subscribe","topic":"alarm.scet.fired"}},{"id":"channel:alarm.scet.topics","group":"alarm: telemetry","label":"alarm.scet.topics","frame":{"type":"subscribe","topic":"alarm.scet.topics"}},{"id":"channel:alarm.scet.arm","group":"alarm: commands","label":"alarm.scet.arm","frame":{"type":"command-request","requestId":"","command":"alarm.scet.arm","label":"alarm.scet.arm","topic":"","args":{"id":"\u003cid>","name":"\u003cname>","vantage":"\u003cvantage>","subject":"\u003csubject>","condition":{"kind":"\u003ckind: 0 Time, 1 Threshold, 2 ContractParameter, 3 TopicInstant>","ut":"\u003cut: number ut>","leadSeconds":"\u003cleadSeconds: number s>","topic":"\u003ctopic>","fieldPath":"\u003cfieldPath>","op":"\u003cop: 0 GreaterThan, 1 GreaterThanOrEqual, 2 LessThan, 3 LessThanOrEqual, 4 Equal, 5 NotEqual>","threshold":"\u003cthreshold: number>","sustainSeconds":"\u003csustainSeconds: number s>","contractId":"\u003ccontractId>","parameterTitle":"\u003cparameterTitle>","targetState":"\u003ctargetState: 0 Incomplete, 1 Complete, 2 Failed>"},"onFire":[],"actsOn":"\u003cactsOn>"},"sentAt":0}},{"id":"channel:alarm.scet.disarm","group":"alarm: commands","label":"alarm.scet.disarm","frame":{"type":"command-request","requestId":"","command":"alarm.scet.disarm","label":"alarm.scet.disarm","topic":"","args":{"id":"\u003cid>"},"sentAt":0}},{"id":"channel:career.facilities","group":"career: telemetry","label":"career.facilities","frame":{"type":"subscribe","topic":"career.facilities"}},{"id":"channel:career.mode","group":"career: telemetry","label":"career.mode","frame":{"type":"subscribe","topic":"career.mode"}},{"id":"channel:career.status","group":"career: telemetry","label":"career.status","frame":{"type":"subscribe","topic":"career.status"}},{"id":"channel:career.contract.accept","group":"career: commands","label":"career.contract.accept","frame":{"type":"command-request","requestId":"","command":"career.contract.accept","label":"career.contract.accept","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.contract.cancel","group":"career: commands","label":"career.contract.cancel","frame":{"type":"command-request","requestId":"","command":"career.contract.cancel","label":"career.contract.cancel","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.contract.decline","group":"career: commands","label":"career.contract.decline","frame":{"type":"command-request","requestId":"","command":"career.contract.decline","label":"career.contract.decline","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.crew.fire","group":"career: commands","label":"career.crew.fire","frame":{"type":"command-request","requestId":"","command":"career.crew.fire","label":"career.crew.fire","topic":"","args":{"kerbalName":"\u003ckerbalName>"},"sentAt":0}},{"id":"channel:career.crew.hire","group":"career: commands","label":"career.crew.hire","frame":{"type":"command-request","requestId":"","command":"career.crew.hire","label":"career.crew.hire","topic":"","args":{"applicantName":"\u003capplicantName>"},"sentAt":0}},{"id":"channel:career.facility.upgrade","group":"career: commands","label":"career.facility.upgrade","frame":{"type":"command-request","requestId":"","command":"career.facility.upgrade","label":"career.facility.upgrade","topic":"","args":{"facilityId":"\u003cfacilityId>"},"sentAt":0}},{"id":"channel:career.strategy.activate","group":"career: commands","label":"career.strategy.activate","frame":{"type":"command-request","requestId":"","command":"career.strategy.activate","label":"career.strategy.activate","topic":"","args":{"strategyId":"\u003cstrategyId>","factor":"\u003cfactor: number ratio>"},"sentAt":0}},{"id":"channel:career.strategy.deactivate","group":"career: commands","label":"career.strategy.deactivate","frame":{"type":"command-request","requestId":"","command":"career.strategy.deactivate","label":"career.strategy.deactivate","topic":"","args":{"strategyId":"\u003cstrategyId>"},"sentAt":0}},{"id":"channel:career.tech.unlock","group":"career: commands","label":"career.tech.unlock","frame":{"type":"command-request","requestId":"","command":"career.tech.unlock","label":"career.tech.unlock","topic":"","args":{"techId":"\u003ctechId>"},"sentAt":0}},{"id":"channel:commandCentre.activeVesselDelay","group":"commandCentre: telemetry","label":"commandCentre.activeVesselDelay","frame":{"type":"subscribe","topic":"commandCentre.activeVesselDelay"}},{"id":"channel:commandCentre.roster","group":"commandCentre: telemetry","label":"commandCentre.roster","frame":{"type":"subscribe","topic":"commandCentre.roster"}},{"id":"channel:commandCentre.separation","group":"commandCentre: telemetry","label":"commandCentre.separation","frame":{"type":"subscribe","topic":"commandCentre.separation"}},{"id":"channel:commandCentre.unreachable","group":"commandCentre: telemetry","label":"commandCentre.unreachable","frame":{"type":"subscribe","topic":"commandCentre.unreachable"}},{"id":"channel:commcast.traffic","group":"commcast: telemetry","label":"commcast.traffic","frame":{"type":"subscribe","topic":"commcast.traffic"}},{"id":"channel:commcast.transmissions","group":"commcast: telemetry","label":"commcast.transmissions","frame":{"type":"subscribe","topic":"commcast.transmissions"}},{"id":"channel:commcast.group.add","group":"commcast: commands","label":"commcast.group.add","frame":{"type":"command-request","requestId":"","command":"commcast.group.add","label":"commcast.group.add","topic":"","args":{"groupId":"\u003cgroupId>","added":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.group.open","group":"commcast: commands","label":"commcast.group.open","frame":{"type":"command-request","requestId":"","command":"commcast.group.open","label":"commcast.group.open","topic":"","args":{"groupId":"\u003cgroupId>","members":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.message.ack","group":"commcast: commands","label":"commcast.message.ack","frame":{"type":"command-request","requestId":"","command":"commcast.message.ack","label":"commcast.message.ack","topic":"","args":{"messageId":"\u003cmessageId>","author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.message.send","group":"commcast: commands","label":"commcast.message.send","frame":{"type":"command-request","requestId":"","command":"commcast.message.send","label":"commcast.message.send","topic":"","args":{"id":"\u003cid>","groupId":"\u003cgroupId>","body":"\u003cbody>","to":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.radio.transmit","group":"commcast: commands","label":"commcast.radio.transmit","frame":{"type":"command-request","requestId":"","command":"commcast.radio.transmit","label":"commcast.radio.transmit","topic":"","args":{"transmissionId":"\u003ctransmissionId>","groupId":"\u003cgroupId>","seq":"\u003cseq: number count>","chunks":[],"end":"\u003cend: true or false>","author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:comms.commandCentre","group":"comms: telemetry","label":"comms.commandCentre","frame":{"type":"subscribe","topic":"comms.commandCentre"}},{"id":"channel:comms.connectivity","group":"comms: telemetry","label":"comms.connectivity","frame":{"type":"subscribe","topic":"comms.connectivity"}},{"id":"channel:comms.contacts","group":"comms: telemetry","label":"comms.contacts","frame":{"type":"subscribe","topic":"comms.contacts"}},{"id":"channel:comms.control","group":"comms: telemetry","label":"comms.control","frame":{"type":"subscribe","topic":"comms.control"}},{"id":"channel:comms.degrade","group":"comms: telemetry","label":"comms.degrade","frame":{"type":"subscribe","topic":"comms.degrade"}},{"id":"channel:comms.delay","group":"comms: telemetry","label":"comms.delay","frame":{"type":"subscribe","topic":"comms.delay"}},{"id":"channel:comms.journey","group":"comms: telemetry","label":"comms.journey","frame":{"type":"subscribe","topic":"comms.journey"}},{"id":"channel:comms.link","group":"comms: telemetry","label":"comms.link","frame":{"type":"subscribe","topic":"comms.link"}},{"id":"channel:comms.network","group":"comms: telemetry","label":"comms.network","frame":{"type":"subscribe","topic":"comms.network"}},{"id":"channel:comms.nextLoss","group":"comms: telemetry","label":"comms.nextLoss","frame":{"type":"subscribe","topic":"comms.nextLoss"}},{"id":"channel:comms.occlusion","group":"comms: telemetry","label":"comms.occlusion","frame":{"type":"subscribe","topic":"comms.occlusion"}},{"id":"channel:comms.path","group":"comms: telemetry","label":"comms.path","frame":{"type":"subscribe","topic":"comms.path"}},{"id":"channel:comms.route","group":"comms: telemetry","label":"comms.route","frame":{"type":"subscribe","topic":"comms.route"}},{"id":"channel:comms.signal","group":"comms: telemetry","label":"comms.signal","frame":{"type":"subscribe","topic":"comms.signal"}},{"id":"channel:crash.hasRecent","group":"crash: telemetry","label":"crash.hasRecent","frame":{"type":"subscribe","topic":"crash.hasRecent"}},{"id":"channel:crash.lastCrash","group":"crash: telemetry","label":"crash.lastCrash","frame":{"type":"subscribe","topic":"crash.lastCrash"}},{"id":"channel:deployed.bases","group":"deployed: telemetry","label":"deployed.bases","frame":{"type":"subscribe","topic":"deployed.bases"}},{"id":"channel:dv.stages","group":"dv: telemetry","label":"dv.stages","frame":{"type":"subscribe","topic":"dv.stages"}},{"id":"channel:dv.summary","group":"dv: telemetry","label":"dv.summary","frame":{"type":"subscribe","topic":"dv.summary"}},{"id":"channel:eva.crew","group":"eva: telemetry","label":"eva.crew","frame":{"type":"subscribe","topic":"eva.crew"}},{"id":"channel:flight.current","group":"flight: telemetry","label":"flight.current","frame":{"type":"subscribe","topic":"flight.current"}},{"id":"channel:flight.ended","group":"flight: telemetry","label":"flight.ended","frame":{"type":"subscribe","topic":"flight.ended"}},{"id":"channel:flight.started","group":"flight: telemetry","label":"flight.started","frame":{"type":"subscribe","topic":"flight.started"}},{"id":"channel:flight.vesselChanged","group":"flight: telemetry","label":"flight.vesselChanged","frame":{"type":"subscribe","topic":"flight.vesselChanged"}},{"id":"channel:game.dlc","group":"game: telemetry","label":"game.dlc","frame":{"type":"subscribe","topic":"game.dlc"}},{"id":"channel:isru.converters","group":"isru: telemetry","label":"isru.converters","frame":{"type":"subscribe","topic":"isru.converters"}},{"id":"channel:isru.drills","group":"isru: telemetry","label":"isru.drills","frame":{"type":"subscribe","topic":"isru.drills"}},{"id":"channel:ksp.revertAvailability","group":"ksp: telemetry","label":"ksp.revertAvailability","frame":{"type":"subscribe","topic":"ksp.revertAvailability"}},{"id":"channel:ksp.launch","group":"ksp: commands","label":"ksp.launch","frame":{"type":"command-request","requestId":"","command":"ksp.launch","label":"ksp.launch","topic":"","args":{"shipName":"\u003cshipName>","facility":"\u003cfacility>","site":"\u003csite>","crew":[]},"sentAt":0}},{"id":"channel:ksp.recover","group":"ksp: commands","label":"ksp.recover","frame":{"type":"command-request","requestId":"","command":"ksp.recover","label":"ksp.recover","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.revertToEditor","group":"ksp: commands","label":"ksp.revertToEditor","frame":{"type":"command-request","requestId":"","command":"ksp.revertToEditor","label":"ksp.revertToEditor","topic":"","args":{"editor":"\u003ceditor>"},"sentAt":0}},{"id":"channel:ksp.revertToLaunch","group":"ksp: commands","label":"ksp.revertToLaunch","frame":{"type":"command-request","requestId":"","command":"ksp.revertToLaunch","label":"ksp.revertToLaunch","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.switchVessel","group":"ksp: commands","label":"ksp.switchVessel","frame":{"type":"command-request","requestId":"","command":"ksp.switchVessel","label":"ksp.switchVessel","topic":"","args":{"vesselId":"\u003cvesselId>"},"sentAt":0}},{"id":"channel:ksp.toSpaceCenter","group":"ksp: commands","label":"ksp.toSpaceCenter","frame":{"type":"command-request","requestId":"","command":"ksp.toSpaceCenter","label":"ksp.toSpaceCenter","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.toTrackingStation","group":"ksp: commands","label":"ksp.toTrackingStation","frame":{"type":"command-request","requestId":"","command":"ksp.toTrackingStation","label":"ksp.toTrackingStation","topic":"","args":{},"sentAt":0}},{"id":"channel:missions.active","group":"missions: telemetry","label":"missions.active","frame":{"type":"subscribe","topic":"missions.active"}},{"id":"channel:parts.power","group":"parts: telemetry","label":"parts.power","frame":{"type":"subscribe","topic":"parts.power"}},{"id":"channel:recovery.hasRecent","group":"recovery: telemetry","label":"recovery.hasRecent","frame":{"type":"subscribe","topic":"recovery.hasRecent"}},{"id":"channel:recovery.lastSummary","group":"recovery: telemetry","label":"recovery.lastSummary","frame":{"type":"subscribe","topic":"recovery.lastSummary"}},{"id":"channel:robotics.available","group":"robotics: telemetry","label":"robotics.available","frame":{"type":"subscribe","topic":"robotics.available"}},{"id":"channel:robotics.servos","group":"robotics: telemetry","label":"robotics.servos","frame":{"type":"subscribe","topic":"robotics.servos"}},{"id":"channel:robotics.rotor.reverse","group":"robotics: commands","label":"robotics.rotor.reverse","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.reverse","label":"robotics.rotor.reverse","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:robotics.rotor.setBrake","group":"robotics: commands","label":"robotics.rotor.setBrake","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setBrake","label":"robotics.rotor.setBrake","topic":"","args":{"partId":"\u003cpartId>","percent":"\u003cpercent: number %>"},"sentAt":0}},{"id":"channel:robotics.rotor.setLock","group":"robotics: commands","label":"robotics.rotor.setLock","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setLock","label":"robotics.rotor.setLock","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.rotor.setMotor","group":"robotics: commands","label":"robotics.rotor.setMotor","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setMotor","label":"robotics.rotor.setMotor","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.rotor.setRpmLimit","group":"robotics: commands","label":"robotics.rotor.setRpmLimit","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setRpmLimit","label":"robotics.rotor.setRpmLimit","topic":"","args":{"partId":"\u003cpartId>","rpm":"\u003crpm: number rpm>"},"sentAt":0}},{"id":"channel:robotics.rotor.setTorqueLimit","group":"robotics: commands","label":"robotics.rotor.setTorqueLimit","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setTorqueLimit","label":"robotics.rotor.setTorqueLimit","topic":"","args":{"partId":"\u003cpartId>","percent":"\u003cpercent: number %>"},"sentAt":0}},{"id":"channel:robotics.servo.setAngle","group":"robotics: commands","label":"robotics.servo.setAngle","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setAngle","label":"robotics.servo.setAngle","topic":"","args":{"partId":"\u003cpartId>","degrees":"\u003cdegrees: number °>"},"sentAt":0}},{"id":"channel:robotics.servo.setExtension","group":"robotics: commands","label":"robotics.servo.setExtension","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setExtension","label":"robotics.servo.setExtension","topic":"","args":{"partId":"\u003cpartId>","metres":"\u003cmetres: number m>"},"sentAt":0}},{"id":"channel:robotics.servo.setLock","group":"robotics: commands","label":"robotics.servo.setLock","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setLock","label":"robotics.servo.setLock","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.servo.setMotor","group":"robotics: commands","label":"robotics.servo.setMotor","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setMotor","label":"robotics.servo.setMotor","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:science.archive","group":"science: telemetry","label":"science.archive","frame":{"type":"subscribe","topic":"science.archive"}},{"id":"channel:science.experimentBreakdown","group":"science: telemetry","label":"science.experimentBreakdown","frame":{"type":"subscribe","topic":"science.experimentBreakdown"}},{"id":"channel:science.experiments","group":"science: telemetry","label":"science.experiments","frame":{"type":"subscribe","topic":"science.experiments"}},{"id":"channel:science.instruments","group":"science: telemetry","label":"science.instruments","frame":{"type":"subscribe","topic":"science.instruments"}},{"id":"channel:science.lab","group":"science: telemetry","label":"science.lab","frame":{"type":"subscribe","topic":"science.lab"}},{"id":"channel:science.sensors","group":"science: telemetry","label":"science.sensors","frame":{"type":"subscribe","topic":"science.sensors"}},{"id":"channel:science.experiment.deploy","group":"science: commands","label":"science.experiment.deploy","frame":{"type":"command-request","requestId":"","command":"science.experiment.deploy","label":"science.experiment.deploy","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.start","group":"science: commands","label":"science.experiment.start","frame":{"type":"command-request","requestId":"","command":"science.experiment.start","label":"science.experiment.start","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.stop","group":"science: commands","label":"science.experiment.stop","frame":{"type":"command-request","requestId":"","command":"science.experiment.stop","label":"science.experiment.stop","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.transmit","group":"science: commands","label":"science.experiment.transmit","frame":{"type":"command-request","requestId":"","command":"science.experiment.transmit","label":"science.experiment.transmit","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.lab.start","group":"science: commands","label":"science.lab.start","frame":{"type":"command-request","requestId":"","command":"science.lab.start","label":"science.lab.start","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.lab.stop","group":"science: commands","label":"science.lab.stop","frame":{"type":"command-request","requestId":"","command":"science.lab.stop","label":"science.lab.stop","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:settings.gonogo","group":"settings: telemetry","label":"settings.gonogo","frame":{"type":"subscribe","topic":"settings.gonogo"}},{"id":"channel:settings.mod.write","group":"settings: commands","label":"settings.mod.write","frame":{"type":"command-request","requestId":"","command":"settings.mod.write","label":"settings.mod.write","topic":"","args":{"uplink":"\u003cuplink>","id":"\u003cid>","value":"\u003cvalue>"},"sentAt":0}},{"id":"channel:settings.save","group":"settings: commands","label":"settings.save","frame":{"type":"command-request","requestId":"","command":"settings.save","label":"settings.save","topic":"","args":{"changes":[]},"sentAt":0}},{"id":"channel:spaceCenter.astronautComplex","group":"spaceCenter: telemetry","label":"spaceCenter.astronautComplex","frame":{"type":"subscribe","topic":"spaceCenter.astronautComplex"}},{"id":"channel:spaceCenter.crewRoster","group":"spaceCenter: telemetry","label":"spaceCenter.crewRoster","frame":{"type":"subscribe","topic":"spaceCenter.crewRoster"}},{"id":"channel:spaceCenter.launchSites","group":"spaceCenter: telemetry","label":"spaceCenter.launchSites","frame":{"type":"subscribe","topic":"spaceCenter.launchSites"}},{"id":"channel:spaceCenter.partsAvailable","group":"spaceCenter: telemetry","label":"spaceCenter.partsAvailable","frame":{"type":"subscribe","topic":"spaceCenter.partsAvailable"}},{"id":"channel:spaceCenter.pois","group":"spaceCenter: telemetry","label":"spaceCenter.pois","frame":{"type":"subscribe","topic":"spaceCenter.pois"}},{"id":"channel:spaceCenter.savedShips","group":"spaceCenter: telemetry","label":"spaceCenter.savedShips","frame":{"type":"subscribe","topic":"spaceCenter.savedShips"}},{"id":"channel:spaceCenter.scene","group":"spaceCenter: telemetry","label":"spaceCenter.scene","frame":{"type":"subscribe","topic":"spaceCenter.scene"}},{"id":"channel:system.frame","group":"system: telemetry","label":"system.frame","frame":{"type":"subscribe","topic":"system.frame"}},{"id":"channel:system.frame.set","group":"system: commands","label":"system.frame.set","frame":{"type":"command-request","requestId":"","command":"system.frame.set","label":"system.frame.set","topic":"","args":{"kind":"\u003ckind: 0 Unspecified, 1 BodyCentredInertial, 2 BodyCentredBodyDirection, 3 BarycentricRotating, 4 RotatingPulsating, 5 BodySurface>"},"sentAt":0}},{"id":"channel:system.gate.check","group":"system: commands","label":"system.gate.check","frame":{"type":"command-request","requestId":"","command":"system.gate.check","label":"system.gate.check","topic":"","args":{"command":"\u003ccommand>","args":{}},"sentAt":0}},{"id":"channel:system.log.recent","group":"system: commands","label":"system.log.recent","frame":{"type":"command-request","requestId":"","command":"system.log.recent","label":"system.log.recent","topic":"","args":{"maxLines":"\u003cmaxLines: number count>"},"sentAt":0}},{"id":"channel:system.uplink.cancel","group":"system: commands","label":"system.uplink.cancel","frame":{"type":"command-request","requestId":"","command":"system.uplink.cancel","label":"system.uplink.cancel","topic":"","args":{"epoch":"\u003cepoch: number count>","craft":"\u003ccraft>","laneSeq":"\u003claneSeq: number count>","andBehind":"\u003candBehind: true or false>"},"sentAt":0}},{"id":"channel:system.uplink.resend","group":"system: commands","label":"system.uplink.resend","frame":{"type":"command-request","requestId":"","command":"system.uplink.resend","label":"system.uplink.resend","topic":"","args":{"epoch":"\u003cepoch: number count>","craft":"\u003ccraft>","laneSeq":"\u003claneSeq: number count>"},"sentAt":0}},{"id":"channel:target.available","group":"target: telemetry","label":"target.available","frame":{"type":"subscribe","topic":"target.available"}},{"id":"channel:time.calendar","group":"time: telemetry","label":"time.calendar","frame":{"type":"subscribe","topic":"time.calendar"}},{"id":"channel:time.warp","group":"time: telemetry","label":"time.warp","frame":{"type":"subscribe","topic":"time.warp"}},{"id":"channel:time.setPaused","group":"time: commands","label":"time.setPaused","frame":{"type":"command-request","requestId":"","command":"time.setPaused","label":"time.setPaused","topic":"","args":{"paused":"\u003cpaused: true or false>"},"sentAt":0}},{"id":"channel:time.setWarpIndex","group":"time: commands","label":"time.setWarpIndex","frame":{"type":"command-request","requestId":"","command":"time.setWarpIndex","label":"time.setWarpIndex","topic":"","args":{"index":"\u003cindex: number>"},"sentAt":0}},{"id":"channel:trackingStation.bodies","group":"trackingStation: telemetry","label":"trackingStation.bodies","frame":{"type":"subscribe","topic":"trackingStation.bodies"}},{"id":"channel:trackingStation.catalog","group":"trackingStation: telemetry","label":"trackingStation.catalog","frame":{"type":"subscribe","topic":"trackingStation.catalog"}},{"id":"channel:trackingStation.bodies.statesAt","group":"trackingStation: commands","label":"trackingStation.bodies.statesAt","frame":{"type":"command-request","requestId":"","command":"trackingStation.bodies.statesAt","label":"trackingStation.bodies.statesAt","topic":"","args":{"bodyIndex":"\u003cbodyIndex: number>","centreBodyIndex":"\u003ccentreBodyIndex: number>","uts":[],"certification":"\u003ccertification: 0 Unspecified, 1 Unbounded, 2 CertifiedOnly>"},"sentAt":0}},{"id":"channel:trackingStation.catalog.dismiss","group":"trackingStation: commands","label":"trackingStation.catalog.dismiss","frame":{"type":"command-request","requestId":"","command":"trackingStation.catalog.dismiss","label":"trackingStation.catalog.dismiss","topic":"","args":{"vesselId":"\u003cvesselId>"},"sentAt":0}},{"id":"channel:vessel.attitude","group":"vessel: telemetry","label":"vessel.attitude","frame":{"type":"subscribe","topic":"vessel.attitude"}},{"id":"channel:vessel.comms","group":"vessel: telemetry","label":"vessel.comms","frame":{"type":"subscribe","topic":"vessel.comms"}},{"id":"channel:vessel.control","group":"vessel: telemetry","label":"vessel.control","frame":{"type":"subscribe","topic":"vessel.control"}},{"id":"channel:vessel.crew","group":"vessel: telemetry","label":"vessel.crew","frame":{"type":"subscribe","topic":"vessel.crew"}},{"id":"channel:vessel.dock","group":"vessel: telemetry","label":"vessel.dock","frame":{"type":"subscribe","topic":"vessel.dock"}},{"id":"channel:vessel.flight","group":"vessel: telemetry","label":"vessel.flight","frame":{"type":"subscribe","topic":"vessel.flight"}},{"id":"channel:vessel.identity","group":"vessel: telemetry","label":"vessel.identity","frame":{"type":"subscribe","topic":"vessel.identity"}},{"id":"channel:vessel.inventory","group":"vessel: telemetry","label":"vessel.inventory","frame":{"type":"subscribe","topic":"vessel.inventory"}},{"id":"channel:vessel.landing","group":"vessel: telemetry","label":"vessel.landing","frame":{"type":"subscribe","topic":"vessel.landing"}},{"id":"channel:vessel.light","group":"vessel: telemetry","label":"vessel.light","frame":{"type":"subscribe","topic":"vessel.light"}},{"id":"channel:vessel.maneuver","group":"vessel: telemetry","label":"vessel.maneuver","frame":{"type":"subscribe","topic":"vessel.maneuver"}},{"id":"channel:vessel.orbit","group":"vessel: telemetry","label":"vessel.orbit","frame":{"type":"subscribe","topic":"vessel.orbit"}},{"id":"channel:vessel.orbit.truth","group":"vessel: telemetry","label":"vessel.orbit.truth","frame":{"type":"subscribe","topic":"vessel.orbit.truth"}},{"id":"channel:vessel.parts","group":"vessel: telemetry","label":"vessel.parts","frame":{"type":"subscribe","topic":"vessel.parts"}},{"id":"channel:vessel.physics.mode","group":"vessel: telemetry","label":"vessel.physics.mode","frame":{"type":"subscribe","topic":"vessel.physics.mode"}},{"id":"channel:vessel.propulsion","group":"vessel: telemetry","label":"vessel.propulsion","frame":{"type":"subscribe","topic":"vessel.propulsion"}},{"id":"channel:vessel.resources","group":"vessel: telemetry","label":"vessel.resources","frame":{"type":"subscribe","topic":"vessel.resources"}},{"id":"channel:vessel.structure","group":"vessel: telemetry","label":"vessel.structure","frame":{"type":"subscribe","topic":"vessel.structure"}},{"id":"channel:vessel.surface","group":"vessel: telemetry","label":"vessel.surface","frame":{"type":"subscribe","topic":"vessel.surface"}},{"id":"channel:vessel.target","group":"vessel: telemetry","label":"vessel.target","frame":{"type":"subscribe","topic":"vessel.target"}},{"id":"channel:vessel.thermal","group":"vessel: telemetry","label":"vessel.thermal","frame":{"type":"subscribe","topic":"vessel.thermal"}},{"id":"channel:vessel.control.setAbort","group":"vessel: commands","label":"vessel.control.setAbort","frame":{"type":"command-request","requestId":"","command":"vessel.control.setAbort","label":"vessel.control.setAbort","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setActionGroup","group":"vessel: commands","label":"vessel.control.setActionGroup","frame":{"type":"command-request","requestId":"","command":"vessel.control.setActionGroup","label":"vessel.control.setActionGroup","topic":"","args":{"group":"\u003cgroup: number>","state":"\u003cstate: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setAxes","group":"vessel: commands","label":"vessel.control.setAxes","frame":{"type":"command-request","requestId":"","command":"vessel.control.setAxes","label":"vessel.control.setAxes","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.control.setBrakes","group":"vessel: commands","label":"vessel.control.setBrakes","frame":{"type":"command-request","requestId":"","command":"vessel.control.setBrakes","label":"vessel.control.setBrakes","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setFlyByWire","group":"vessel: commands","label":"vessel.control.setFlyByWire","frame":{"type":"command-request","requestId":"","command":"vessel.control.setFlyByWire","label":"vessel.control.setFlyByWire","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setGear","group":"vessel: commands","label":"vessel.control.setGear","frame":{"type":"command-request","requestId":"","command":"vessel.control.setGear","label":"vessel.control.setGear","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setLights","group":"vessel: commands","label":"vessel.control.setLights","frame":{"type":"command-request","requestId":"","command":"vessel.control.setLights","label":"vessel.control.setLights","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setPrecisionControl","group":"vessel: commands","label":"vessel.control.setPrecisionControl","frame":{"type":"command-request","requestId":"","command":"vessel.control.setPrecisionControl","label":"vessel.control.setPrecisionControl","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setRcs","group":"vessel: commands","label":"vessel.control.setRcs","frame":{"type":"command-request","requestId":"","command":"vessel.control.setRcs","label":"vessel.control.setRcs","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setSas","group":"vessel: commands","label":"vessel.control.setSas","frame":{"type":"command-request","requestId":"","command":"vessel.control.setSas","label":"vessel.control.setSas","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setSasMode","group":"vessel: commands","label":"vessel.control.setSasMode","frame":{"type":"command-request","requestId":"","command":"vessel.control.setSasMode","label":"vessel.control.setSasMode","topic":"","args":{"mode":"\u003cmode: 0 StabilityAssist, 1 Prograde, 2 Retrograde, 3 Normal, 4 Antinormal, 5 RadialIn, 6 RadialOut, 7 Target, 8 AntiTarget, 9 Maneuver, 10 Unknown>"},"sentAt":0}},{"id":"channel:vessel.control.setThrottle","group":"vessel: commands","label":"vessel.control.setThrottle","frame":{"type":"command-request","requestId":"","command":"vessel.control.setThrottle","label":"vessel.control.setThrottle","topic":"","args":{"value":"\u003cvalue: number ratio>"},"sentAt":0}},{"id":"channel:vessel.control.stage","group":"vessel: commands","label":"vessel.control.stage","frame":{"type":"command-request","requestId":"","command":"vessel.control.stage","label":"vessel.control.stage","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.invokePartAction","group":"vessel: commands","label":"vessel.invokePartAction","frame":{"type":"command-request","requestId":"","command":"vessel.invokePartAction","label":"vessel.invokePartAction","topic":"","args":{"partId":"\u003cpartId>","eventName":"\u003ceventName>"},"sentAt":0}},{"id":"channel:vessel.maneuver.add","group":"vessel: commands","label":"vessel.maneuver.add","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.add","label":"vessel.maneuver.add","topic":"","args":{"ut":"\u003cut: number ut>","prograde":"\u003cprograde: number m/s>","normal":"\u003cnormal: number m/s>","radialOut":"\u003cradialOut: number m/s>"},"sentAt":0}},{"id":"channel:vessel.maneuver.remove","group":"vessel: commands","label":"vessel.maneuver.remove","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.remove","label":"vessel.maneuver.remove","topic":"","args":{"nodeId":"\u003cnodeId>"},"sentAt":0}},{"id":"channel:vessel.maneuver.update","group":"vessel: commands","label":"vessel.maneuver.update","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.update","label":"vessel.maneuver.update","topic":"","args":{"nodeId":"\u003cnodeId>","ut":"\u003cut: number ut>","prograde":"\u003cprograde: number m/s>","normal":"\u003cnormal: number m/s>","radialOut":"\u003cradialOut: number m/s>"},"sentAt":0}},{"id":"channel:vessel.target.clear","group":"vessel: commands","label":"vessel.target.clear","frame":{"type":"command-request","requestId":"","command":"vessel.target.clear","label":"vessel.target.clear","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.target.set","group":"vessel: commands","label":"vessel.target.set","frame":{"type":"command-request","requestId":"","command":"vessel.target.set","label":"vessel.target.set","topic":"","args":{"kind":"\u003ckind: 0 Vessel, 1 Body, 2 Other, 3 Position, 4 Part>"},"sentAt":0}}]</script>
+<script type="application/json" id="operations">[{"id":"frame:command-request","group":"Connection frames","label":"command-request","frame":{"type":"command-request","requestId":"","command":"time.setPaused","label":"time.setPaused","topic":"","args":{"paused":"\u003cpaused: true or false>"},"sentAt":0}},{"id":"frame:subscribe","group":"Connection frames","label":"subscribe","frame":{"type":"subscribe","topic":"vessel.flight"}},{"id":"frame:unsubscribe","group":"Connection frames","label":"unsubscribe","frame":{"type":"unsubscribe","topic":""}},{"id":"frame:set-vantage","group":"Connection frames","label":"set-vantage","frame":{"type":"set-vantage","centreId":""}},{"id":"frame:claim","group":"Connection frames","label":"claim","frame":{"type":"claim","requestIds":[]}},{"id":"frame:ping","group":"Connection frames","label":"ping","frame":{"type":"ping","nonce":""}},{"id":"frame:command-group","group":"Connection frames","label":"command-group","frame":{"type":"command-group","groupId":"","members":[]}},{"id":"channel:alarm.activeList","group":"alarm: telemetry","label":"alarm.activeList","frame":{"type":"subscribe","topic":"alarm.activeList"}},{"id":"channel:alarm.game.list","group":"alarm: telemetry","label":"alarm.game.list","frame":{"type":"subscribe","topic":"alarm.game.list"}},{"id":"channel:alarm.scet.fired","group":"alarm: telemetry","label":"alarm.scet.fired","frame":{"type":"subscribe","topic":"alarm.scet.fired"}},{"id":"channel:alarm.scet.topics","group":"alarm: telemetry","label":"alarm.scet.topics","frame":{"type":"subscribe","topic":"alarm.scet.topics"}},{"id":"channel:alarm.game.delete","group":"alarm: commands","label":"alarm.game.delete","frame":{"type":"command-request","requestId":"","command":"alarm.game.delete","label":"alarm.game.delete","topic":"","args":{"id":"\u003cid: number>"},"sentAt":0}},{"id":"channel:alarm.scet.arm","group":"alarm: commands","label":"alarm.scet.arm","frame":{"type":"command-request","requestId":"","command":"alarm.scet.arm","label":"alarm.scet.arm","topic":"","args":{"id":"\u003cid>","name":"\u003cname>","vantage":"\u003cvantage>","subject":"\u003csubject>","condition":{"kind":"\u003ckind: 0 Time, 1 Threshold, 2 ContractParameter, 3 TopicInstant>","ut":"\u003cut: number ut>","leadSeconds":"\u003cleadSeconds: number s>","topic":"\u003ctopic>","fieldPath":"\u003cfieldPath>","op":"\u003cop: 0 GreaterThan, 1 GreaterThanOrEqual, 2 LessThan, 3 LessThanOrEqual, 4 Equal, 5 NotEqual>","threshold":"\u003cthreshold: number>","sustainSeconds":"\u003csustainSeconds: number s>","contractId":"\u003ccontractId>","parameterTitle":"\u003cparameterTitle>","targetState":"\u003ctargetState: 0 Incomplete, 1 Complete, 2 Failed>"},"onFire":[],"actsOn":"\u003cactsOn>"},"sentAt":0}},{"id":"channel:alarm.scet.disarm","group":"alarm: commands","label":"alarm.scet.disarm","frame":{"type":"command-request","requestId":"","command":"alarm.scet.disarm","label":"alarm.scet.disarm","topic":"","args":{"id":"\u003cid>"},"sentAt":0}},{"id":"channel:career.facilities","group":"career: telemetry","label":"career.facilities","frame":{"type":"subscribe","topic":"career.facilities"}},{"id":"channel:career.mode","group":"career: telemetry","label":"career.mode","frame":{"type":"subscribe","topic":"career.mode"}},{"id":"channel:career.status","group":"career: telemetry","label":"career.status","frame":{"type":"subscribe","topic":"career.status"}},{"id":"channel:career.contract.accept","group":"career: commands","label":"career.contract.accept","frame":{"type":"command-request","requestId":"","command":"career.contract.accept","label":"career.contract.accept","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.contract.cancel","group":"career: commands","label":"career.contract.cancel","frame":{"type":"command-request","requestId":"","command":"career.contract.cancel","label":"career.contract.cancel","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.contract.decline","group":"career: commands","label":"career.contract.decline","frame":{"type":"command-request","requestId":"","command":"career.contract.decline","label":"career.contract.decline","topic":"","args":{"contractId":"\u003ccontractId>"},"sentAt":0}},{"id":"channel:career.crew.fire","group":"career: commands","label":"career.crew.fire","frame":{"type":"command-request","requestId":"","command":"career.crew.fire","label":"career.crew.fire","topic":"","args":{"kerbalName":"\u003ckerbalName>"},"sentAt":0}},{"id":"channel:career.crew.hire","group":"career: commands","label":"career.crew.hire","frame":{"type":"command-request","requestId":"","command":"career.crew.hire","label":"career.crew.hire","topic":"","args":{"applicantName":"\u003capplicantName>"},"sentAt":0}},{"id":"channel:career.facility.upgrade","group":"career: commands","label":"career.facility.upgrade","frame":{"type":"command-request","requestId":"","command":"career.facility.upgrade","label":"career.facility.upgrade","topic":"","args":{"facilityId":"\u003cfacilityId>"},"sentAt":0}},{"id":"channel:career.strategy.activate","group":"career: commands","label":"career.strategy.activate","frame":{"type":"command-request","requestId":"","command":"career.strategy.activate","label":"career.strategy.activate","topic":"","args":{"strategyId":"\u003cstrategyId>","factor":"\u003cfactor: number ratio>"},"sentAt":0}},{"id":"channel:career.strategy.deactivate","group":"career: commands","label":"career.strategy.deactivate","frame":{"type":"command-request","requestId":"","command":"career.strategy.deactivate","label":"career.strategy.deactivate","topic":"","args":{"strategyId":"\u003cstrategyId>"},"sentAt":0}},{"id":"channel:career.tech.unlock","group":"career: commands","label":"career.tech.unlock","frame":{"type":"command-request","requestId":"","command":"career.tech.unlock","label":"career.tech.unlock","topic":"","args":{"techId":"\u003ctechId>"},"sentAt":0}},{"id":"channel:commandCentre.activeVesselDelay","group":"commandCentre: telemetry","label":"commandCentre.activeVesselDelay","frame":{"type":"subscribe","topic":"commandCentre.activeVesselDelay"}},{"id":"channel:commandCentre.roster","group":"commandCentre: telemetry","label":"commandCentre.roster","frame":{"type":"subscribe","topic":"commandCentre.roster"}},{"id":"channel:commandCentre.separation","group":"commandCentre: telemetry","label":"commandCentre.separation","frame":{"type":"subscribe","topic":"commandCentre.separation"}},{"id":"channel:commandCentre.unreachable","group":"commandCentre: telemetry","label":"commandCentre.unreachable","frame":{"type":"subscribe","topic":"commandCentre.unreachable"}},{"id":"channel:commcast.traffic","group":"commcast: telemetry","label":"commcast.traffic","frame":{"type":"subscribe","topic":"commcast.traffic"}},{"id":"channel:commcast.transmissions","group":"commcast: telemetry","label":"commcast.transmissions","frame":{"type":"subscribe","topic":"commcast.transmissions"}},{"id":"channel:commcast.group.add","group":"commcast: commands","label":"commcast.group.add","frame":{"type":"command-request","requestId":"","command":"commcast.group.add","label":"commcast.group.add","topic":"","args":{"groupId":"\u003cgroupId>","added":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.group.open","group":"commcast: commands","label":"commcast.group.open","frame":{"type":"command-request","requestId":"","command":"commcast.group.open","label":"commcast.group.open","topic":"","args":{"groupId":"\u003cgroupId>","members":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.message.ack","group":"commcast: commands","label":"commcast.message.ack","frame":{"type":"command-request","requestId":"","command":"commcast.message.ack","label":"commcast.message.ack","topic":"","args":{"messageId":"\u003cmessageId>","author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.message.send","group":"commcast: commands","label":"commcast.message.send","frame":{"type":"command-request","requestId":"","command":"commcast.message.send","label":"commcast.message.send","topic":"","args":{"id":"\u003cid>","groupId":"\u003cgroupId>","body":"\u003cbody>","to":[],"author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:commcast.radio.transmit","group":"commcast: commands","label":"commcast.radio.transmit","frame":{"type":"command-request","requestId":"","command":"commcast.radio.transmit","label":"commcast.radio.transmit","topic":"","args":{"transmissionId":"\u003ctransmissionId>","groupId":"\u003cgroupId>","seq":"\u003cseq: number count>","chunks":[],"end":"\u003cend: true or false>","author":{"name":"\u003cname>","stationKey":"\u003cstationKey>","seat":"\u003cseat>"}},"sentAt":0}},{"id":"channel:comms.commandCentre","group":"comms: telemetry","label":"comms.commandCentre","frame":{"type":"subscribe","topic":"comms.commandCentre"}},{"id":"channel:comms.connectivity","group":"comms: telemetry","label":"comms.connectivity","frame":{"type":"subscribe","topic":"comms.connectivity"}},{"id":"channel:comms.contacts","group":"comms: telemetry","label":"comms.contacts","frame":{"type":"subscribe","topic":"comms.contacts"}},{"id":"channel:comms.control","group":"comms: telemetry","label":"comms.control","frame":{"type":"subscribe","topic":"comms.control"}},{"id":"channel:comms.degrade","group":"comms: telemetry","label":"comms.degrade","frame":{"type":"subscribe","topic":"comms.degrade"}},{"id":"channel:comms.delay","group":"comms: telemetry","label":"comms.delay","frame":{"type":"subscribe","topic":"comms.delay"}},{"id":"channel:comms.journey","group":"comms: telemetry","label":"comms.journey","frame":{"type":"subscribe","topic":"comms.journey"}},{"id":"channel:comms.link","group":"comms: telemetry","label":"comms.link","frame":{"type":"subscribe","topic":"comms.link"}},{"id":"channel:comms.network","group":"comms: telemetry","label":"comms.network","frame":{"type":"subscribe","topic":"comms.network"}},{"id":"channel:comms.nextLoss","group":"comms: telemetry","label":"comms.nextLoss","frame":{"type":"subscribe","topic":"comms.nextLoss"}},{"id":"channel:comms.occlusion","group":"comms: telemetry","label":"comms.occlusion","frame":{"type":"subscribe","topic":"comms.occlusion"}},{"id":"channel:comms.path","group":"comms: telemetry","label":"comms.path","frame":{"type":"subscribe","topic":"comms.path"}},{"id":"channel:comms.route","group":"comms: telemetry","label":"comms.route","frame":{"type":"subscribe","topic":"comms.route"}},{"id":"channel:comms.signal","group":"comms: telemetry","label":"comms.signal","frame":{"type":"subscribe","topic":"comms.signal"}},{"id":"channel:crash.hasRecent","group":"crash: telemetry","label":"crash.hasRecent","frame":{"type":"subscribe","topic":"crash.hasRecent"}},{"id":"channel:crash.lastCrash","group":"crash: telemetry","label":"crash.lastCrash","frame":{"type":"subscribe","topic":"crash.lastCrash"}},{"id":"channel:deployed.bases","group":"deployed: telemetry","label":"deployed.bases","frame":{"type":"subscribe","topic":"deployed.bases"}},{"id":"channel:dv.stages","group":"dv: telemetry","label":"dv.stages","frame":{"type":"subscribe","topic":"dv.stages"}},{"id":"channel:dv.summary","group":"dv: telemetry","label":"dv.summary","frame":{"type":"subscribe","topic":"dv.summary"}},{"id":"channel:eva.crew","group":"eva: telemetry","label":"eva.crew","frame":{"type":"subscribe","topic":"eva.crew"}},{"id":"channel:flight.current","group":"flight: telemetry","label":"flight.current","frame":{"type":"subscribe","topic":"flight.current"}},{"id":"channel:flight.ended","group":"flight: telemetry","label":"flight.ended","frame":{"type":"subscribe","topic":"flight.ended"}},{"id":"channel:flight.started","group":"flight: telemetry","label":"flight.started","frame":{"type":"subscribe","topic":"flight.started"}},{"id":"channel:flight.vesselChanged","group":"flight: telemetry","label":"flight.vesselChanged","frame":{"type":"subscribe","topic":"flight.vesselChanged"}},{"id":"channel:game.dlc","group":"game: telemetry","label":"game.dlc","frame":{"type":"subscribe","topic":"game.dlc"}},{"id":"channel:isru.converters","group":"isru: telemetry","label":"isru.converters","frame":{"type":"subscribe","topic":"isru.converters"}},{"id":"channel:isru.drills","group":"isru: telemetry","label":"isru.drills","frame":{"type":"subscribe","topic":"isru.drills"}},{"id":"channel:ksp.revertAvailability","group":"ksp: telemetry","label":"ksp.revertAvailability","frame":{"type":"subscribe","topic":"ksp.revertAvailability"}},{"id":"channel:ksp.launch","group":"ksp: commands","label":"ksp.launch","frame":{"type":"command-request","requestId":"","command":"ksp.launch","label":"ksp.launch","topic":"","args":{"shipName":"\u003cshipName>","facility":"\u003cfacility>","site":"\u003csite>","crew":[]},"sentAt":0}},{"id":"channel:ksp.recover","group":"ksp: commands","label":"ksp.recover","frame":{"type":"command-request","requestId":"","command":"ksp.recover","label":"ksp.recover","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.recoverVessel","group":"ksp: commands","label":"ksp.recoverVessel","frame":{"type":"command-request","requestId":"","command":"ksp.recoverVessel","label":"ksp.recoverVessel","topic":"","args":{"vesselId":"\u003cvesselId>"},"sentAt":0}},{"id":"channel:ksp.revertToEditor","group":"ksp: commands","label":"ksp.revertToEditor","frame":{"type":"command-request","requestId":"","command":"ksp.revertToEditor","label":"ksp.revertToEditor","topic":"","args":{"editor":"\u003ceditor>"},"sentAt":0}},{"id":"channel:ksp.revertToLaunch","group":"ksp: commands","label":"ksp.revertToLaunch","frame":{"type":"command-request","requestId":"","command":"ksp.revertToLaunch","label":"ksp.revertToLaunch","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.switchVessel","group":"ksp: commands","label":"ksp.switchVessel","frame":{"type":"command-request","requestId":"","command":"ksp.switchVessel","label":"ksp.switchVessel","topic":"","args":{"vesselId":"\u003cvesselId>"},"sentAt":0}},{"id":"channel:ksp.toSpaceCenter","group":"ksp: commands","label":"ksp.toSpaceCenter","frame":{"type":"command-request","requestId":"","command":"ksp.toSpaceCenter","label":"ksp.toSpaceCenter","topic":"","args":{},"sentAt":0}},{"id":"channel:ksp.toTrackingStation","group":"ksp: commands","label":"ksp.toTrackingStation","frame":{"type":"command-request","requestId":"","command":"ksp.toTrackingStation","label":"ksp.toTrackingStation","topic":"","args":{},"sentAt":0}},{"id":"channel:missions.active","group":"missions: telemetry","label":"missions.active","frame":{"type":"subscribe","topic":"missions.active"}},{"id":"channel:parts.power","group":"parts: telemetry","label":"parts.power","frame":{"type":"subscribe","topic":"parts.power"}},{"id":"channel:recovery.hasRecent","group":"recovery: telemetry","label":"recovery.hasRecent","frame":{"type":"subscribe","topic":"recovery.hasRecent"}},{"id":"channel:recovery.lastSummary","group":"recovery: telemetry","label":"recovery.lastSummary","frame":{"type":"subscribe","topic":"recovery.lastSummary"}},{"id":"channel:robotics.available","group":"robotics: telemetry","label":"robotics.available","frame":{"type":"subscribe","topic":"robotics.available"}},{"id":"channel:robotics.servos","group":"robotics: telemetry","label":"robotics.servos","frame":{"type":"subscribe","topic":"robotics.servos"}},{"id":"channel:robotics.rotor.reverse","group":"robotics: commands","label":"robotics.rotor.reverse","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.reverse","label":"robotics.rotor.reverse","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:robotics.rotor.setBrake","group":"robotics: commands","label":"robotics.rotor.setBrake","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setBrake","label":"robotics.rotor.setBrake","topic":"","args":{"partId":"\u003cpartId>","percent":"\u003cpercent: number %>"},"sentAt":0}},{"id":"channel:robotics.rotor.setLock","group":"robotics: commands","label":"robotics.rotor.setLock","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setLock","label":"robotics.rotor.setLock","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.rotor.setMotor","group":"robotics: commands","label":"robotics.rotor.setMotor","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setMotor","label":"robotics.rotor.setMotor","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.rotor.setRpmLimit","group":"robotics: commands","label":"robotics.rotor.setRpmLimit","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setRpmLimit","label":"robotics.rotor.setRpmLimit","topic":"","args":{"partId":"\u003cpartId>","rpm":"\u003crpm: number rpm>"},"sentAt":0}},{"id":"channel:robotics.rotor.setTorqueLimit","group":"robotics: commands","label":"robotics.rotor.setTorqueLimit","frame":{"type":"command-request","requestId":"","command":"robotics.rotor.setTorqueLimit","label":"robotics.rotor.setTorqueLimit","topic":"","args":{"partId":"\u003cpartId>","percent":"\u003cpercent: number %>"},"sentAt":0}},{"id":"channel:robotics.servo.setAngle","group":"robotics: commands","label":"robotics.servo.setAngle","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setAngle","label":"robotics.servo.setAngle","topic":"","args":{"partId":"\u003cpartId>","degrees":"\u003cdegrees: number °>"},"sentAt":0}},{"id":"channel:robotics.servo.setExtension","group":"robotics: commands","label":"robotics.servo.setExtension","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setExtension","label":"robotics.servo.setExtension","topic":"","args":{"partId":"\u003cpartId>","metres":"\u003cmetres: number m>"},"sentAt":0}},{"id":"channel:robotics.servo.setLock","group":"robotics: commands","label":"robotics.servo.setLock","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setLock","label":"robotics.servo.setLock","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:robotics.servo.setMotor","group":"robotics: commands","label":"robotics.servo.setMotor","frame":{"type":"command-request","requestId":"","command":"robotics.servo.setMotor","label":"robotics.servo.setMotor","topic":"","args":{"partId":"\u003cpartId>","enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:science.archive","group":"science: telemetry","label":"science.archive","frame":{"type":"subscribe","topic":"science.archive"}},{"id":"channel:science.experimentBreakdown","group":"science: telemetry","label":"science.experimentBreakdown","frame":{"type":"subscribe","topic":"science.experimentBreakdown"}},{"id":"channel:science.experiments","group":"science: telemetry","label":"science.experiments","frame":{"type":"subscribe","topic":"science.experiments"}},{"id":"channel:science.instruments","group":"science: telemetry","label":"science.instruments","frame":{"type":"subscribe","topic":"science.instruments"}},{"id":"channel:science.lab","group":"science: telemetry","label":"science.lab","frame":{"type":"subscribe","topic":"science.lab"}},{"id":"channel:science.sensors","group":"science: telemetry","label":"science.sensors","frame":{"type":"subscribe","topic":"science.sensors"}},{"id":"channel:science.experiment.deploy","group":"science: commands","label":"science.experiment.deploy","frame":{"type":"command-request","requestId":"","command":"science.experiment.deploy","label":"science.experiment.deploy","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.start","group":"science: commands","label":"science.experiment.start","frame":{"type":"command-request","requestId":"","command":"science.experiment.start","label":"science.experiment.start","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.stop","group":"science: commands","label":"science.experiment.stop","frame":{"type":"command-request","requestId":"","command":"science.experiment.stop","label":"science.experiment.stop","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.experiment.transmit","group":"science: commands","label":"science.experiment.transmit","frame":{"type":"command-request","requestId":"","command":"science.experiment.transmit","label":"science.experiment.transmit","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.lab.start","group":"science: commands","label":"science.lab.start","frame":{"type":"command-request","requestId":"","command":"science.lab.start","label":"science.lab.start","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:science.lab.stop","group":"science: commands","label":"science.lab.stop","frame":{"type":"command-request","requestId":"","command":"science.lab.stop","label":"science.lab.stop","topic":"","args":{"partId":"\u003cpartId>"},"sentAt":0}},{"id":"channel:settings.gonogo","group":"settings: telemetry","label":"settings.gonogo","frame":{"type":"subscribe","topic":"settings.gonogo"}},{"id":"channel:settings.mod.write","group":"settings: commands","label":"settings.mod.write","frame":{"type":"command-request","requestId":"","command":"settings.mod.write","label":"settings.mod.write","topic":"","args":{"uplink":"\u003cuplink>","id":"\u003cid>","value":"\u003cvalue>"},"sentAt":0}},{"id":"channel:settings.save","group":"settings: commands","label":"settings.save","frame":{"type":"command-request","requestId":"","command":"settings.save","label":"settings.save","topic":"","args":{"changes":[]},"sentAt":0}},{"id":"channel:spaceCenter.astronautComplex","group":"spaceCenter: telemetry","label":"spaceCenter.astronautComplex","frame":{"type":"subscribe","topic":"spaceCenter.astronautComplex"}},{"id":"channel:spaceCenter.crewRoster","group":"spaceCenter: telemetry","label":"spaceCenter.crewRoster","frame":{"type":"subscribe","topic":"spaceCenter.crewRoster"}},{"id":"channel:spaceCenter.launchSites","group":"spaceCenter: telemetry","label":"spaceCenter.launchSites","frame":{"type":"subscribe","topic":"spaceCenter.launchSites"}},{"id":"channel:spaceCenter.partsAvailable","group":"spaceCenter: telemetry","label":"spaceCenter.partsAvailable","frame":{"type":"subscribe","topic":"spaceCenter.partsAvailable"}},{"id":"channel:spaceCenter.pois","group":"spaceCenter: telemetry","label":"spaceCenter.pois","frame":{"type":"subscribe","topic":"spaceCenter.pois"}},{"id":"channel:spaceCenter.savedShips","group":"spaceCenter: telemetry","label":"spaceCenter.savedShips","frame":{"type":"subscribe","topic":"spaceCenter.savedShips"}},{"id":"channel:spaceCenter.scene","group":"spaceCenter: telemetry","label":"spaceCenter.scene","frame":{"type":"subscribe","topic":"spaceCenter.scene"}},{"id":"channel:system.frame","group":"system: telemetry","label":"system.frame","frame":{"type":"subscribe","topic":"system.frame"}},{"id":"channel:system.frame.set","group":"system: commands","label":"system.frame.set","frame":{"type":"command-request","requestId":"","command":"system.frame.set","label":"system.frame.set","topic":"","args":{"kind":"\u003ckind: 0 Unspecified, 1 BodyCentredInertial, 2 BodyCentredBodyDirection, 3 BarycentricRotating, 4 RotatingPulsating, 5 BodySurface>"},"sentAt":0}},{"id":"channel:system.gate.check","group":"system: commands","label":"system.gate.check","frame":{"type":"command-request","requestId":"","command":"system.gate.check","label":"system.gate.check","topic":"","args":{"command":"\u003ccommand>","args":{}},"sentAt":0}},{"id":"channel:system.log.recent","group":"system: commands","label":"system.log.recent","frame":{"type":"command-request","requestId":"","command":"system.log.recent","label":"system.log.recent","topic":"","args":{"maxLines":"\u003cmaxLines: number count>"},"sentAt":0}},{"id":"channel:system.uplink.cancel","group":"system: commands","label":"system.uplink.cancel","frame":{"type":"command-request","requestId":"","command":"system.uplink.cancel","label":"system.uplink.cancel","topic":"","args":{"epoch":"\u003cepoch: number count>","craft":"\u003ccraft>","laneSeq":"\u003claneSeq: number count>","andBehind":"\u003candBehind: true or false>"},"sentAt":0}},{"id":"channel:system.uplink.resend","group":"system: commands","label":"system.uplink.resend","frame":{"type":"command-request","requestId":"","command":"system.uplink.resend","label":"system.uplink.resend","topic":"","args":{"epoch":"\u003cepoch: number count>","craft":"\u003ccraft>","laneSeq":"\u003claneSeq: number count>"},"sentAt":0}},{"id":"channel:target.available","group":"target: telemetry","label":"target.available","frame":{"type":"subscribe","topic":"target.available"}},{"id":"channel:time.calendar","group":"time: telemetry","label":"time.calendar","frame":{"type":"subscribe","topic":"time.calendar"}},{"id":"channel:time.warp","group":"time: telemetry","label":"time.warp","frame":{"type":"subscribe","topic":"time.warp"}},{"id":"channel:time.setPaused","group":"time: commands","label":"time.setPaused","frame":{"type":"command-request","requestId":"","command":"time.setPaused","label":"time.setPaused","topic":"","args":{"paused":"\u003cpaused: true or false>"},"sentAt":0}},{"id":"channel:time.setWarpIndex","group":"time: commands","label":"time.setWarpIndex","frame":{"type":"command-request","requestId":"","command":"time.setWarpIndex","label":"time.setWarpIndex","topic":"","args":{"index":"\u003cindex: number>"},"sentAt":0}},{"id":"channel:trackingStation.bodies","group":"trackingStation: telemetry","label":"trackingStation.bodies","frame":{"type":"subscribe","topic":"trackingStation.bodies"}},{"id":"channel:trackingStation.catalog","group":"trackingStation: telemetry","label":"trackingStation.catalog","frame":{"type":"subscribe","topic":"trackingStation.catalog"}},{"id":"channel:trackingStation.bodies.statesAt","group":"trackingStation: commands","label":"trackingStation.bodies.statesAt","frame":{"type":"command-request","requestId":"","command":"trackingStation.bodies.statesAt","label":"trackingStation.bodies.statesAt","topic":"","args":{"bodyIndex":"\u003cbodyIndex: number>","centreBodyIndex":"\u003ccentreBodyIndex: number>","uts":[],"certification":"\u003ccertification: 0 Unspecified, 1 Unbounded, 2 CertifiedOnly>"},"sentAt":0}},{"id":"channel:trackingStation.catalog.dismiss","group":"trackingStation: commands","label":"trackingStation.catalog.dismiss","frame":{"type":"command-request","requestId":"","command":"trackingStation.catalog.dismiss","label":"trackingStation.catalog.dismiss","topic":"","args":{"vesselId":"\u003cvesselId>"},"sentAt":0}},{"id":"channel:vessel.attitude","group":"vessel: telemetry","label":"vessel.attitude","frame":{"type":"subscribe","topic":"vessel.attitude"}},{"id":"channel:vessel.comms","group":"vessel: telemetry","label":"vessel.comms","frame":{"type":"subscribe","topic":"vessel.comms"}},{"id":"channel:vessel.control","group":"vessel: telemetry","label":"vessel.control","frame":{"type":"subscribe","topic":"vessel.control"}},{"id":"channel:vessel.crew","group":"vessel: telemetry","label":"vessel.crew","frame":{"type":"subscribe","topic":"vessel.crew"}},{"id":"channel:vessel.dock","group":"vessel: telemetry","label":"vessel.dock","frame":{"type":"subscribe","topic":"vessel.dock"}},{"id":"channel:vessel.flight","group":"vessel: telemetry","label":"vessel.flight","frame":{"type":"subscribe","topic":"vessel.flight"}},{"id":"channel:vessel.identity","group":"vessel: telemetry","label":"vessel.identity","frame":{"type":"subscribe","topic":"vessel.identity"}},{"id":"channel:vessel.inventory","group":"vessel: telemetry","label":"vessel.inventory","frame":{"type":"subscribe","topic":"vessel.inventory"}},{"id":"channel:vessel.landing","group":"vessel: telemetry","label":"vessel.landing","frame":{"type":"subscribe","topic":"vessel.landing"}},{"id":"channel:vessel.light","group":"vessel: telemetry","label":"vessel.light","frame":{"type":"subscribe","topic":"vessel.light"}},{"id":"channel:vessel.maneuver","group":"vessel: telemetry","label":"vessel.maneuver","frame":{"type":"subscribe","topic":"vessel.maneuver"}},{"id":"channel:vessel.orbit","group":"vessel: telemetry","label":"vessel.orbit","frame":{"type":"subscribe","topic":"vessel.orbit"}},{"id":"channel:vessel.orbit.truth","group":"vessel: telemetry","label":"vessel.orbit.truth","frame":{"type":"subscribe","topic":"vessel.orbit.truth"}},{"id":"channel:vessel.parts","group":"vessel: telemetry","label":"vessel.parts","frame":{"type":"subscribe","topic":"vessel.parts"}},{"id":"channel:vessel.physics.mode","group":"vessel: telemetry","label":"vessel.physics.mode","frame":{"type":"subscribe","topic":"vessel.physics.mode"}},{"id":"channel:vessel.propulsion","group":"vessel: telemetry","label":"vessel.propulsion","frame":{"type":"subscribe","topic":"vessel.propulsion"}},{"id":"channel:vessel.resources","group":"vessel: telemetry","label":"vessel.resources","frame":{"type":"subscribe","topic":"vessel.resources"}},{"id":"channel:vessel.structure","group":"vessel: telemetry","label":"vessel.structure","frame":{"type":"subscribe","topic":"vessel.structure"}},{"id":"channel:vessel.surface","group":"vessel: telemetry","label":"vessel.surface","frame":{"type":"subscribe","topic":"vessel.surface"}},{"id":"channel:vessel.target","group":"vessel: telemetry","label":"vessel.target","frame":{"type":"subscribe","topic":"vessel.target"}},{"id":"channel:vessel.thermal","group":"vessel: telemetry","label":"vessel.thermal","frame":{"type":"subscribe","topic":"vessel.thermal"}},{"id":"channel:vessel.control.setAbort","group":"vessel: commands","label":"vessel.control.setAbort","frame":{"type":"command-request","requestId":"","command":"vessel.control.setAbort","label":"vessel.control.setAbort","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setActionGroup","group":"vessel: commands","label":"vessel.control.setActionGroup","frame":{"type":"command-request","requestId":"","command":"vessel.control.setActionGroup","label":"vessel.control.setActionGroup","topic":"","args":{"group":"\u003cgroup: number>","state":"\u003cstate: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setAxes","group":"vessel: commands","label":"vessel.control.setAxes","frame":{"type":"command-request","requestId":"","command":"vessel.control.setAxes","label":"vessel.control.setAxes","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.control.setBrakes","group":"vessel: commands","label":"vessel.control.setBrakes","frame":{"type":"command-request","requestId":"","command":"vessel.control.setBrakes","label":"vessel.control.setBrakes","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setFlyByWire","group":"vessel: commands","label":"vessel.control.setFlyByWire","frame":{"type":"command-request","requestId":"","command":"vessel.control.setFlyByWire","label":"vessel.control.setFlyByWire","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setGear","group":"vessel: commands","label":"vessel.control.setGear","frame":{"type":"command-request","requestId":"","command":"vessel.control.setGear","label":"vessel.control.setGear","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setLights","group":"vessel: commands","label":"vessel.control.setLights","frame":{"type":"command-request","requestId":"","command":"vessel.control.setLights","label":"vessel.control.setLights","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setPrecisionControl","group":"vessel: commands","label":"vessel.control.setPrecisionControl","frame":{"type":"command-request","requestId":"","command":"vessel.control.setPrecisionControl","label":"vessel.control.setPrecisionControl","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setRcs","group":"vessel: commands","label":"vessel.control.setRcs","frame":{"type":"command-request","requestId":"","command":"vessel.control.setRcs","label":"vessel.control.setRcs","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setSas","group":"vessel: commands","label":"vessel.control.setSas","frame":{"type":"command-request","requestId":"","command":"vessel.control.setSas","label":"vessel.control.setSas","topic":"","args":{"enabled":"\u003cenabled: true or false>"},"sentAt":0}},{"id":"channel:vessel.control.setSasMode","group":"vessel: commands","label":"vessel.control.setSasMode","frame":{"type":"command-request","requestId":"","command":"vessel.control.setSasMode","label":"vessel.control.setSasMode","topic":"","args":{"mode":"\u003cmode: 0 StabilityAssist, 1 Prograde, 2 Retrograde, 3 Normal, 4 Antinormal, 5 RadialIn, 6 RadialOut, 7 Target, 8 AntiTarget, 9 Maneuver, 10 Unknown>"},"sentAt":0}},{"id":"channel:vessel.control.setThrottle","group":"vessel: commands","label":"vessel.control.setThrottle","frame":{"type":"command-request","requestId":"","command":"vessel.control.setThrottle","label":"vessel.control.setThrottle","topic":"","args":{"value":"\u003cvalue: number ratio>"},"sentAt":0}},{"id":"channel:vessel.control.stage","group":"vessel: commands","label":"vessel.control.stage","frame":{"type":"command-request","requestId":"","command":"vessel.control.stage","label":"vessel.control.stage","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.invokePartAction","group":"vessel: commands","label":"vessel.invokePartAction","frame":{"type":"command-request","requestId":"","command":"vessel.invokePartAction","label":"vessel.invokePartAction","topic":"","args":{"partId":"\u003cpartId>","eventName":"\u003ceventName>"},"sentAt":0}},{"id":"channel:vessel.maneuver.add","group":"vessel: commands","label":"vessel.maneuver.add","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.add","label":"vessel.maneuver.add","topic":"","args":{"ut":"\u003cut: number ut>","prograde":"\u003cprograde: number m/s>","normal":"\u003cnormal: number m/s>","radialOut":"\u003cradialOut: number m/s>"},"sentAt":0}},{"id":"channel:vessel.maneuver.remove","group":"vessel: commands","label":"vessel.maneuver.remove","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.remove","label":"vessel.maneuver.remove","topic":"","args":{"nodeId":"\u003cnodeId>"},"sentAt":0}},{"id":"channel:vessel.maneuver.update","group":"vessel: commands","label":"vessel.maneuver.update","frame":{"type":"command-request","requestId":"","command":"vessel.maneuver.update","label":"vessel.maneuver.update","topic":"","args":{"nodeId":"\u003cnodeId>","ut":"\u003cut: number ut>","prograde":"\u003cprograde: number m/s>","normal":"\u003cnormal: number m/s>","radialOut":"\u003cradialOut: number m/s>"},"sentAt":0}},{"id":"channel:vessel.target.clear","group":"vessel: commands","label":"vessel.target.clear","frame":{"type":"command-request","requestId":"","command":"vessel.target.clear","label":"vessel.target.clear","topic":"","args":{},"sentAt":0}},{"id":"channel:vessel.target.set","group":"vessel: commands","label":"vessel.target.set","frame":{"type":"command-request","requestId":"","command":"vessel.target.set","label":"vessel.target.set","topic":"","args":{"kind":"\u003ckind: 0 Vessel, 1 Body, 2 Other, 3 Position, 4 Part>"},"sentAt":0}}]</script>
 <script>
 /*
  * The page's behaviour: one view at a time, the contents drawer, the theme

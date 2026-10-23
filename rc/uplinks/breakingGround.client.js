@@ -22,8 +22,6 @@ import {
   Badge,
   Box,
   Cluster,
-  HeldBadge,
-  heldGradeOf,
   Meter,
   Stack,
   Text,
@@ -81,7 +79,6 @@ function DeployedBaseCard({
   basesReading
 }) {
   const state = powerState(base);
-  const heldGrade = heldGradeOf(basesReading);
   return /* @__PURE__ */ jsx(
     Box,
     {
@@ -94,8 +91,16 @@ function DeployedBaseCard({
       children: /* @__PURE__ */ jsxs(Stack, { children: [
         /* @__PURE__ */ jsxs(Cluster, { justify: "start", wrap: true, children: [
           /* @__PURE__ */ jsx(Text, { size: "sm", style: { fontWeight: 600 }, children: base.body || "Surface base" }),
-          /* @__PURE__ */ jsx(Badge, { tone: POWER_TONE[state], "data-tone": POWER_TONE[state], live: true, children: POWER_LABEL[state] }),
-          heldGrade !== void 0 && /* @__PURE__ */ jsx(HeldBadge, { grade: heldGrade, subject: "Deployed bases", size: "sm" })
+          /* @__PURE__ */ jsx(
+            Badge,
+            {
+              tone: POWER_TONE[state],
+              "data-tone": POWER_TONE[state],
+              held: basesReading,
+              live: true,
+              children: POWER_LABEL[state]
+            }
+          )
         ] }),
         siteLine(base) && /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: siteLine(base) }),
         /* @__PURE__ */ jsxs(Text, { level: "muted", style: XS2_STYLE, children: [
@@ -302,7 +307,7 @@ import {
   useCommand,
   useTelemetry as useTelemetry2
 } from "@ksp-gonogo/sitrep-sdk";
-import { EmptyState as EmptyState2, heldGradeOf as heldGradeOf2, Panel as Panel3, Section as Section3 } from "@ksp-gonogo/ui-kit";
+import { EmptyState as EmptyState2, heldMarking, Panel as Panel3, Section as Section3 } from "@ksp-gonogo/ui-kit";
 import { useState } from "react";
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/robotics.ts
@@ -443,7 +448,7 @@ function RoboticsConsoleView({
   servos,
   selected,
   positionReadings,
-  held,
+  flagsMarked,
   rows,
   onSelect,
   setTarget,
@@ -458,7 +463,6 @@ function RoboticsConsoleView({
     Panel2,
     {
       panelTitle: "ROBOTICS",
-      panelBadges: held === void 0 ? void 0 : [{ id: "read", label: "Reading", held }],
       sections: [
         /* @__PURE__ */ jsx3(Section2, { full: true, children: /* @__PURE__ */ jsxs2(Cluster2, { justify: "start", align: "baseline", wrap: true, children: [
           selected.current === null ? /* @__PURE__ */ jsx3(Text2, { size: "lg", weight: "semibold", level: "muted", role: "status", children: "Position unknown" }) : /* @__PURE__ */ jsx3(Text2, { size: "lg", weight: "semibold", children: /* @__PURE__ */ jsx3(Unit2, { value: readings.current, decimals }) }),
@@ -516,6 +520,7 @@ function RoboticsConsoleView({
                 tone: "go",
                 disabled: selected.motorEngaged === null || selected.motorized === false,
                 disabledReason: selected.motorEngaged === null ? "The motor state is not reported" : "This part has no motor",
+                marked: flagsMarked,
                 onClick: () => selected.motorEngaged !== null && setMotor(selected.partId, !selected.motorEngaged),
                 children: [
                   "Motor ",
@@ -532,6 +537,7 @@ function RoboticsConsoleView({
                 tone: "warn",
                 disabled: selected.locked === null,
                 disabledReason: "The lock state is not reported",
+                marked: flagsMarked,
                 onClick: () => selected.locked !== null && setLock(selected.partId, !selected.locked),
                 children: lockStateText(selected.locked)
               }
@@ -672,7 +678,7 @@ function RoboticsConsoleComponent({
       servos,
       selected,
       positionReadings,
-      held: heldGradeOf2(roboticsReading),
+      flagsMarked: heldMarking(roboticsReading),
       rows: h ?? 8,
       onSelect: setSelectedId,
       setTarget,
@@ -712,7 +718,7 @@ import {
 } from "@ksp-gonogo/sitrep-sdk";
 import {
   EmptyState as EmptyState3,
-  heldGradeOf as heldGradeOf3,
+  heldMarking as heldMarking2,
   Panel as Panel4,
   Section as Section6,
   SelectableRow as SelectableRow2,
@@ -823,7 +829,8 @@ function RotorControls({
   setBrake,
   setMotor,
   setLock,
-  reverse
+  reverse,
+  flagsMarked = null
 }) {
   return /* @__PURE__ */ jsxs3(Section4, { gap: "related-dense", children: [
     /* @__PURE__ */ jsxs3(Grid, { cols: "1fr auto auto auto", children: [
@@ -893,6 +900,7 @@ function RotorControls({
           tone: "go",
           disabled: selected.motorEngaged === null,
           disabledReason: "The motor state is not reported",
+          marked: flagsMarked,
           onClick: () => selected.motorEngaged !== null && setMotor(selected.partId, !selected.motorEngaged),
           children: [
             "Motor ",
@@ -908,6 +916,7 @@ function RotorControls({
           tone: "warn",
           disabled: selected.locked === null,
           disabledReason: "The lock state is not reported",
+          marked: flagsMarked,
           onClick: () => selected.locked !== null && setLock(selected.partId, !selected.locked),
           children: lockStateText(selected.locked)
         }
@@ -920,6 +929,7 @@ function RotorControls({
           tone: "warn",
           disabled: selected.brakePercentage === null,
           disabledReason: "The brake is not reported",
+          marked: flagsMarked,
           onClick: () => selected.brakePercentage !== null && setBrake(selected.partId, selected.brakePercentage > 0 ? 0 : 100),
           children: [
             "Brake ",
@@ -933,6 +943,7 @@ function RotorControls({
           size: "sm",
           type: "button",
           "aria-label": reverseLabel(selected.counterClockwise),
+          marked: flagsMarked,
           onClick: () => reverse(selected.partId),
           children: directionText(selected.counterClockwise)
         }
@@ -1094,14 +1105,13 @@ function RotorTachometerComponent({
       }
     );
   }
-  const heldGrade = heldGradeOf3(roboticsReading);
+  const flagsMarked = heldMarking2(roboticsReading);
   const showGauge = (h ?? 8) >= 6;
   const readingsOf = (r) => roboticsReading[r.srcIndex];
   return /* @__PURE__ */ jsx7(
     Panel4,
     {
       panelTitle: "ROTORS",
-      panelBadges: heldGrade === void 0 ? void 0 : [{ id: "read", label: "Reading", held: heldGrade }],
       sections: [
         showGauge && /* @__PURE__ */ jsx7(
           RotorGauge,
@@ -1123,7 +1133,8 @@ function RotorTachometerComponent({
             setBrake,
             setMotor,
             setLock,
-            reverse
+            reverse,
+            flagsMarked
           },
           "controls"
         ),
