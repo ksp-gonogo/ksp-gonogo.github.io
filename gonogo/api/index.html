@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 49.0.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 49.1.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 49.0.0</span>
+<span class="version">contract 49.1.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1390,7 +1390,7 @@ pre code {
 <p class="nav-heading">Reference</p>
 <ul>
 <li class="nav-group" data-view="schemas"><details>
-<summary>Shared types <span class="count">132</span></summary>
+<summary>Shared types <span class="count">133</span></summary>
 <ul>
 <li data-name="ActionBinding"><a href="#schema-ActionBinding" title="ActionBinding">ActionBinding</a></li>
 <li data-name="ActionGroupState"><a href="#schema-ActionGroupState" title="ActionGroupState">ActionGroupState</a></li>
@@ -1454,6 +1454,7 @@ pre code {
 <li data-name="InventoryStore"><a href="#schema-InventoryStore" title="InventoryStore">InventoryStore</a></li>
 <li data-name="IsruResourceFlow"><a href="#schema-IsruResourceFlow" title="IsruResourceFlow">IsruResourceFlow</a></li>
 <li data-name="JourneyEventKind"><a href="#schema-JourneyEventKind" title="JourneyEventKind">JourneyEventKind</a></li>
+<li data-name="KspContractPrestige"><a href="#schema-KspContractPrestige" title="KspContractPrestige">KspContractPrestige</a></li>
 <li data-name="KspEditorFacility"><a href="#schema-KspEditorFacility" title="KspEditorFacility">KspEditorFacility</a></li>
 <li data-name="KspParameterState"><a href="#schema-KspParameterState" title="KspParameterState">KspParameterState</a></li>
 <li data-name="KspPartCategory"><a href="#schema-KspPartCategory" title="KspPartCategory">KspPartCategory</a></li>
@@ -1548,7 +1549,7 @@ means, all over one socket.</p>
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
   &quot;contractMajor&quot;: 49,
-  &quot;contractMinor&quot;: 0
+  &quot;contractMinor&quot;: 1
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -16189,7 +16190,7 @@ when the R&amp;D module is not loaded.</p>
 <div class="description"><p>One contract in <a class="code-ref" href="#schema-CareerContracts"><code>CareerContracts.active</code></a>, <a class="code-ref" href="#schema-CareerContracts"><code>CareerContracts.offered</code></a>,
 <a class="code-ref" href="#schema-CareerContracts"><code>CareerContracts.completedRecent</code></a> or <a class="code-ref" href="#schema-CareerContracts"><code>CareerContracts.failedRecent</code></a>.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">14 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">19 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -16219,6 +16220,41 @@ no agent.</p>
 <td class="unit"></td>
 <td><p>KSP&#39;s <code>Contract.State</code> enum name, e.g. <code>&quot;Active&quot;</code>, <code>&quot;Offered&quot;</code> or
 <code>&quot;Completed&quot;</code>.</p>
+</td>
+</tr><tr>
+<td class="field">synopsis <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The one-line statement of what the contract asks for, KSP&#39;s
+<code>Contract.Synopsys</code>. Useful as the line under the title on a contract card.</p>
+</td>
+</tr><tr>
+<td class="field">briefing <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The contract&#39;s briefing, KSP&#39;s <code>Contract.Description</code>: the full text the
+agency writes to explain the work.</p>
+</td>
+</tr><tr>
+<td class="field">notes <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The contract&#39;s notes, KSP&#39;s <code>Contract.Notes</code>: the extra conditions and hints
+the game lists under the briefing. <code>null</code> when it has none.</p>
+</td>
+</tr><tr>
+<td class="field">prestige <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p><code>Contract.Prestige</code>&#39;s enum name (<code>Trivial</code>, <code>Significant</code>, <code>Exceptional</code>): a
+display label. <a class="code-ref" href="#schema-CareerContract"><code>CareerContract.prestigeOrdinal</code></a> is the field to branch on.</p>
+</td>
+</tr><tr>
+<td class="field">prestigeOrdinal <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-KspContractPrestige">KspContractPrestige</a> | null</td>
+<td class="unit"></td>
+<td><p><a class="code-ref" href="#schema-CareerContract"><code>CareerContract.prestige</code></a>&#39;s KSP ordinal, typed to <a class="code-ref" href="#schema-KspContractPrestige"><code>KspContractPrestige</code></a>.
+<code>null</code> when the capture carried none, which is not a trivial contract.</p>
 </td>
 </tr><tr>
 <td class="field">fundsAdvance <span class="optional">optional</span></td>
@@ -16282,8 +16318,9 @@ offer whose deadline is set only on acceptance.</p>
 <td class="field">parameters</td>
 <td class="type"><a class="type-ref" href="#schema-CareerContractParameter">CareerContractParameter</a>[]</td>
 <td class="unit"></td>
-<td><p>The contract&#39;s top-level objectives, in KSP&#39;s order. Nested sub-parameters
-are not listed. Always present, empty when the contract has none.</p>
+<td><p>The contract&#39;s top-level objectives, in KSP&#39;s order, each carrying its own
+nested objectives in <a class="code-ref" href="#schema-CareerContractParameter"><code>CareerContractParameter.children</code></a>. Always present,
+empty when the contract has none.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -16293,7 +16330,7 @@ are not listed. Always present, empty when the contract has none.</p>
 <p class="type-line"><span class="type">object</span></p>
 <div class="description"><p>One parameter (objective) of a <a class="code-ref" href="#schema-CareerContract"><code>CareerContract</code></a>.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">8 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">11 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -16321,6 +16358,29 @@ spelling reads as outstanding, and a contract-parameter alarm set on
 &quot;Complete&quot; never fires.</p>
 <p><code>null</code> when the capture carried no state, which is a third value and must
 not be read as either complete or incomplete.</p>
+</td>
+</tr><tr>
+<td class="field">optional <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether the contract can be completed without this objective, KSP&#39;s optional
+flag on a contract parameter. Useful for telling the operator which
+objectives are bonuses.</p>
+</td>
+</tr><tr>
+<td class="field">notes <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The objective&#39;s notes, KSP&#39;s notes on a contract parameter. <code>null</code> when it
+has none.</p>
+</td>
+</tr><tr>
+<td class="field">children</td>
+<td class="type"><a class="type-ref" href="#schema-CareerContractParameter">CareerContractParameter</a>[]</td>
+<td class="unit"></td>
+<td><p>The objectives nested directly under this one, in KSP&#39;s order, each with its
+own live state. Always present, empty for an objective that has no
+sub-objectives.</p>
 </td>
 </tr><tr>
 <td class="field">minAltitude <span class="optional">optional</span></td>
@@ -19431,6 +19491,31 @@ needed was gone when it arrived. The node still holds the command,
 <a class="code-ref" href="#schema-CommsJourneyEvent"><code>CommsJourneyEvent.detail</code></a> says which attempt was lost, and
 <a class="code-ref" href="#schema-CommsJourneyEvent"><code>CommsJourneyEvent.untilUt</code></a> is when that node tries again, or null when it
 waits for its plan to change.</td>
+</tr></tbody></table></div>
+</details>
+</article>
+<article class="card" id="schema-KspContractPrestige">
+<header><h3><code>KspContractPrestige</code></h3></header>
+<p class="type-line"><span class="type">enum</span></p>
+<div class="description"><p>KSP&#39;s contract prestige tier: how demanding a contract is, which the game
+shows as the difficulty of an offer. Carried as the prestige ordinal of each
+contract on the career status, beside the prestige name.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 values</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Value</th><th scope="col">Name</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">0</td>
+<td class="field">Trivial</td>
+<td>An easy contract, the first tier of difficulty.</td>
+</tr><tr>
+<td class="field">1</td>
+<td class="field">Significant</td>
+<td>A contract of middling difficulty.</td>
+</tr><tr>
+<td class="field">2</td>
+<td class="field">Exceptional</td>
+<td>The hardest contract tier.</td>
 </tr></tbody></table></div>
 </details>
 </article>

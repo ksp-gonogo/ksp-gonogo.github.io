@@ -192,6 +192,21 @@
             <button class="copy" type="button" data-copy="run-command" aria-label="Copy run command">Copy</button>
           </div>
           <p>
+            If Docker says the name <code class="inline">gonogo</code> is
+            already in use, a container from an earlier install exists. Run
+            <code class="inline">docker rm -f gonogo</code>, then the command
+            above again. Once it is running, the app is at
+            <code class="inline">http://localhost:8080</code>, not on this
+            website.
+          </p>
+          <p>
+            Friends joining over the internet may need ports opened on your
+            router. Add <code class="inline">-e GONOGO_UPNP=1</code> to the
+            command to let Gonogo open them for you, or see the
+            <a href="https://github.com/ksp-gonogo/gonogo/blob/main/docs/NETWORKING.md#cross-internet-stations-cellular-remote-networks">networking guide</a>
+            for the ports to forward by hand.
+          </p>
+          <p>
             Until the first release is published the image exists only as the
             release candidate, tagged <code class="inline">rc</code>, which is
             what this command pulls. After the first release, end it with
