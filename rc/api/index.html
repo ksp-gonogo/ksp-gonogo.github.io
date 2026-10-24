@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 46.4.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 47.2.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 46.4.0</span>
+<span class="version">contract 47.2.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1390,7 +1390,7 @@ pre code {
 <p class="nav-heading">Reference</p>
 <ul>
 <li class="nav-group" data-view="schemas"><details>
-<summary>Shared types <span class="count">131</span></summary>
+<summary>Shared types <span class="count">132</span></summary>
 <ul>
 <li data-name="ActionBinding"><a href="#schema-ActionBinding" title="ActionBinding">ActionBinding</a></li>
 <li data-name="ActionGroupState"><a href="#schema-ActionGroupState" title="ActionGroupState">ActionGroupState</a></li>
@@ -1484,6 +1484,7 @@ pre code {
 <li data-name="PropagationHorizonKind"><a href="#schema-PropagationHorizonKind" title="PropagationHorizonKind">PropagationHorizonKind</a></li>
 <li data-name="Quality"><a href="#schema-Quality" title="Quality">Quality</a></li>
 <li data-name="RecentLog"><a href="#schema-RecentLog" title="RecentLog">RecentLog</a></li>
+<li data-name="RecoveryAward"><a href="#schema-RecoveryAward" title="RecoveryAward">RecoveryAward</a></li>
 <li data-name="RecoveryCrewEntry"><a href="#schema-RecoveryCrewEntry" title="RecoveryCrewEntry">RecoveryCrewEntry</a></li>
 <li data-name="RecoveryPartEntry"><a href="#schema-RecoveryPartEntry" title="RecoveryPartEntry">RecoveryPartEntry</a></li>
 <li data-name="RecoveryResourceEntry"><a href="#schema-RecoveryResourceEntry" title="RecoveryResourceEntry">RecoveryResourceEntry</a></li>
@@ -1546,8 +1547,8 @@ means, all over one socket.</p>
   &quot;type&quot;: &quot;hello&quot;,
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
-  &quot;contractMajor&quot;: 46,
-  &quot;contractMinor&quot;: 4
+  &quot;contractMajor&quot;: 47,
+  &quot;contractMinor&quot;: 2
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -7540,7 +7541,7 @@ still produces a record, with the craft, where it came down, its parts and
 its crew, and nothing awarded.</p>
 </div>
 <details class="fields-block" id="schema-RecoveryReport">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-RecoveryReport">RecoveryReport</a></span> <span class="count">15 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-RecoveryReport">RecoveryReport</a></span> <span class="count">16 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -7649,6 +7650,17 @@ there were none or the dialog could not be read.</p>
 <td><p>Each crew member aboard at recovery. Empty for an uncrewed vessel or when
 the dialog could not be read.</p>
 </td>
+</tr><tr>
+<td class="field">awards</td>
+<td class="type"><a class="type-ref" href="#schema-RecoveryAward">RecoveryAward</a>[]</td>
+<td class="unit"></td>
+<td><p>What else the recovery paid, by name: each progress milestone or contract
+reward the game awarded while the recovery was being processed. Not part of
+<a class="code-ref" href="#schema-RecoveryReport"><code>RecoveryReport.fundsEarned</code></a>, <a class="code-ref" href="#schema-RecoveryReport"><code>RecoveryReport.reputationEarned</code></a> or
+<a class="code-ref" href="#schema-RecoveryReport"><code>RecoveryReport.scienceEarned</code></a>, which are the dialog&#39;s own figures for the
+recovered craft, so a balance rises by those plus these. Empty when nothing
+else paid.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 <details class="example"><summary>Shape of its stream-data frame, with placeholder values</summary><pre class="json"><code>{
@@ -7671,7 +7683,7 @@ the dialog could not be read.</p>
         &quot;subjectId&quot;: &quot;&lt;subjectId&gt;&quot;,
         &quot;subjectTitle&quot;: &quot;&lt;subjectTitle&gt;&quot;,
         &quot;dataGathered&quot;: &quot;&lt;dataGathered: number Mit&gt;&quot;,
-        &quot;scienceAmount&quot;: &quot;&lt;scienceAmount: number science&gt;&quot;
+        &quot;scienceAmount&quot;: &quot;&lt;scienceAmount: number science or null&gt;&quot;
       }
     ],
     &quot;partBreakdown&quot;: [
@@ -7700,6 +7712,14 @@ the dialog could not be read.</p>
         &quot;xpGained&quot;: &quot;&lt;xpGained: number count or null&gt;&quot;,
         &quot;levelsGained&quot;: &quot;&lt;levelsGained: number count or null&gt;&quot;,
         &quot;newLevel&quot;: &quot;&lt;newLevel: number count&gt;&quot;
+      }
+    ],
+    &quot;awards&quot;: [
+      {
+        &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+        &quot;fundsEarned&quot;: &quot;&lt;fundsEarned: number funds or null&gt;&quot;,
+        &quot;reputationEarned&quot;: &quot;&lt;reputationEarned: number rep or null&gt;&quot;,
+        &quot;scienceEarned&quot;: &quot;&lt;scienceEarned: number science or null&gt;&quot;
       }
     ]
   },
@@ -10921,14 +10941,14 @@ the word of it has had time to reach it.</p>
 <td class="type">string | null</td>
 <td class="unit"></td>
 <td><p>The name of the kerbal who planted it. Null when the flag&#39;s module could not
-be read.</p>
+be read, live or saved.</p>
 </td>
 </tr><tr>
 <td class="field">plaque <span class="optional">optional</span></td>
 <td class="type">string | null</td>
 <td class="unit"></td>
 <td><p>The text on the site&#39;s plaque. Null when the flag&#39;s module could not be
-read, and empty when it has none.</p>
+read, live or saved, and empty when it has none.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -16290,7 +16310,7 @@ are not listed. Always present, empty when the contract has none.</p>
 <p class="type-line"><span class="type">object</span></p>
 <div class="description"><p>One parameter (objective) of a <a class="code-ref" href="#schema-CareerContract"><code>CareerContract</code></a>.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">5 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">8 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -16333,6 +16353,30 @@ under itself). <code>null</code> when it carries none.</p>
 <td class="unit">m</td>
 <td><p>Upper bound of that same band, <code>null</code> exactly when
 <a class="code-ref" href="#schema-CareerContractParameter"><code>CareerContractParameter.minAltitude</code></a> is.</p>
+</td>
+</tr><tr>
+<td class="field">milestone <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The progress milestone this objective asks the player to reach, by the
+game&#39;s own name for it (<code>REACHSPACE</code>, <code>ORBIT</code>, <code>LANDING</code> and so on). <code>null</code>
+when the objective is not a progress milestone.</p>
+</td>
+</tr><tr>
+<td class="field">milestoneBody <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The body the <a class="code-ref" href="#schema-CareerContractParameter"><code>CareerContractParameter.milestone</code></a> is reached at, by name.
+<code>null</code> when the objective is not a milestone or the game names no body for
+it.</p>
+</td>
+</tr><tr>
+<td class="field">targetAltitude <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">m</td>
+<td><p>The altitude above sea level the <a class="code-ref" href="#schema-CareerContractParameter"><code>CareerContractParameter.milestone</code></a> is
+reached at, where it has one: the top of the atmosphere for reaching space.
+<code>null</code> when the milestone has no altitude, never 0.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -16689,14 +16733,13 @@ allowed.</p>
 own check ran, <code>&quot;derived&quot;</code> when the same rules were checked one at a time
 because the Administration Building was shut, or when the strategy is
 already active, and <code>&quot;none&quot;</code> when there is no verdict to carry.</p>
-<p><code>&quot;derived&quot;</code> always accompanies a refusal and never a yes. The game stops at
-its first refusal, so a rule that refuses off-screen would have refused on
-it; but one rule counts the career&#39;s running strategies on that screen and
-cannot be checked anywhere else, and permission needs every rule to pass. A
-strategy no rule refused therefore arrives with no verdict and <code>&quot;none&quot;</code>
-rather than as allowed.</p>
-<p>Never enable an activation control from a <code>&quot;derived&quot;</code> verdict: it can only
-refuse. Whether a strategy without a verdict may be committed is decided by
+<p><code>&quot;derived&quot;</code> accompanies a refusal, or a yes on a career where nothing
+changes how a strategy activates: there the career&#39;s running strategies are
+counted against its limit alongside every other rule. On a career where
+another mod changes activation (a career mod that replaces the limit), that
+one rule cannot be checked, so a strategy no other rule refused arrives with
+no verdict and <code>&quot;none&quot;</code> rather than as allowed.</p>
+<p>Whether a strategy without a verdict may be committed is decided by
 <a class="code-ref" href="#channel-career.strategy.activate"><code>career.strategy.activate</code></a> itself, which runs every check again at the
 moment it executes and refuses in the game&#39;s words or as unreadable rather
 than guessing.</p>
@@ -18885,8 +18928,9 @@ from <code>KerbalEVA.HelmetUnsafeReason</code>, or <code>null</code> when it can
 <td><p>The science results this kerbal is holding, such as a surface sample or an
 EVA report, which are on no other Topic: <a class="code-ref" href="#channel-science.experiments"><code>science.experiments</code></a> lists the
 active vessel&#39;s results and a kerbal outside is not that vessel. Empty when
-the kerbal holds none, and <code>null</code> when it could not be read, as for a kerbal
-standing on a vessel that is not loaded.</p>
+the kerbal holds none, and <code>null</code> when it could not be read. A kerbal that
+is not loaded is read from the game&#39;s saved state, so its results are listed
+all the same.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -21027,6 +21071,44 @@ and how many it missed. Starts again from zero when the game restarts.</p>
 </tr></tbody></table></div>
 </details>
 </article>
+<article class="card" id="schema-RecoveryAward">
+<header><h3><code>RecoveryAward</code></h3></header>
+<p class="type-line"><span class="type">object</span></p>
+<div class="description"><p>One award paid while a recovery was processed: an entry of
+<a class="code-ref" href="#schema-RecoveryReport"><code>RecoveryReport.awards</code></a>. Each figure is null when this award paid none of
+that currency.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">4 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">title</td>
+<td class="type">string</td>
+<td class="unit"></td>
+<td><p>What paid: the progress milestone the game reached (e.g. <code>&quot;Recovery&quot;</code>), or
+<code>&quot;Contract reward&quot;</code>.</p>
+</td>
+</tr><tr>
+<td class="field">fundsEarned <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">funds</td>
+<td><p>Funds this award paid.</p>
+</td>
+</tr><tr>
+<td class="field">reputationEarned <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">rep</td>
+<td><p>Reputation this award paid.</p>
+</td>
+</tr><tr>
+<td class="field">scienceEarned <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">science</td>
+<td><p>Science this award paid.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+</article>
 <article class="card" id="schema-RecoveryCrewEntry">
 <header><h3><code>RecoveryCrewEntry</code></h3></header>
 <p class="type-line"><span class="type">object</span></p>
@@ -21197,10 +21279,12 @@ times <a class="code-ref" href="#schema-RecoveryResourceEntry"><code>RecoveryRes
 <td><p>How much data was recovered for this subject.</p>
 </td>
 </tr><tr>
-<td class="field">scienceAmount</td>
-<td class="type">number</td>
+<td class="field">scienceAmount <span class="optional">optional</span></td>
+<td class="type">number | null</td>
 <td class="unit">science</td>
-<td><p>Science earned for this subject by this recovery.</p>
+<td><p>Science earned for this subject by this recovery. Null in a save with no
+science (Sandbox), where the subject is still listed with its
+<a class="code-ref" href="#schema-RecoveryScienceEntry"><code>RecoveryScienceEntry.dataGathered</code></a>.</p>
 </td>
 </tr></tbody></table></div>
 </details>
