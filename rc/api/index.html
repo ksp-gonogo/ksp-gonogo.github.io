@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 47.2.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 49.0.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 47.2.0</span>
+<span class="version">contract 49.0.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1440,8 +1440,7 @@ pre code {
 <li data-name="CrashPartLost"><a href="#schema-CrashPartLost" title="CrashPartLost">CrashPartLost</a></li>
 <li data-name="CrewMember"><a href="#schema-CrewMember" title="CrewMember">CrewMember</a></li>
 <li data-name="CrewStanding"><a href="#schema-CrewStanding" title="CrewStanding">CrewStanding</a></li>
-<li data-name="EvaHeldData"><a href="#schema-EvaHeldData" title="EvaHeldData">EvaHeldData</a></li>
-<li data-name="EvaKerbal"><a href="#schema-EvaKerbal" title="EvaKerbal">EvaKerbal</a></li>
+<li data-name="EvaCrewMember"><a href="#schema-EvaCrewMember" title="EvaCrewMember">EvaCrewMember</a></li>
 <li data-name="ExperimentActionArgs"><a href="#schema-ExperimentActionArgs" title="ExperimentActionArgs">ExperimentActionArgs</a></li>
 <li data-name="FaultCode"><a href="#schema-FaultCode" title="FaultCode">FaultCode</a></li>
 <li data-name="FlightEndReason"><a href="#schema-FlightEndReason" title="FlightEndReason">FlightEndReason</a></li>
@@ -1474,6 +1473,7 @@ pre code {
 <li data-name="OrbitPatch"><a href="#schema-OrbitPatch" title="OrbitPatch">OrbitPatch</a></li>
 <li data-name="OrbitPayloadMeta"><a href="#schema-OrbitPayloadMeta" title="OrbitPayloadMeta">OrbitPayloadMeta</a></li>
 <li data-name="PartBounds"><a href="#schema-PartBounds" title="PartBounds">PartBounds</a></li>
+<li data-name="PartHullPiece"><a href="#schema-PartHullPiece" title="PartHullPiece">PartHullPiece</a></li>
 <li data-name="PartModuleState"><a href="#schema-PartModuleState" title="PartModuleState">PartModuleState</a></li>
 <li data-name="PartResourceFlow"><a href="#schema-PartResourceFlow" title="PartResourceFlow">PartResourceFlow</a></li>
 <li data-name="PayloadMeta"><a href="#schema-PayloadMeta" title="PayloadMeta">PayloadMeta</a></li>
@@ -1547,8 +1547,8 @@ means, all over one socket.</p>
   &quot;type&quot;: &quot;hello&quot;,
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
-  &quot;contractMajor&quot;: 47,
-  &quot;contractMinor&quot;: 2
+  &quot;contractMajor&quot;: 49,
+  &quot;contractMinor&quot;: 0
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -6229,10 +6229,12 @@ stages (s).</p>
 <h4><code>eva.crew</code></h4>
 <button class="try" type="button" data-op="channel:eva.crew" aria-label="Open eva.crew in the console">Open in console</button>
 </header>
-<p class="facts"><a class="chip" href="#overview-channel-properties" title="Only the newest value is kept, so a client that falls behind skips the ones it missed"><span class="chip-label">Delivery</span> Latest value only</a><a class="chip" href="#overview-channel-properties" title="The value is what this connection's command centre knew one signal delay ago"><span class="chip-label">Delay</span> After signal delay</a><a class="chip" href="#overview-channel-properties" title="Each value holds until the next sample, so draw a step"><span class="chip-label">Samples</span> Holds until changed</a><a class="chip" href="#overview-channel-properties" title="Sent again with nothing changed after this much game time"><span class="chip-label">Repeats</span> every 30 s of game time</a></p>
-<div class="description"><p>Every kerbal currently outside a craft.</p>
-<p>The vessel Topics stay with the craft the kerbal left; this Topic carries
-what is true of the kerbal.</p>
+<p class="facts"><a class="chip" href="#overview-channel-properties" title="Only the newest value is kept, so a client that falls behind skips the ones it missed"><span class="chip-label">Delivery</span> Latest value only</a><a class="chip" href="#overview-channel-properties" title="The value is what this connection's command centre knew one signal delay ago"><span class="chip-label">Delay</span> After signal delay</a><a class="chip" href="#overview-channel-properties" title="Held at the home command centre, not aboard a craft"><span class="chip-label">Held</span> at home</a><a class="chip" href="#overview-channel-properties" title="Each value holds until the next sample, so draw a step"><span class="chip-label">Samples</span> Holds until changed</a><a class="chip" href="#overview-channel-properties" title="Sent again with nothing changed after this much game time"><span class="chip-label">Repeats</span> every 30 s of game time</a><a class="chip" href="#overview-channel-properties" title="An empty value is sent from the first tick and means none"><span class="chip-label">Empty</span> is an answer</a></p>
+<div class="description"><p>The roster of kerbals currently outside a craft, so a client can find each
+one&#39;s own <code>eva.kerbal.&lt;vessel id&gt;.state</code> Topic. The suit state is on those
+Topics, not here.</p>
+<p>The roster is a fact the home command holds, so it is not held by the link
+of the craft a kerbal left or of any kerbal.</p>
 <p>An empty list is a real reading: nobody is outside. The Topic has no reading
 only until its first sample arrives.</p>
 </div>
@@ -6249,7 +6251,7 @@ draw anything.</p>
 </td>
 </tr><tr>
 <td class="field">kerbals</td>
-<td class="type"><a class="type-ref" href="#schema-EvaKerbal">EvaKerbal</a>[]</td>
+<td class="type"><a class="type-ref" href="#schema-EvaCrewMember">EvaCrewMember</a>[]</td>
 <td class="unit"></td>
 <td><p>One entry per kerbal on EVA. Never null; empty when nobody is outside.</p>
 </td>
@@ -6264,26 +6266,7 @@ draw anything.</p>
       {
         &quot;kerbalVesselId&quot;: &quot;&lt;kerbalVesselId, or null&gt;&quot;,
         &quot;parentVesselId&quot;: &quot;&lt;parentVesselId, or null&gt;&quot;,
-        &quot;name&quot;: &quot;&lt;name, or null&gt;&quot;,
-        &quot;situation&quot;: &quot;&lt;situation, or null&gt;&quot;,
-        &quot;propellantAmount&quot;: &quot;&lt;propellantAmount: number units or null&gt;&quot;,
-        &quot;propellantCapacity&quot;: &quot;&lt;propellantCapacity: number units or null&gt;&quot;,
-        &quot;hasJetpack&quot;: &quot;&lt;hasJetpack: true or false or null&gt;&quot;,
-        &quot;jetpackDeployed&quot;: &quot;&lt;jetpackDeployed: true or false or null&gt;&quot;,
-        &quot;jetpackIsThrusting&quot;: &quot;&lt;jetpackIsThrusting: true or false or null&gt;&quot;,
-        &quot;onALadder&quot;: &quot;&lt;onALadder: true or false or null&gt;&quot;,
-        &quot;lampOn&quot;: &quot;&lt;lampOn: true or false or null&gt;&quot;,
-        &quot;visorState&quot;: &quot;&lt;visorState, or null&gt;&quot;,
-        &quot;willDieWithoutHelmet&quot;: &quot;&lt;willDieWithoutHelmet: true or false or null&gt;&quot;,
-        &quot;canSafelyRemoveHelmet&quot;: &quot;&lt;canSafelyRemoveHelmet: true or false or null&gt;&quot;,
-        &quot;helmetUnsafeReason&quot;: &quot;&lt;helmetUnsafeReason, or null&gt;&quot;,
-        &quot;heldData&quot;: [
-          {
-            &quot;subjectId&quot;: &quot;&lt;subjectId, or null&gt;&quot;,
-            &quot;title&quot;: &quot;&lt;title, or null&gt;&quot;,
-            &quot;dataAmount&quot;: &quot;&lt;dataAmount: number Mit or null&gt;&quot;
-          }
-        ]
+        &quot;name&quot;: &quot;&lt;name, or null&gt;&quot;
       }
     ]
   },
@@ -18771,58 +18754,21 @@ reports it and every install gets it.</td>
 </tr></tbody></table></div>
 </details>
 </article>
-<article class="card" id="schema-EvaHeldData">
-<header><h3><code>EvaHeldData</code></h3></header>
+<article class="card" id="schema-EvaCrewMember">
+<header><h3><code>EvaCrewMember</code></h3></header>
 <p class="type-line"><span class="type">object</span></p>
-<div class="description"><p>One science result a kerbal on EVA is holding, in <a class="code-ref" href="#schema-EvaKerbal"><code>EvaKerbal.heldData</code></a>.</p>
+<div class="description"><p>One kerbal listed on <a class="code-ref" href="#channel-eva.crew"><code>eva.crew</code></a>: who is outside and which craft they left,
+enough to find the kerbal&#39;s own <code>eva.kerbal.&lt;vessel id&gt;.state</code> Topic.</p>
 </div>
 <details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 fields</span></summary>
-<div class="fields-wrap"><table class="fields">
-<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
-<tbody><tr>
-<td class="field">subjectId <span class="optional">optional</span></td>
-<td class="type">string | null</td>
-<td class="unit"></td>
-<td><p>The research subject&#39;s id (<code>ScienceSubject.id</code>), the same key
-<a class="code-ref" href="#channel-science.archive"><code>science.archive</code></a> lists it under.</p>
-</td>
-</tr><tr>
-<td class="field">title <span class="optional">optional</span></td>
-<td class="type">string | null</td>
-<td class="unit"></td>
-<td><p>The result&#39;s title, for example &quot;Surface Sample from The Mun&#39;s Midlands&quot;.</p>
-</td>
-</tr><tr>
-<td class="field">dataAmount <span class="optional">optional</span></td>
-<td class="type">number | null</td>
-<td class="unit">Mit</td>
-<td><p>The size of the result.</p>
-</td>
-</tr></tbody></table></div>
-</details>
-</article>
-<article class="card" id="schema-EvaKerbal">
-<header><h3><code>EvaKerbal</code></h3></header>
-<p class="type-line"><span class="type">object</span></p>
-<div class="description"><p>One kerbal currently outside a craft, on the <a class="code-ref" href="#channel-eva.crew"><code>eva.crew</code></a> channel.</p>
-<p>A kerbal on EVA is a vessel in KSP&#39;s model, with its own id, so it already
-appears on <a class="code-ref" href="#channel-trackingStation.catalog"><code>trackingStation.catalog</code></a> and on its own per-craft Topics
-(<code>trackingStation.vessel.&lt;guid&gt;.link</code> and <code>.resources</code>). What is here and
-nowhere else is the suit: what it is carrying, what it can do, and whether
-the place it is standing in would kill the wearer without it.</p>
-<p>Every field is <code>null</code> when the value could not be read. Absence is never a
-zero: a kerbal whose propellant could not be read is not a kerbal with an
-empty tank.</p>
-</div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">16 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
 <td class="field">kerbalVesselId <span class="optional">optional</span></td>
 <td class="type">string | null</td>
 <td class="unit"></td>
-<td><p>The kerbal&#39;s own vessel id, the same guid <a class="code-ref" href="#channel-trackingStation.catalog"><code>trackingStation.catalog</code></a> carries
-for it.</p>
+<td><p>The kerbal&#39;s own vessel id, the key of its <code>eva.kerbal.&lt;vessel id&gt;.state</code>
+Topic and the guid <a class="code-ref" href="#channel-trackingStation.catalog"><code>trackingStation.catalog</code></a> carries for it.</p>
 </td>
 </tr><tr>
 <td class="field">parentVesselId <span class="optional">optional</span></td>
@@ -18830,107 +18776,12 @@ for it.</p>
 <td class="unit"></td>
 <td><p>The vessel id of the craft this kerbal stepped out of, or <code>null</code> when that
 is not known (the step-out was not recorded, or the craft has since gone).</p>
-<p>This is the vessel Gonogo goes on reporting as active while they are
-outside, so a client that follows the active vessel sees no discontinuity
-when a kerbal steps out.</p>
 </td>
 </tr><tr>
 <td class="field">name <span class="optional">optional</span></td>
 <td class="type">string | null</td>
 <td class="unit"></td>
 <td><p>The kerbal&#39;s name, from the EVA vessel&#39;s <code>GetName()</code>.</p>
-</td>
-</tr><tr>
-<td class="field">situation <span class="optional">optional</span></td>
-<td class="type">string | null</td>
-<td class="unit"></td>
-<td><p>KSP&#39;s own situation name for the kerbal (<code>FLYING</code>, <code>LANDED</code>, ...).</p>
-</td>
-</tr><tr>
-<td class="field">propellantAmount <span class="optional">optional</span></td>
-<td class="type">number | null</td>
-<td class="unit">units</td>
-<td><p>EVA propellant remaining in the pack.</p>
-</td>
-</tr><tr>
-<td class="field">propellantCapacity <span class="optional">optional</span></td>
-<td class="type">number | null</td>
-<td class="unit">units</td>
-<td><p>What the pack holds when full, so a client can draw a fraction without
-knowing the model.</p>
-</td>
-</tr><tr>
-<td class="field">hasJetpack <span class="optional">optional</span></td>
-<td class="type">boolean | null</td>
-<td class="unit"></td>
-<td><p>Whether this kerbal has a jetpack at all: without one the propellant figures
-describe nothing.</p>
-</td>
-</tr><tr>
-<td class="field">jetpackDeployed <span class="optional">optional</span></td>
-<td class="type">boolean | null</td>
-<td class="unit"></td>
-<td><p>Whether the jetpack is switched on (KSP&#39;s <code>KerbalEVA.JetpackDeployed</code>).</p>
-</td>
-</tr><tr>
-<td class="field">jetpackIsThrusting <span class="optional">optional</span></td>
-<td class="type">boolean | null</td>
-<td class="unit"></td>
-<td><p>Whether the pack is firing right now, which is the only signal that a kerbal
-is under thrust.</p>
-</td>
-</tr><tr>
-<td class="field">onALadder <span class="optional">optional</span></td>
-<td class="type">boolean | null</td>
-<td class="unit"></td>
-<td><p>Whether the kerbal is on a ladder (KSP&#39;s <code>KerbalEVA.OnALadder</code>).</p>
-</td>
-</tr><tr>
-<td class="field">lampOn <span class="optional">optional</span></td>
-<td class="type">boolean | null</td>
-<td class="unit"></td>
-<td><p>Whether the suit&#39;s helmet lamp is on (KSP&#39;s <code>KerbalEVA.lampOn</code>).</p>
-</td>
-</tr><tr>
-<td class="field">visorState <span class="optional">optional</span></td>
-<td class="type">string | null</td>
-<td class="unit"></td>
-<td><p>KSP&#39;s own visor state name, from <code>KerbalEVA.VisorState</code>.</p>
-</td>
-</tr><tr>
-<td class="field">willDieWithoutHelmet <span class="optional">optional</span></td>
-<td class="type">boolean | null</td>
-<td class="unit"></td>
-<td><p>Whether removing the helmet here would kill this kerbal, from
-<code>KerbalEVA.WillDieWithoutHelmet()</code>.</p>
-<p>Nothing else on the wire says whether the place a kerbal is standing in is
-survivable without a helmet.</p>
-</td>
-</tr><tr>
-<td class="field">canSafelyRemoveHelmet <span class="optional">optional</span></td>
-<td class="type">boolean | null</td>
-<td class="unit"></td>
-<td><p>Whether the helmet can come off here and now, from
-<code>KerbalEVA.CanSafelyRemoveHelmet()</code>. A stricter test than
-<a class="code-ref" href="#schema-EvaKerbal"><code>EvaKerbal.willDieWithoutHelmet</code></a>.</p>
-</td>
-</tr><tr>
-<td class="field">helmetUnsafeReason <span class="optional">optional</span></td>
-<td class="type">string | null</td>
-<td class="unit"></td>
-<td><p>KSP&#39;s own words for why the helmet cannot come off, passed through verbatim
-from <code>KerbalEVA.HelmetUnsafeReason</code>, or <code>null</code> when it can.</p>
-</td>
-</tr><tr>
-<td class="field">heldData <span class="optional">optional</span></td>
-<td class="type"><a class="type-ref" href="#schema-EvaHeldData">EvaHeldData</a>[] | null</td>
-<td class="unit"></td>
-<td><p>The science results this kerbal is holding, such as a surface sample or an
-EVA report, which are on no other Topic: <a class="code-ref" href="#channel-science.experiments"><code>science.experiments</code></a> lists the
-active vessel&#39;s results and a kerbal outside is not that vessel. Empty when
-the kerbal holds none, and <code>null</code> when it could not be read. A kerbal that
-is not loaded is read from the game&#39;s saved state, so its results are listed
-all the same.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -20669,16 +20520,35 @@ rotation before adding it to <a class="code-ref" href="#schema-VesselPart"><code
 </tr></tbody></table></div></details></td>
 </tr><tr>
 <td class="field">hull <span class="optional">optional</span></td>
-<td class="type">number[] | null</td>
+<td class="type"><a class="type-ref" href="#schema-PartHullPiece">PartHullPiece</a>[] | null</td>
 <td class="unit"></td>
-<td><p>The part&#39;s silhouette as the points of a convex hull around its mesh
-vertices (metres, part-local), flattened to x, y, z triples in order, so a
-list of 3n numbers holds n points. A consumer drawing the part from any side
-turns the points by the part&#39;s rotation and keeps the 2D convex hull of the
-result. At most 38 points, rounded to a millimetre. <code>null</code> when the mesh
-could not be read (the box is then the only shape known) or the part&#39;s model
-has no mesh. A convex hull fills in any notch, so a concave part such as a
-cargo bay or an L-shaped bracket reads as its enclosing shape.</p>
+<td><p>The part&#39;s silhouette as pieces, one for each mesh that is drawn, so a part
+whose meshes lie apart (a solar panel&#39;s plates and its hinge, say) is not
+filled in between them. At most 10 pieces and 96 points over all of them,
+the smallest dropped first. <code>null</code> when a mesh could not be read (the box is
+then the only shape known), nothing of the part is drawn, or the part&#39;s
+model has no mesh. A mesh switched off, such as an engine&#39;s shroud while
+nothing is mounted below it, is in the box and not in a piece.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+</article>
+<article class="card" id="schema-PartHullPiece">
+<header><h3><code>PartHullPiece</code></h3></header>
+<p class="type-line"><span class="type">object</span></p>
+<div class="description"><p>The convex hull of one mesh of a part, as points in the part&#39;s own frame.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">1 field</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">points</td>
+<td class="type">number[]</td>
+<td class="unit"></td>
+<td><p>The corners of the mesh&#39;s convex hull (metres, part-local), flattened to x,
+y, z triples in order, so a list of 3n numbers holds n points, at most 38,
+rounded to a millimetre. A consumer drawing the part from any side turns the
+points by the part&#39;s rotation and keeps the 2D convex hull of the result.</p>
 </td>
 </tr></tbody></table></div>
 </details>
