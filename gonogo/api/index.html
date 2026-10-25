@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 49.1.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 49.3.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 49.1.0</span>
+<span class="version">contract 49.3.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1549,7 +1549,7 @@ means, all over one socket.</p>
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
   &quot;contractMajor&quot;: 49,
-  &quot;contractMinor&quot;: 1
+  &quot;contractMinor&quot;: 3
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -6408,7 +6408,7 @@ flight that ended by a crash or a recovery after the revert target. A client
 that already holds an end for a flight keeps it.</p>
 </div>
 <details class="fields-block" id="schema-FlightEnded">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-FlightEnded">FlightEnded</a></span> <span class="count">5 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-FlightEnded">FlightEnded</a></span> <span class="count">7 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -6443,6 +6443,20 @@ one loss, the first detected wins.</p>
 <td><p>Universal time the flight ended. For <a class="code-ref" href="#schema-FlightEndReason"><code>2 (Reverted)</code></a> this is the
 revert-target UT, not the moment the player chose to revert.</p>
 </td>
+</tr><tr>
+<td class="field">joinedVesselId <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>KSP&#39;s <code>Vessel.id</code> GUID of the craft the vessel joined, as a string. Null
+unless <a class="code-ref" href="#schema-FlightEnded"><code>FlightEnded.reason</code></a> is <a class="code-ref" href="#schema-FlightEndReason"><code>5 (Docked)</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">joinedVesselName <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The display name of the craft the vessel joined. Null unless
+<a class="code-ref" href="#schema-FlightEnded"><code>FlightEnded.reason</code></a> is <a class="code-ref" href="#schema-FlightEndReason"><code>5 (Docked)</code></a>.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 <details class="example"><summary>Shape of its stream-data frame, with placeholder values</summary><pre class="json"><code>{
@@ -6452,8 +6466,10 @@ revert-target UT, not the moment the player chose to revert.</p>
     &quot;flightId&quot;: &quot;&lt;flightId&gt;&quot;,
     &quot;vesselId&quot;: &quot;&lt;vesselId&gt;&quot;,
     &quot;vesselName&quot;: &quot;&lt;vesselName&gt;&quot;,
-    &quot;reason&quot;: &quot;&lt;reason: 0 Recovered, 1 Crashed, 2 Reverted, 3 Destroyed, 4 Terminated&gt;&quot;,
-    &quot;ut&quot;: &quot;&lt;ut: number ut&gt;&quot;
+    &quot;reason&quot;: &quot;&lt;reason: 0 Recovered, 1 Crashed, 2 Reverted, 3 Destroyed, 4 Terminated, 5 Docked&gt;&quot;,
+    &quot;ut&quot;: &quot;&lt;ut: number ut&gt;&quot;,
+    &quot;joinedVesselId&quot;: &quot;&lt;joinedVesselId, or null&gt;&quot;,
+    &quot;joinedVesselName&quot;: &quot;&lt;joinedVesselName, or null&gt;&quot;
   },
   &quot;meta&quot;: {
     &quot;source&quot;: &quot;system&quot;,
@@ -6489,7 +6505,7 @@ announced again; a new <a class="code-ref" href="#schema-FlightStarted"><code>Fl
 new flight after a rewind.</p>
 </div>
 <details class="fields-block" id="schema-FlightStarted">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-FlightStarted">FlightStarted</a></span> <span class="count">4 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-FlightStarted">FlightStarted</a></span> <span class="count">5 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -6518,6 +6534,16 @@ begun by a revert has an id of its own, never the reverted flight&#39;s.</p>
 <td><p>Universal time this flight began: when the vessel was first observed active,
 or the revert-target UT for a flight started by a rewind.</p>
 </td>
+</tr><tr>
+<td class="field">resumesAfterDock</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>True when this is a flight that ended <a class="code-ref" href="#schema-FlightEndReason"><code>5 (Docked)</code></a> and is now
+flying again, because the craft that came off an undock or a Claw release is
+the one that docked: <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.flightId</code></a> and <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.ut</code></a> are the
+original flight&#39;s, and <a class="code-ref" href="#schema-FlightStarted"><code>FlightStarted.vesselId</code></a> is the new vessel&#39;s. Its
+earlier Docked end no longer stands.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 <details class="example"><summary>Shape of its stream-data frame, with placeholder values</summary><pre class="json"><code>{
@@ -6527,7 +6553,8 @@ or the revert-target UT for a flight started by a rewind.</p>
     &quot;flightId&quot;: &quot;&lt;flightId&gt;&quot;,
     &quot;vesselId&quot;: &quot;&lt;vesselId&gt;&quot;,
     &quot;vesselName&quot;: &quot;&lt;vesselName&gt;&quot;,
-    &quot;ut&quot;: &quot;&lt;ut: number ut&gt;&quot;
+    &quot;ut&quot;: &quot;&lt;ut: number ut&gt;&quot;,
+    &quot;resumesAfterDock&quot;: &quot;&lt;resumesAfterDock: true or false&gt;&quot;
   },
   &quot;meta&quot;: {
     &quot;source&quot;: &quot;system&quot;,
@@ -14376,9 +14403,10 @@ may not report a shortfall.</p>
 <div class="description"><p>What the active vessel carries, keyed by resource name, each with its
 current amount and capacity. Every message holds the whole map. No value is
 ever a sentinel such as <code>-1</code>.</p>
-<p>Only these stock resources are reported: <code>LiquidFuel</code>, <code>Oxidizer</code>,
-<code>SolidFuel</code>, <code>MonoPropellant</code>, <code>ElectricCharge</code>, <code>XenonGas</code>, <code>Ore</code> and
-<code>Ablator</code>.</p>
+<p>Every resource the game defines is reported when the vessel has capacity for
+it: the stock fuels (<code>LiquidFuel</code>, <code>Oxidizer</code>, <code>SolidFuel</code>,
+<code>MonoPropellant</code>, <code>ElectricCharge</code>, <code>XenonGas</code>, <code>Ore</code>, <code>Ablator</code>) and any a
+mod adds, such as life support supplies.</p>
 <p><strong>Absence.</strong></p>
 <ul>
 <li><strong>Key absent</strong> from <a class="code-ref" href="#schema-VesselResources"><code>VesselResources.resources</code></a>: structural: this vessel
@@ -19038,7 +19066,7 @@ inside a handler on the client.</td>
 recovery is on the <a class="code-ref" href="#channel-crash.lastCrash"><code>crash.lastCrash</code></a> and <a class="code-ref" href="#channel-recovery.lastSummary"><code>recovery.lastSummary</code></a> channels;
 this is only the coarse reason.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">5 values</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">6 values</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Value</th><th scope="col">Name</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -19066,6 +19094,12 @@ re-entry.</td>
 <td class="field">Terminated</td>
 <td>The player ended the vessel from the Tracking Station. It was neither lost
 nor recovered.</td>
+</tr><tr>
+<td class="field">5</td>
+<td class="field">Docked</td>
+<td>The vessel docked with, or was grabbed by, another craft, and the game kept
+the other craft as the one vessel. The craft it joined is named on
+<a class="code-ref" href="#schema-FlightEnded"><code>FlightEnded.joinedVesselId</code></a> and <a class="code-ref" href="#schema-FlightEnded"><code>FlightEnded.joinedVesselName</code></a>.</td>
 </tr></tbody></table></div>
 </details>
 </article>
