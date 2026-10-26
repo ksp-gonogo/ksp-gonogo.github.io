@@ -87,6 +87,7 @@ function experimentFrom(raw, index, stationId) {
     limit: numOrNull(e.scienceLimit),
     progress,
     backlog: numOrNull(e.storedData),
+    stranded: boolOrNull(e.stranded),
     transmitted: value2 === null || transmittedShare === null ? null : value2 * transmittedShare,
     collecting: completed === null ? null : completed < 100
   };
@@ -185,13 +186,21 @@ function linkLabel(contact) {
   }
 }
 function totalBacklog(station) {
-  if (station.experiments.length === 0) return null;
+  const sending = station.experiments.filter((e) => e.stranded !== true);
+  if (sending.length === 0) return null;
   let total = 0;
-  for (const experiment of station.experiments) {
+  for (const experiment of sending) {
     if (experiment.backlog === null) return null;
     total += experiment.backlog;
   }
   return total;
+}
+function totalStranded(station) {
+  let total = 0;
+  for (const experiment of station.experiments) {
+    if (experiment.stranded === true) total += experiment.backlog ?? 0;
+  }
+  return total > 0 ? total : null;
 }
 function DeployedStationCard({ listing }) {
   const reading = useStream(
@@ -202,6 +211,7 @@ function DeployedStationCard({ listing }) {
   const link = linkLabel(listing.contact);
   const heading = station?.name || listing.name || "Surface station";
   const backlog = station === null ? null : totalBacklog(station);
+  const stranded = station === null ? null : totalStranded(station);
   return /* @__PURE__ */ jsx(
     Box,
     {
@@ -256,6 +266,18 @@ function DeployedStationCard({ listing }) {
               "\xB7 Unsent",
               " ",
               /* @__PURE__ */ jsx(Unit, { value: backlogReading(reading, backlog), decimals: 1 })
+            ] }),
+            stranded !== null && /* @__PURE__ */ jsxs(Fragment, { children: [
+              " ",
+              "\xB7 Stranded",
+              " ",
+              /* @__PURE__ */ jsx(
+                Unit,
+                {
+                  value: backlogReading(reading, stranded),
+                  decimals: 1
+                }
+              )
             ] })
           ] }),
           station.experiments.map((exp) => /* @__PURE__ */ jsxs(Stack, { children: [
@@ -273,6 +295,7 @@ function DeployedStationCard({ listing }) {
                       decimals: 0
                     }
                   ),
+                  exp.stranded === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment has finished and will not send what it still holds, a kerbal has to retrieve it", children: /* @__PURE__ */ jsx(Badge, { tone: "caution", size: "sm", children: "Stranded" }) }),
                   exp.collecting === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment is collecting science now", children: /* @__PURE__ */ jsx(Badge, { tone: "go", size: "sm", children: "Collecting" }) })
                 ] })
               }

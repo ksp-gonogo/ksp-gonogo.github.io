@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 49.3.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 49.5.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 49.3.0</span>
+<span class="version">contract 49.5.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1549,7 +1549,7 @@ means, all over one socket.</p>
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
   &quot;contractMajor&quot;: 49,
-  &quot;contractMinor&quot;: 3
+  &quot;contractMinor&quot;: 5
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -2626,14 +2626,14 @@ as on a <a class="code-ref" href="#frame-stream-data"><code>stream-data</code></
 <div class="description"><p>One SCET alarm (an alarm on the craft&#39;s own clock, spacecraft event time) as
 the game holds it: the <a class="code-ref" href="#channel-alarm.activeList"><code>alarm.activeList</code></a> Topic is a bare array of these.</p>
 <p>The roster exists so an operator can see which alarms are still set after a
-reconnect, and so a client can remove an entry it no longer remembers. The
-roster is held in memory for the game session and is not written to the
-save: when the session ends it is gone, and a client sets its alarms again.
-It is a list of what somebody asked for, not a reading of any craft, so the
-channel is not delayed by signal delay.</p>
+reconnect, and so a client can remove an entry it no longer remembers. Every
+alarm still armed is written to the save, so loading a save puts back the
+alarms it held when it was made, as it does the game&#39;s own. It is a list of
+what somebody asked for, not a reading of any craft, so the channel is not
+delayed by signal delay.</p>
 </div>
 <details class="fields-block" id="schema-ScetAlarm">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-ScetAlarm">ScetAlarm</a>[]</span> <span class="count">12 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-ScetAlarm">ScetAlarm</a>[]</span> <span class="count">14 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -2762,6 +2762,25 @@ null when it has none.</p>
 the game runs an alarm clock. The copy leaves time warp to this alarm.
 Deleting either one deletes the other.</p>
 </td>
+</tr><tr>
+<td class="field">gameEdits</td>
+<td class="type">number</td>
+<td class="unit">count</td>
+<td><p>How many times the player has edited this alarm&#39;s copy in the game&#39;s own
+alarm clock (see <a class="code-ref" href="#schema-ScetAlarm"><code>ScetAlarm.gameAlarmId</code></a>). Each edit moves this alarm&#39;s
+<a class="code-ref" href="#schema-ScetAlarm"><code>ScetAlarm.name</code></a> and <a class="code-ref" href="#schema-ScetAlarmCondition"><code>ScetAlarmCondition.ut</code></a> to the copy&#39;s title and time,
+so a client that has not yet taken the count it last saw can tell the new
+name and time are the player&#39;s and take them, instead of arming its own over
+them.</p>
+</td>
+</tr><tr>
+<td class="field">restored</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether this alarm came back from a save and no client has armed it since. A
+client that holds the alarm arms it again, so its own name and time, or the
+player&#39;s edit in the game, replace what the save held.</p>
+</td>
 </tr></tbody></table></div>
 </details>
 <details class="example"><summary>Shape of its stream-data frame, with placeholder values</summary><pre class="json"><code>{
@@ -2785,7 +2804,9 @@ Deleting either one deletes the other.</p>
         }
       ],
       &quot;actsOn&quot;: &quot;&lt;actsOn&gt;&quot;,
-      &quot;gameAlarmId&quot;: &quot;&lt;gameAlarmId: number or null&gt;&quot;
+      &quot;gameAlarmId&quot;: &quot;&lt;gameAlarmId: number or null&gt;&quot;,
+      &quot;gameEdits&quot;: &quot;&lt;gameEdits: number count&gt;&quot;,
+      &quot;restored&quot;: &quot;&lt;restored: true or false&gt;&quot;
     }
   ],
   &quot;meta&quot;: {
@@ -21291,17 +21312,19 @@ absent key and an absent channel mean.</p>
 <td class="field">current</td>
 <td class="type">number</td>
 <td class="unit">units</td>
-<td><p>How much of the resource the vessel holds now, the amount
-<code>Vessel.GetConnectedResourceTotals</code> reports. <code>0</code> with a positive
+<td><p>How much of the resource the vessel holds now, the amount the game reports
+for the parts connected to each other, plus every part&#39;s own amount of a
+resource that never flows between parts. <code>0</code> with a positive
 <a class="code-ref" href="#schema-ResourceAmount"><code>ResourceAmount.max</code></a> is a real reading: carried and empty.</p>
 </td>
 </tr><tr>
 <td class="field">max</td>
 <td class="type">number</td>
 <td class="unit">units</td>
-<td><p>The vessel&#39;s capacity for the resource, the maximum
-<code>Vessel.GetConnectedResourceTotals</code> reports. Always greater than zero: a
-resource with no capacity is left out of the map.</p>
+<td><p>The vessel&#39;s capacity for the resource, the capacity of the connected parts,
+plus every part&#39;s own capacity for a resource that never flows between
+parts. Always greater than zero: a resource with no capacity is left out of
+the map.</p>
 </td>
 </tr><tr>
 <td class="field">active</td>
