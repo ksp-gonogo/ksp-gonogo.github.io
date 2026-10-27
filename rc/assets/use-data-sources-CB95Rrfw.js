@@ -1,1 +1,0 @@
-import{r as s}from"./ext-react-C0MU9AHG.js";import{aI as r}from"./view-clock-formula-abdswcZN.js";function m(){const o=s.useCallback(a=>{const u=r().map(t=>t.onStatusChange(a));return()=>u.forEach(t=>{t()})},[]),e=s.useCallback(()=>r().map(a=>a.status).join(","),[]);return s.useSyncExternalStore(o,e,e),r().map(a=>({id:a.id,name:a.name,status:a.status}))}export{m as u};
