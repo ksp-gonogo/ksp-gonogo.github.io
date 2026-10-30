@@ -1,1 +1,0 @@
-import{r}from"./ext-react-C0MU9AHG.js";import{bd as u,az as a}from"./lagrange-BR544sNK.js";function m(t){const o=u(),s=o?a(o):void 0;r.useEffect(()=>s?.activate(t.id),[s,t.id]);const e=r.useCallback(c=>s?s.subscribe(t.id,c):()=>{},[s,t.id]),i=r.useCallback(()=>s?.value(t.id),[s,t.id]);return r.useSyncExternalStore(e,i)}export{m as u};

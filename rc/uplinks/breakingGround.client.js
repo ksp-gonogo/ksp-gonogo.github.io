@@ -36,11 +36,13 @@ import {
   Stack,
   Text,
   Tooltip,
-  Unit
+  Unit,
+  useStatusContribution
 } from "@ksp-gonogo/ui-kit";
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/parseStation.ts
 import {
+  DeployedOffReason,
   DeployedPowerState,
   VesselType
 } from "@ksp-gonogo/sitrep-sdk";
@@ -67,6 +69,17 @@ function poweredFromState(power) {
   if (typeof power !== "number") return null;
   return power === DeployedPowerState.Powered;
 }
+function offReasonFrom(enabled, reason) {
+  if (enabled !== false || typeof reason !== "number") return null;
+  switch (reason) {
+    case DeployedOffReason.Completed:
+      return "completed";
+    case DeployedOffReason.InvalidSituation:
+      return "invalid-situation";
+    default:
+      return "unknown";
+  }
+}
 function experimentFrom(raw, index, stationId) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const e = raw;
@@ -77,6 +90,7 @@ function experimentFrom(raw, index, stationId) {
   const transmittedShare = clamp01OrNull(
     transmittedPercent === null ? null : transmittedPercent / 100
   );
+  const enabled = boolOrNull(e.enabled);
   const experimentId = stringOrNull(e.experimentId);
   const partName = stringOrNull(e.partName);
   return {
@@ -89,7 +103,10 @@ function experimentFrom(raw, index, stationId) {
     backlog: numOrNull(e.storedData),
     stranded: boolOrNull(e.stranded),
     transmitted: value2 === null || transmittedShare === null ? null : value2 * transmittedShare,
-    collecting: completed === null ? null : completed < 100
+    // An experiment that is switched off is not collecting, however far it has got.
+    collecting: completed === null ? null : completed < 100 && enabled !== false,
+    enabled,
+    offReason: offReasonFrom(enabled, e.offReason)
   };
 }
 function parseStation(id, raw) {
@@ -149,7 +166,9 @@ import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var XS2_STYLE = { fontSize: "var(--font-size-caption)" };
 var FIGURE_AND_BADGE = {
   display: "inline-flex",
+  flexWrap: "wrap",
   alignItems: "center",
+  justifyContent: "flex-end",
   gap: "var(--gap-related)"
 };
 function progressPercentReading(source, fraction) {
@@ -184,6 +203,44 @@ function linkLabel(contact) {
     default:
       return { label: "Contact unknown", tone: "neutral" };
   }
+}
+function switchLabel(experiment) {
+  if (experiment.enabled === null) return null;
+  if (experiment.enabled) {
+    return {
+      label: "On",
+      tone: "go",
+      hint: "This experiment is switched on"
+    };
+  }
+  switch (experiment.offReason) {
+    case "completed":
+      return {
+        label: "Off: finished",
+        tone: "neutral",
+        hint: "The game switched this experiment off when it finished collecting"
+      };
+    case "invalid-situation":
+      return {
+        label: "Off: situation",
+        tone: "nogo",
+        hint: "The game switched this experiment off because its situation is not one it can run in"
+      };
+    default:
+      return {
+        label: "Off",
+        tone: "caution",
+        hint: "This experiment is switched off"
+      };
+  }
+}
+function ExperimentStatus({
+  id,
+  label,
+  severity
+}) {
+  useStatusContribution({ id, severity, label });
+  return null;
 }
 function totalBacklog(station) {
   const sending = station.experiments.filter((e) => e.stranded !== true);
@@ -280,38 +337,53 @@ function DeployedStationCard({ listing }) {
               )
             ] })
           ] }),
-          station.experiments.map((exp) => /* @__PURE__ */ jsxs(Stack, { children: [
-            /* @__PURE__ */ jsx(
-              Meter,
-              {
-                label: exp.name,
-                tone: "go",
-                value: exp.progress === null ? null : progressRatioReading(reading, exp.progress),
-                valueLabelNode: exp.progress === null ? void 0 : /* @__PURE__ */ jsxs("span", { style: FIGURE_AND_BADGE, children: [
-                  /* @__PURE__ */ jsx(
-                    Unit,
-                    {
-                      value: progressPercentReading(reading, exp.progress),
-                      decimals: 0
-                    }
-                  ),
-                  exp.stranded === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment has finished and will not send what it still holds, a kerbal has to retrieve it", children: /* @__PURE__ */ jsx(Badge, { tone: "caution", size: "sm", children: "Stranded" }) }),
-                  exp.collecting === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment is collecting science now", children: /* @__PURE__ */ jsx(Badge, { tone: "go", size: "sm", children: "Collecting" }) })
-                ] })
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              AugmentSlot,
-              {
-                name: "deployed-science.experiment",
-                props: {
-                  experiment: exp,
-                  body: station.body ?? "",
-                  held: reading
+          station.experiments.map((exp) => {
+            const state = switchLabel(exp);
+            return /* @__PURE__ */ jsxs(Stack, { children: [
+              state?.tone === "nogo" && /* @__PURE__ */ jsx(
+                ExperimentStatus,
+                {
+                  id: `${station.id}-${exp.partId}-switch`,
+                  label: `${heading}, ${exp.name}: ${state.label}`,
+                  severity: state.tone
                 }
-              }
-            )
-          ] }, `${station.id}-${exp.partId}`))
+              ),
+              /* @__PURE__ */ jsx(
+                Meter,
+                {
+                  label: exp.name,
+                  tone: "go",
+                  value: exp.progress === null ? null : progressRatioReading(reading, exp.progress),
+                  valueLabelNode: /* @__PURE__ */ jsxs("span", { style: FIGURE_AND_BADGE, children: [
+                    exp.progress !== null && /* @__PURE__ */ jsx(
+                      Unit,
+                      {
+                        value: progressPercentReading(
+                          reading,
+                          exp.progress
+                        ),
+                        decimals: 0
+                      }
+                    ),
+                    state && /* @__PURE__ */ jsx(Tooltip, { text: state.hint, children: /* @__PURE__ */ jsx(Badge, { tone: state.tone, size: "sm", children: state.label }) }),
+                    exp.stranded === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment has finished and will not send what it still holds, a kerbal has to retrieve it", children: /* @__PURE__ */ jsx(Badge, { tone: "caution", size: "sm", children: "Stranded" }) }),
+                    exp.collecting === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment is collecting science now", children: /* @__PURE__ */ jsx(Badge, { tone: "go", size: "sm", children: "Collecting" }) })
+                  ] })
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                AugmentSlot,
+                {
+                  name: "deployed-science.experiment",
+                  props: {
+                    experiment: exp,
+                    body: station.body ?? "",
+                    held: reading
+                  }
+                }
+              )
+            ] }, `${station.id}-${exp.partId}`);
+          })
         ] })
       ] })
     }
