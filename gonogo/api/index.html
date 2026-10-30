@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 49.9.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 50.1.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 49.9.0</span>
+<span class="version">contract 50.1.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1395,7 +1395,7 @@ pre code {
 <p class="nav-heading">Reference</p>
 <ul>
 <li class="nav-group" data-view="schemas"><details>
-<summary>Shared types <span class="count">134</span></summary>
+<summary>Shared types <span class="count">135</span></summary>
 <ul>
 <li data-name="ActionBinding"><a href="#schema-ActionBinding" title="ActionBinding">ActionBinding</a></li>
 <li data-name="ActionGroupState"><a href="#schema-ActionGroupState" title="ActionGroupState">ActionGroupState</a></li>
@@ -1448,6 +1448,7 @@ pre code {
 <li data-name="CrewStanding"><a href="#schema-CrewStanding" title="CrewStanding">CrewStanding</a></li>
 <li data-name="EvaCrewMember"><a href="#schema-EvaCrewMember" title="EvaCrewMember">EvaCrewMember</a></li>
 <li data-name="ExperimentActionArgs"><a href="#schema-ExperimentActionArgs" title="ExperimentActionArgs">ExperimentActionArgs</a></li>
+<li data-name="FairingShell"><a href="#schema-FairingShell" title="FairingShell">FairingShell</a></li>
 <li data-name="FaultCode"><a href="#schema-FaultCode" title="FaultCode">FaultCode</a></li>
 <li data-name="FlightEndReason"><a href="#schema-FlightEndReason" title="FlightEndReason">FlightEndReason</a></li>
 <li data-name="GameAlarm"><a href="#schema-GameAlarm" title="GameAlarm">GameAlarm</a></li>
@@ -1480,9 +1481,9 @@ pre code {
 <li data-name="OrbitPatch"><a href="#schema-OrbitPatch" title="OrbitPatch">OrbitPatch</a></li>
 <li data-name="OrbitPayloadMeta"><a href="#schema-OrbitPayloadMeta" title="OrbitPayloadMeta">OrbitPayloadMeta</a></li>
 <li data-name="PartBounds"><a href="#schema-PartBounds" title="PartBounds">PartBounds</a></li>
-<li data-name="PartHullPiece"><a href="#schema-PartHullPiece" title="PartHullPiece">PartHullPiece</a></li>
 <li data-name="PartModuleState"><a href="#schema-PartModuleState" title="PartModuleState">PartModuleState</a></li>
 <li data-name="PartResourceFlow"><a href="#schema-PartResourceFlow" title="PartResourceFlow">PartResourceFlow</a></li>
+<li data-name="PartShapePose"><a href="#schema-PartShapePose" title="PartShapePose">PartShapePose</a></li>
 <li data-name="PayloadMeta"><a href="#schema-PayloadMeta" title="PayloadMeta">PayloadMeta</a></li>
 <li data-name="PhysicsMode"><a href="#schema-PhysicsMode" title="PhysicsMode">PhysicsMode</a></li>
 <li data-name="PropagationCertification"><a href="#schema-PropagationCertification" title="PropagationCertification">PropagationCertification</a></li>
@@ -1554,8 +1555,8 @@ means, all over one socket.</p>
   &quot;type&quot;: &quot;hello&quot;,
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
-  &quot;contractMajor&quot;: 49,
-  &quot;contractMinor&quot;: 9
+  &quot;contractMajor&quot;: 50,
+  &quot;contractMinor&quot;: 1
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -12309,7 +12310,8 @@ envelope (<a class="code-ref" href="#frame-stream-data"><code>stream-data.Meta</
         &quot;atmosphere&quot;: &quot;&lt;atmosphere&gt;&quot;,
         &quot;hasOcean&quot;: &quot;&lt;hasOcean: true or false or null&gt;&quot;,
         &quot;description&quot;: &quot;&lt;description, or null&gt;&quot;,
-        &quot;isHome&quot;: &quot;&lt;isHome: true or false or null&gt;&quot;
+        &quot;isHome&quot;: &quot;&lt;isHome: true or false or null&gt;&quot;,
+        &quot;visited&quot;: &quot;&lt;visited: true or false or null&gt;&quot;
       }
     ]
   },
@@ -14426,11 +14428,19 @@ an empty list.</p>
             &quot;x&quot;: null,
             &quot;y&quot;: null,
             &quot;z&quot;: null
-          },
-          &quot;hull&quot;: [
-            null
-          ]
+          }
         },
+        &quot;shape&quot;: &quot;&lt;shape, or null&gt;&quot;,
+        &quot;shapePoses&quot;: [
+          {
+            &quot;mesh&quot;: &quot;&lt;mesh&gt;&quot;,
+            &quot;shown&quot;: &quot;&lt;shown: true or false&gt;&quot;,
+            &quot;transform&quot;: [
+              null
+            ]
+          }
+        ],
+        &quot;fairing&quot;: &quot;&lt;fairing&gt;&quot;,
         &quot;dryMass&quot;: &quot;&lt;dryMass: number t or null&gt;&quot;,
         &quot;inverseStage&quot;: &quot;&lt;inverseStage: number or null&gt;&quot;,
         &quot;maxTemp&quot;: &quot;&lt;maxTemp: number K or null&gt;&quot;,
@@ -16239,7 +16249,7 @@ tree, with null rather than a numeric sentinel for any missing value. There
 is no eccentric anomaly field; solve it from <a class="code-ref" href="#schema-BodyEntry"><code>BodyEntry.orbit</code></a> at the time
 you need it.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">18 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">19 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -16396,6 +16406,16 @@ not text to show.</p>
 (<code>CelestialBody.isHomeWorld</code>); true on exactly one body, null when absent.
 The authoritative home-body marker: a client locates home by this flag,
 never by index.</p>
+</td>
+</tr><tr>
+<td class="field">visited <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether the save has reached this body&#39;s sphere of influence (the stock
+progress record&#39;s flyby node for the body), so false means the career has
+never been there. True on the home body always; null in a save with no
+progress record (sandbox) or when it could not be read, which a client
+treats as visited rather than as never reached.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -19222,6 +19242,78 @@ experiment when it is empty. An id the part does not carry fails with
 </tr></tbody></table></div>
 </details>
 </article>
+<article class="card" id="schema-FairingShell">
+<header><h3><code>FairingShell</code></h3></header>
+<p class="type-line"><span class="type">object</span></p>
+<div class="description"><p>A procedural fairing&#39;s shell: rings stacked along <a class="code-ref" href="#schema-FairingShell"><code>FairingShell.axis</code></a> from
+<a class="code-ref" href="#schema-FairingShell"><code>FairingShell.pivot</code></a>, joined by straight panels. The shell is not part of
+the fairing&#39;s <code>PartShape</code>, which holds its base alone, so a drawing of the
+fairing draws its shell from these rings.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">pivot</td>
+<td class="type">object</td>
+<td class="unit"></td>
+<td><p>The point the rings are measured from, in the part&#39;s own frame (metres).</p>
+<details><summary>Fields</summary><div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">x</td>
+<td class="type">number</td>
+<td class="unit">m</td>
+<td></td>
+</tr><tr>
+<td class="field">y</td>
+<td class="type">number</td>
+<td class="unit">m</td>
+<td></td>
+</tr><tr>
+<td class="field">z</td>
+<td class="type">number</td>
+<td class="unit">m</td>
+<td></td>
+</tr></tbody></table></div></details></td>
+</tr><tr>
+<td class="field">axis</td>
+<td class="type">object</td>
+<td class="unit"></td>
+<td><p>The direction the rings stack along, as a unit vector in the part&#39;s own
+frame.</p>
+<details><summary>Fields</summary><div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">x</td>
+<td class="type">number</td>
+<td class="unit">1</td>
+<td></td>
+</tr><tr>
+<td class="field">y</td>
+<td class="type">number</td>
+<td class="unit">1</td>
+<td></td>
+</tr><tr>
+<td class="field">z</td>
+<td class="type">number</td>
+<td class="unit">1</td>
+<td></td>
+</tr></tbody></table></div></details></td>
+</tr><tr>
+<td class="field">rings</td>
+<td class="type">number[]</td>
+<td class="unit"></td>
+<td><p>The rings from the base up, as pairs: each ring&#39;s height along
+<a class="code-ref" href="#schema-FairingShell"><code>FairingShell.axis</code></a> from <a class="code-ref" href="#schema-FairingShell"><code>FairingShell.pivot</code></a>, then its radius, both in
+metres (<code>h0, r0, h1, r1, ...</code>). Heights rise from one ring to the next. A
+closed shell ends in a ring of radius 0, its nose tip; a shell open at the
+top ends in a ring with a radius. Always an even count, and empty when no
+shell stands.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+</article>
 <article class="card" id="schema-FaultCode">
 <header><h3><code>FaultCode</code></h3></header>
 <p class="type-line"><span class="type">enum</span></p>
@@ -20892,7 +20984,7 @@ vessel&#39;s. A consumer placing the box on a ship rotates both by the part&#39;
 rotation (<a class="code-ref" href="#schema-VesselPart"><code>VesselPart.up</code></a> and <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.forward</code></a>) before adding
 <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.position</code></a>, which is <code>vessel-local</code>.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">2 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -20944,38 +21036,6 @@ rotation before adding it to <a class="code-ref" href="#schema-VesselPart"><code
 <td class="unit">m</td>
 <td></td>
 </tr></tbody></table></div></details></td>
-</tr><tr>
-<td class="field">hull <span class="optional">optional</span></td>
-<td class="type"><a class="type-ref" href="#schema-PartHullPiece">PartHullPiece</a>[] | null</td>
-<td class="unit"></td>
-<td><p>The part&#39;s silhouette as pieces, one for each mesh that is drawn, so a part
-whose meshes lie apart (a solar panel&#39;s plates and its hinge, say) is not
-filled in between them. At most 10 pieces and 96 points over all of them,
-the smallest dropped first. <code>null</code> when a mesh could not be read (the box is
-then the only shape known), nothing of the part is drawn, or the part&#39;s
-model has no mesh. A mesh switched off, such as an engine&#39;s shroud while
-nothing is mounted below it, is in the box and not in a piece.</p>
-</td>
-</tr></tbody></table></div>
-</details>
-</article>
-<article class="card" id="schema-PartHullPiece">
-<header><h3><code>PartHullPiece</code></h3></header>
-<p class="type-line"><span class="type">object</span></p>
-<div class="description"><p>The convex hull of one mesh of a part, as points in the part&#39;s own frame.</p>
-</div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">1 field</span></summary>
-<div class="fields-wrap"><table class="fields">
-<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
-<tbody><tr>
-<td class="field">points</td>
-<td class="type">number[]</td>
-<td class="unit"></td>
-<td><p>The corners of the mesh&#39;s convex hull (metres, part-local), flattened to x,
-y, z triples in order, so a list of 3n numbers holds n points, at most 38,
-rounded to a millimetre. A consumer drawing the part from any side turns the
-points by the part&#39;s rotation and keeps the 2D convex hull of the result.</p>
-</td>
 </tr></tbody></table></div>
 </details>
 </article>
@@ -21087,6 +21147,40 @@ through a process and no rate for it can be read: a resource converter, fuel
 cell or ISRU unit, a drill&#39;s harvest, or a generator. Never true on a row
 with a non-zero <a class="code-ref" href="#schema-PartResourceFlow"><code>PartResourceFlow.flow</code></a> or <a class="code-ref" href="#schema-PartResourceFlow"><code>PartResourceFlow.nominalFlow</code></a>,
 nor for storage alone. Absent otherwise.</p>
+</td>
+</tr></tbody></table></div>
+</details>
+</article>
+<article class="card" id="schema-PartShapePose">
+<header><h3><code>PartShapePose</code></h3></header>
+<p class="type-line"><span class="type">object</span></p>
+<div class="description"><p>Where one mesh of a part stands now, when it is not as its <code>PartShape</code> has
+it: a landing leg folded out, a bay door open, a gimballing nozzle turned,
+or a mesh the part has switched off or on.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 fields</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">mesh</td>
+<td class="type">string</td>
+<td class="unit"></td>
+<td><p>The mesh, by its <code>PartShapeMesh.key</code>.</p>
+</td>
+</tr><tr>
+<td class="field">shown</td>
+<td class="type">boolean</td>
+<td class="unit"></td>
+<td><p>Whether the part draws the mesh now.</p>
+</td>
+</tr><tr>
+<td class="field">transform <span class="optional">optional</span></td>
+<td class="type">number[] | null</td>
+<td class="unit"></td>
+<td><p>The 3 by 4 matrix, row by row (twelve numbers), that carries the mesh&#39;s
+points from where <code>PartShape</code> has them to where they stand now, both in the
+part&#39;s own frame: a point <code>p</code> moves to <code>(m0·x + m1·y + m2·z + m3, m4·x + m5·y + m6·z + m7, m8·x + m9·y + m10·z + m11)</code>. <code>null</code> when the mesh has not
+moved.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -23025,7 +23119,7 @@ joined across those channels. <a class="code-ref" href="#schema-VesselPart"><cod
 <a class="code-ref" href="#schema-VesselPart"><code>VesselPart.fuelLineTargetId</code></a> use the same form. Whether a flightID survives
 docking and undocking is up to KSP.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">23 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">26 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -23134,6 +23228,35 @@ a radial part faces. <code>null</code> when absent.</p>
 <td class="type"><a class="type-ref" href="#schema-PartBounds">PartBounds</a></td>
 <td class="unit"></td>
 <td><p>The part&#39;s bounding box, in the part&#39;s own frame. Always present.</p>
+</td>
+</tr><tr>
+<td class="field">shape <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The key of this part&#39;s 3D shape: subscribe to <code>parts.shape.</code> followed by
+this key for its <code>PartShape</code>. Parts of the same kind and variant share a
+key. <code>null</code> when the part&#39;s kind could not be read.</p>
+</td>
+</tr><tr>
+<td class="field">shapePoses <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-PartShapePose">PartShapePose</a>[] | null</td>
+<td class="unit"></td>
+<td><p>The meshes of this part that do not stand as its <code>PartShape</code> has them, each
+with where it stands now and whether it is drawn: a deployed leg, an open
+bay door, a turned nozzle, a shroud switched off. A mesh not listed is drawn
+as the shape has it. <code>null</code> when every mesh does. A part read from a saved
+craft or an unloaded craft stands as built, so its only rows are the
+structures it shows or hides by what is attached to it, such as a fairing&#39;s
+interstage truss.</p>
+</td>
+</tr><tr>
+<td class="field">fairing <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-FairingShell">FairingShell</a> | null</td>
+<td class="unit"></td>
+<td><p>The shell of a procedural fairing, as rings stacked along its axis. <code>null</code>
+on every part that is not a procedural fairing. On a fairing,
+<a class="code-ref" href="#schema-FairingShell"><code>FairingShell.rings</code></a> is empty when no shell stands: never built, or
+jettisoned.</p>
 </td>
 </tr><tr>
 <td class="field">dryMass <span class="optional">optional</span></td>
