@@ -9100,7 +9100,7 @@ is no active vessel or it carries no experiment module. Every field is
 nullable, and is <code>null</code> whenever the raw value is absent.</p>
 </div>
 <details class="fields-block" id="schema-InstrumentEntry">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-InstrumentEntry">InstrumentEntry</a>[]</span> <span class="count">15 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-InstrumentEntry">InstrumentEntry</a>[]</span> <span class="count">18 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -9224,6 +9224,33 @@ language, so never branch on it, and never a signal or return fact: it
 answers why nothing is being generated, not why nothing is arriving home.</p>
 </td>
 </tr><tr>
+<td class="field">subjectId <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The science subject this instrument would record against if run now, from
+its experiment and the vessel&#39;s current situation, body and biome (the id
+<a class="code-ref" href="#schema-ArchiveEntry"><code>ArchiveEntry.subjectId</code></a> lists it under). <code>null</code> where the experiment cannot
+run in the vessel&#39;s current situation, where the save has no R&amp;D (Sandbox),
+or where the experiment definition has not resolved.</p>
+</td>
+</tr><tr>
+<td class="field">science <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">science</td>
+<td><p>Science banked for <a class="code-ref" href="#schema-InstrumentEntry"><code>InstrumentEntry.subjectId</code></a> so far. <code>0</code> when the career
+has not yet recovered or transmitted that subject. <code>null</code> whenever
+<a class="code-ref" href="#schema-InstrumentEntry"><code>InstrumentEntry.subjectId</code></a> is.</p>
+</td>
+</tr><tr>
+<td class="field">scienceCap <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit">science</td>
+<td><p>The most science <a class="code-ref" href="#schema-InstrumentEntry"><code>InstrumentEntry.subjectId</code></a> can ever yield.
+<a class="code-ref" href="#schema-InstrumentEntry"><code>InstrumentEntry.science</code></a> over this is how much of what the instrument can
+give here has been collected. <code>null</code> whenever <a class="code-ref" href="#schema-InstrumentEntry"><code>InstrumentEntry.subjectId</code></a>
+is.</p>
+</td>
+</tr><tr>
 <td class="field">extensions <span class="optional">optional</span></td>
 <td class="type">map of any | null</td>
 <td class="unit"></td>
@@ -9258,6 +9285,9 @@ the reason here.</p>
       &quot;running&quot;: &quot;&lt;running: true or false or null&gt;&quot;,
       &quot;producing&quot;: &quot;&lt;producing: true or false or null&gt;&quot;,
       &quot;runIssue&quot;: &quot;&lt;runIssue, or null&gt;&quot;,
+      &quot;subjectId&quot;: &quot;&lt;subjectId, or null&gt;&quot;,
+      &quot;science&quot;: &quot;&lt;science: number science or null&gt;&quot;,
+      &quot;scienceCap&quot;: &quot;&lt;scienceCap: number science or null&gt;&quot;,
       &quot;extensions&quot;: {}
     }
   ],
