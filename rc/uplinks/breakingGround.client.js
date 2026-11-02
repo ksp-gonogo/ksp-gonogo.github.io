@@ -624,7 +624,10 @@ function RoboticsConsoleView({
         ] }) }, "readout"),
         /* @__PURE__ */ jsxs2(Section2, { gap: "related-dense", children: [
           /* @__PURE__ */ jsxs2(Cluster2, { justify: "between", wrap: true, children: [
-            /* @__PURE__ */ jsx3(ReadoutCaption, { children: "Target" }),
+            /* @__PURE__ */ jsxs2(Inline, { children: [
+              /* @__PURE__ */ jsx3(ReadoutCaption, { children: "Target" }),
+              /* @__PURE__ */ jsx3(Text2, { size: "sm", children: selected.target === null ? "unknown" : /* @__PURE__ */ jsx3(Unit2, { value: readings.target, decimals }) })
+            ] }),
             /* @__PURE__ */ jsxs2(Inline, { children: [
               /* @__PURE__ */ jsx3(
                 Button,
@@ -643,7 +646,6 @@ function RoboticsConsoleView({
                   children: "\u2212"
                 }
               ),
-              /* @__PURE__ */ jsx3(Text2, { size: "sm", children: selected.target === null ? "unknown" : /* @__PURE__ */ jsx3(Unit2, { value: readings.target, decimals }) }),
               /* @__PURE__ */ jsx3(
                 Button,
                 {
@@ -680,7 +682,6 @@ function RoboticsConsoleView({
                 ]
               }
             ),
-            selected.motorState && /* @__PURE__ */ jsx3(Text2, { level: "muted", size: "sm", children: selected.motorState }),
             /* @__PURE__ */ jsx3(
               ToggleButton,
               {

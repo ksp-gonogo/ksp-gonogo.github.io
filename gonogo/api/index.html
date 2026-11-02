@@ -1410,7 +1410,7 @@ pre code {
 <p class="nav-heading">Reference</p>
 <ul>
 <li class="nav-group" data-view="schemas"><details>
-<summary>Shared types <span class="count">138</span></summary>
+<summary>Shared types <span class="count">139</span></summary>
 <ul>
 <li data-name="ActionBinding"><a href="#schema-ActionBinding" title="ActionBinding">ActionBinding</a></li>
 <li data-name="ActionGroupState"><a href="#schema-ActionGroupState" title="ActionGroupState">ActionGroupState</a></li>
@@ -1462,6 +1462,7 @@ pre code {
 <li data-name="CrashPartLost"><a href="#schema-CrashPartLost" title="CrashPartLost">CrashPartLost</a></li>
 <li data-name="CrewMember"><a href="#schema-CrewMember" title="CrewMember">CrewMember</a></li>
 <li data-name="CrewStanding"><a href="#schema-CrewStanding" title="CrewStanding">CrewStanding</a></li>
+<li data-name="DockingPortState"><a href="#schema-DockingPortState" title="DockingPortState">DockingPortState</a></li>
 <li data-name="EvaCrewMember"><a href="#schema-EvaCrewMember" title="EvaCrewMember">EvaCrewMember</a></li>
 <li data-name="ExperimentActionArgs"><a href="#schema-ExperimentActionArgs" title="ExperimentActionArgs">ExperimentActionArgs</a></li>
 <li data-name="FairingShell"><a href="#schema-FairingShell" title="FairingShell">FairingShell</a></li>
@@ -5455,7 +5456,7 @@ The <a class="code-ref" href="#schema-VesselComms"><code>VesselComms</code></a> 
 but do freeze: they hold their last value through the outage.</p>
 </div>
 <details class="fields-block" id="schema-CommsLink">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-CommsLink">CommsLink</a></span> <span class="count">2 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-CommsLink">CommsLink</a></span> <span class="count">3 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -5466,6 +5467,16 @@ but do freeze: they hold their last value through the outage.</p>
 ago; false through a blackout. <code>null</code> when nothing is reported yet, which is
 not a lost link: no craft is on screen, or the game has not yet solved the
 link of one that just came on screen.</p>
+</td>
+</tr><tr>
+<td class="field">routeHome <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether the craft has a route to a command centre, sent only to a pilot
+aboard the craft, whose <a class="code-ref" href="#schema-CommsLink"><code>CommsLink.connected</code></a> always reads true because the
+crew are never cut off from their own craft. False while the craft is out of
+contact with mission control. <code>null</code> at every other vantage and whenever the
+craft is in contact, where <a class="code-ref" href="#schema-CommsLink"><code>CommsLink.connected</code></a> already says it.</p>
 </td>
 </tr><tr>
 <td class="field">meta</td>
@@ -5480,6 +5491,7 @@ link of one that just came on screen.</p>
   &quot;topic&quot;: &quot;comms.link&quot;,
   &quot;payload&quot;: {
     &quot;connected&quot;: &quot;&lt;connected: true or false or null&gt;&quot;,
+    &quot;routeHome&quot;: &quot;&lt;routeHome: true or false or null&gt;&quot;,
     &quot;meta&quot;: {
       &quot;source&quot;: &quot;&lt;source&gt;&quot;
     }
@@ -6523,7 +6535,8 @@ draw anything.</p>
       {
         &quot;kerbalVesselId&quot;: &quot;&lt;kerbalVesselId, or null&gt;&quot;,
         &quot;parentVesselId&quot;: &quot;&lt;parentVesselId, or null&gt;&quot;,
-        &quot;name&quot;: &quot;&lt;name, or null&gt;&quot;
+        &quot;name&quot;: &quot;&lt;name, or null&gt;&quot;,
+        &quot;loaded&quot;: &quot;&lt;loaded: true or false or null&gt;&quot;
       }
     ]
   },
@@ -7060,7 +7073,8 @@ closed and whose grace has not run out.</p>
 <td class="type">boolean</td>
 <td class="unit"></td>
 <td><p>True while the holder&#39;s connection is closed and the role is kept for it to
-come back, as a page reload does. The role is freed when the grace ends.</p>
+come back, as a page reload does. A screen that claims the role in this time
+is granted it. The role is freed when the grace ends.</p>
 </td>
 </tr><tr>
 <td class="field">holderId</td>
@@ -12457,7 +12471,7 @@ at the Space Center and Tracking Station as well as in flight, with or
 without an active vessel.</p>
 </div>
 <details class="fields-block" id="schema-WarpState">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-WarpState">WarpState</a></span> <span class="count">9 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-WarpState">WarpState</a></span> <span class="count">10 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -12475,6 +12489,17 @@ its unit is the dimensionless <code>&quot;1&quot;</code>.</p>
 <td><p>The current rung (one step) of the warp rate table (KSP&#39;s
 <code>TimeWarp.CurrentRateIndex</code>), <code>0</code> at real time. Under <a class="code-ref" href="#schema-WarpMode"><code>0 (High)</code></a> it
 indexes <a class="code-ref" href="#schema-WarpState"><code>WarpState.warpRates</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">maxWarpRateIndex <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit"></td>
+<td><p>The highest rung of the warp rate table the game lets the craft use right
+now, for the rung table of the mode in force. Near a body the game limits
+warp by altitude, so this falls as the craft descends and rises as it
+climbs; a <a class="code-ref" href="#schema-WarpState"><code>WarpState.warpRateIndex</code></a> above it is a rung the game is bringing
+down. Null when the game has no warp controller or no active craft to read a
+limit for.</p>
 </td>
 </tr><tr>
 <td class="field">warpMode</td>
@@ -12559,6 +12584,7 @@ it that no model of the value carries asserts a path nothing observed.</p>
   &quot;payload&quot;: {
     &quot;warpRate&quot;: &quot;&lt;warpRate: number&gt;&quot;,
     &quot;warpRateIndex&quot;: &quot;&lt;warpRateIndex: number&gt;&quot;,
+    &quot;maxWarpRateIndex&quot;: &quot;&lt;maxWarpRateIndex: number or null&gt;&quot;,
     &quot;warpMode&quot;: &quot;&lt;warpMode: 0 High, 1 Low, 2 Unknown&gt;&quot;,
     &quot;paused&quot;: &quot;&lt;paused: true or false&gt;&quot;,
     &quot;warpRates&quot;: [
@@ -13479,10 +13505,14 @@ seats it has.</p>
 </header>
 <p class="facts"><a class="chip" href="#overview-channel-properties" title="Only the newest value is kept, so a client that falls behind skips the ones it missed"><span class="chip-label">Delivery</span> Latest value only</a><a class="chip" href="#overview-channel-properties" title="The value is what this connection's command centre knew one signal delay ago"><span class="chip-label">Delay</span> After signal delay</a><a class="chip" href="#overview-channel-properties" title="Values change between samples, so a line between them is fair"><span class="chip-label">Samples</span> Continuous</a><a class="chip" href="#overview-channel-properties" title="Sent again with nothing changed after this much game time"><span class="chip-label">Repeats</span> every 30 s of game time</a></p>
 <div class="description"><p>The relative position, velocity and coarse orientation between the active
-vessel&#39;s nearest free (undocked) docking port and the targeted docking port,
-for docking-alignment widgets. The whole payload is absent when docking is
-not relevant right now: nothing is targeted, the target is not a docking
-port, or the active vessel has no free port. It is never an old or
+vessel&#39;s nearest docking port (one that is not shut off) and the targeted
+docking port, for docking-alignment widgets, with each port&#39;s
+<a class="code-ref" href="#schema-DockingPortState"><code>DockingPortState</code></a> so a widget can tell a free approach from a capture and a
+dock. The whole payload is absent when docking is not relevant right now:
+nothing is targeted, the target is not a docking port, or the active vessel
+has no port that is not disabled. It stays through the capture, the join and
+the release of the pair last targeted, after the game clears the target, and
+is absent again once the own port is back at rest. It is never an old or
 zero-distance placeholder record, the same convention as <a class="code-ref" href="#schema-VesselTarget"><code>VesselTarget</code></a>.</p>
 <p><a class="code-ref" href="#schema-DockAlignment"><code>DockAlignment.forwardDot</code></a> is the dot product of the two ports&#39; forward
 (docking-axis) vectors: -1 means the ports face each other head-on (the
@@ -13491,7 +13521,7 @@ product, so how to show it (for example as a percentage) is up to the
 widget.</p>
 </div>
 <details class="fields-block" id="schema-DockAlignment">
-<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-DockAlignment">DockAlignment</a></span> <span class="count">5 fields</span></summary>
+<summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-DockAlignment">DockAlignment</a></span> <span class="count">9 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -13499,7 +13529,9 @@ widget.</p>
 <td class="type">object</td>
 <td class="unit"></td>
 <td><p>The target port&#39;s position relative to the own port (target minus own),
-metres.</p>
+metres, in the own port&#39;s axes: <code>z</code> is along the docking axis, <code>x</code> and <code>y</code>
+are the sideways and vertical offsets, so the line-of-sight angles off the
+port&#39;s boresight are <code>atan(x / z)</code> and <code>atan(y / z)</code>.</p>
 <details><summary>Fields</summary><div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -13522,7 +13554,8 @@ metres.</p>
 <td class="field">relativeVelocity</td>
 <td class="type">object</td>
 <td class="unit"></td>
-<td><p>The target port&#39;s velocity relative to the own port, m/s.</p>
+<td><p>The target port&#39;s velocity relative to the own port, m/s, in the own port&#39;s
+axes like <a class="code-ref" href="#schema-DockAlignment"><code>DockAlignment.relativePosition</code></a>.</p>
 <details><summary>Fields</summary><div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -13557,6 +13590,37 @@ facing head-on, +1 pointing the same way. Null only when either port&#39;s
 transform was unavailable this tick.</p>
 </td>
 </tr><tr>
+<td class="field">ownPortState <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-DockingPortState">DockingPortState</a> | null</td>
+<td class="unit"></td>
+<td><p>The active vessel&#39;s own docking port the alignment is measured from: the one
+nearest the target that is not <a class="code-ref" href="#schema-DockingPortState"><code>5 (Disabled)</code></a>. Null only when
+the game did not report its state this tick.</p>
+</td>
+</tr><tr>
+<td class="field">targetPortState <span class="optional">optional</span></td>
+<td class="type"><a class="type-ref" href="#schema-DockingPortState">DockingPortState</a> | null</td>
+<td class="unit"></td>
+<td><p>The targeted port&#39;s state. Null only when the game did not report it this
+tick.</p>
+</td>
+</tr><tr>
+<td class="field">targetVesselPersistentId <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit"></td>
+<td><p>The targeted port&#39;s owning vessel&#39;s KSP <code>Vessel.persistentId</code>, the id a
+camera marker names the vessel by. Null only when the game did not report it
+this tick.</p>
+</td>
+</tr><tr>
+<td class="field">targetPortPersistentId <span class="optional">optional</span></td>
+<td class="type">number | null</td>
+<td class="unit"></td>
+<td><p>The targeted port&#39;s KSP <code>Part.persistentId</code>, the id a camera marker names
+the part by. Not <code>Part.flightID</code>, the id <a class="code-ref" href="#channel-vessel.target"><code>vessel.target</code></a> carries. Null only
+when the game did not report it this tick.</p>
+</td>
+</tr><tr>
 <td class="field">meta</td>
 <td class="type"><a class="type-ref" href="#schema-PayloadMeta">PayloadMeta</a></td>
 <td class="unit"></td>
@@ -13580,6 +13644,10 @@ transform was unavailable this tick.</p>
     },
     &quot;distance&quot;: &quot;&lt;distance: number m&gt;&quot;,
     &quot;forwardDot&quot;: &quot;&lt;forwardDot: number or null&gt;&quot;,
+    &quot;ownPortState&quot;: &quot;&lt;ownPortState&gt;&quot;,
+    &quot;targetPortState&quot;: &quot;&lt;targetPortState&gt;&quot;,
+    &quot;targetVesselPersistentId&quot;: &quot;&lt;targetVesselPersistentId: number or null&gt;&quot;,
+    &quot;targetPortPersistentId&quot;: &quot;&lt;targetPortPersistentId: number or null&gt;&quot;,
     &quot;meta&quot;: {
       &quot;source&quot;: &quot;&lt;source&gt;&quot;
     }
@@ -19604,13 +19672,52 @@ reports it and every install gets it.</td>
 </tr></tbody></table></div>
 </details>
 </article>
+<article class="card" id="schema-DockingPortState">
+<header><h3><code>DockingPortState</code></h3></header>
+<p class="type-line"><span class="type">enum</span></p>
+<div class="description"><p>What a docking port is doing, in KSP&#39;s own stages of a dock, as
+<a class="code-ref" href="#schema-DockAlignment"><code>DockAlignment.ownPortState</code></a> and <a class="code-ref" href="#schema-DockAlignment"><code>DockAlignment.targetPortState</code></a> report it.
+The variants a docked port reports for which side it is, and the one for a
+port docked to its own vessel, all read as <a class="code-ref" href="#schema-DockingPortState"><code>3 (Docked)</code></a>.</p>
+</div>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">6 values</span></summary>
+<div class="fields-wrap"><table class="fields">
+<thead><tr><th scope="col">Value</th><th scope="col">Name</th><th scope="col">Description</th></tr></thead>
+<tbody><tr>
+<td class="field">0</td>
+<td class="field">Ready</td>
+<td>Free and not yet drawn to another port.</td>
+</tr><tr>
+<td class="field">1</td>
+<td class="field">Acquire</td>
+<td>The port&#39;s capture field has taken hold of another port and is pulling the
+two together.</td>
+</tr><tr>
+<td class="field">2</td>
+<td class="field">PreAttached</td>
+<td>The ports are joined and the two craft are about to become one.</td>
+</tr><tr>
+<td class="field">3</td>
+<td class="field">Docked</td>
+<td>The ports are docked.</td>
+</tr><tr>
+<td class="field">4</td>
+<td class="field">Disengage</td>
+<td>The ports are letting go of each other after an undock.</td>
+</tr><tr>
+<td class="field">5</td>
+<td class="field">Disabled</td>
+<td>The port is shut off and will not dock.</td>
+</tr></tbody></table></div>
+</details>
+</article>
 <article class="card" id="schema-EvaCrewMember">
 <header><h3><code>EvaCrewMember</code></h3></header>
 <p class="type-line"><span class="type">object</span></p>
 <div class="description"><p>One kerbal listed on <a class="code-ref" href="#channel-eva.crew"><code>eva.crew</code></a>: who is outside, loaded or not, and which
 craft they left, enough to find the kerbal&#39;s own <code>eva.kerbal.&lt;vessel id&gt;.state</code> Topic.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">4 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -19632,6 +19739,14 @@ is not known (the step-out was not recorded, or the craft has since gone).</p>
 <td class="type">string | null</td>
 <td class="unit"></td>
 <td><p>The kerbal&#39;s name, from the EVA vessel&#39;s <code>GetName()</code>.</p>
+</td>
+</tr><tr>
+<td class="field">loaded <span class="optional">optional</span></td>
+<td class="type">boolean | null</td>
+<td class="unit"></td>
+<td><p>Whether the game has this kerbal loaded, which is true within physics range
+of the vessel in focus. A kerbal that is not loaded is orbiting or standing
+elsewhere and has no suit state of its own to read.</p>
 </td>
 </tr></tbody></table></div>
 </details>
@@ -20149,7 +20264,7 @@ with <a class="code-ref" href="#schema-HostRoleReply"><code>HostRoleReply.holds<
 lost the role, having been cut off for longer than the grace while another
 screen took over, and stops hosting at once.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">4 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">5 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -20177,6 +20292,17 @@ does. Matches <a class="code-ref" href="#schema-HostRecordModel"><code>HostRecor
 <td class="unit">s</td>
 <td><p>How long after its last heartbeat or the close of its connection a holder
 keeps the role before it is freed.</p>
+</td>
+</tr><tr>
+<td class="field">generation</td>
+<td class="type">number</td>
+<td class="unit">count</td>
+<td><p>How many times the role has been granted, counting the grant this answer
+reports when <a class="code-ref" href="#schema-HostRoleReply"><code>HostRoleReply.holds</code></a> is true. It rises by one on each
+<a class="code-ref" href="#channel-host.claim"><code>host.claim</code></a> that grants the role, including to the holder returning after a
+reload, never on a heartbeat, and keeps rising across a game restart. A
+screen hosting a remote station reads it to tell the newest host from an
+older one that is still answering.</p>
 </td>
 </tr></tbody></table></div>
 </details>
