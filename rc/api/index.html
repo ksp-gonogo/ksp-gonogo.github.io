@@ -18260,7 +18260,7 @@ the trajectory it lies on are always the same physics. Null on
 <a class="code-ref" href="#schema-VesselTarget"><code>VesselTarget</code></a> when there is no target, no frame the provider can reach both
 objects in, or no encounter inside the window it was asked about.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">2 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -18275,6 +18275,17 @@ UT.</p>
 <td class="type">number</td>
 <td class="unit">m</td>
 <td><p>Separation (metres) at <a class="code-ref" href="#schema-ClosestApproach"><code>ClosestApproach.time</code></a>.</p>
+</td>
+</tr><tr>
+<td class="field">trajectoryKind</td>
+<td class="type"><a class="type-ref" href="#schema-TrajectoryKind">TrajectoryKind</a></td>
+<td class="unit"></td>
+<td><p>What computed this approach: <a class="code-ref" href="#schema-TrajectoryKind"><code>1 (Analytic)</code></a> for a two-body
+solution of both objects&#39; conics, or <a class="code-ref" href="#schema-TrajectoryKind"><code>2 (Integrated)</code></a> for one
+taken from integrated trajectories. <a class="code-ref" href="#schema-TrajectoryKind"><code>0 (Unspecified)</code></a> when the
+provider did not say. Read it beside the vessel orbit&#39;s own
+<a class="code-ref" href="#schema-PropagationHorizon"><code>PropagationHorizon.trajectoryKind</code></a>: an analytic approach on an integrated
+trajectory is a two-body estimate the craft will drift from.</p>
 </td>
 </tr></tbody></table></div>
 </details>
