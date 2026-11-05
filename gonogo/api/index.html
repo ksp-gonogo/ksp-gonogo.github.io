@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gonogo API</title>
-<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 50.3.0: every channel and command, with a console that sends frames to a running game." />
+<meta name="description" content="The WebSocket API of the Gonogo mod, contract version 50.4.0: every channel and command, with a console that sends frames to a running game." />
 <style>
 *,
 *::before,
@@ -1015,7 +1015,7 @@ pre code {
 <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Contents</button>
 <a class="brand" href="https://ksp-gonogo.github.io/">gonogo</a>
 <span class="crumb">API</span>
-<span class="version">contract 50.3.0</span>
+<span class="version">contract 50.4.0</span>
 <span class="spacer"></span>
 <button type="button" id="theme-toggle">Light</button>
 <button type="button" id="console-toggle" class="console-toggle" aria-controls="console" aria-expanded="false">Console</button>
@@ -1575,7 +1575,7 @@ means, all over one socket.</p>
   &quot;bootId&quot;: &quot;5b0d6c2e&quot;,
   &quot;modVersion&quot;: &quot;1.0.0&quot;,
   &quot;contractMajor&quot;: 50,
-  &quot;contractMinor&quot;: 3
+  &quot;contractMinor&quot;: 4
 }</code></pre><pre class="json"><code>{
   &quot;type&quot;: &quot;game-state&quot;,
   &quot;state&quot;: &quot;ready&quot;,
@@ -5291,7 +5291,12 @@ tells two different &quot;no delay&quot; cases apart by value:</p>
 <ul>
 <li><strong>null</strong>: no measurable <a class="code-ref" href="#schema-CommsPath"><code>CommsPath</code></a> (no path home, or incomplete hop
 geometry). There is nothing to measure, so nothing is reported.
-<a class="code-ref" href="#schema-CommsDelay"><code>CommsDelay.source</code></a> is <a class="code-ref" href="#schema-CommsDelaySource"><code>0 (None)</code></a>.</li>
+<a class="code-ref" href="#schema-CommsDelay"><code>CommsDelay.source</code></a> is <a class="code-ref" href="#schema-CommsDelaySource"><code>0 (None)</code></a>. A ground centre is sent
+null from the moment it learns the game&#39;s route from the vessel is gone
+until it learns of a new one, unless the newest radio reading to reach it
+says the vessel is connected; the last figure before that is the one to
+hold. A route its plan still holds through that stretch is offered as a
+prediction on <a class="code-ref" href="#channel-comms.route"><code>comms.route</code></a>, never as this delay.</li>
 <li><strong>0</strong>: the delay feature is disabled (<code>comms.signalDelay.enabled = false</code>). A genuine &quot;zero delay applied&quot;, not an absence.
 <a class="code-ref" href="#schema-CommsDelay"><code>CommsDelay.source</code></a> is also <a class="code-ref" href="#schema-CommsDelaySource"><code>0 (None)</code></a> here: the two cases
 share the same <code>Source</code> and are told apart only by whether the value is
@@ -5310,10 +5315,11 @@ delay of the active vessel&#39;s path that centre is sent on <a class="code-ref"
 the two always agree. Where the game routes the vessel&#39;s samples to the
 centre (at home, the vessel&#39;s own path to the ground), that path is the
 game&#39;s route and this is the delay the samples arrive by. Wherever the game
-states no route, it is the path the centre&#39;s own plan has, worked out from
-what the centre has heard of each craft, so the figure moves only once the
-news that moves it has reached the centre. A zero that is a setting (delay
-switched off, or a save with no comms network) is sent at once.</p>
+states no route, it is the path the centre&#39;s own plan has (save for the lost
+route above, which reports null), worked out from what the centre has heard
+of each craft, so the figure moves only once the news that moves it has
+reached the centre. A zero that is a setting (delay switched off, or a save
+with no comms network) is sent at once.</p>
 </div>
 <details class="fields-block" id="schema-CommsDelay">
 <summary><span class="type-label">Payload</span> <span class="type"><a class="type-ref" href="#schema-CommsDelay">CommsDelay</a></span> <span class="count">3 fields</span></summary>
@@ -6567,7 +6573,7 @@ draw anything.</p>
         &quot;kerbalVesselId&quot;: &quot;&lt;kerbalVesselId, or null&gt;&quot;,
         &quot;parentVesselId&quot;: &quot;&lt;parentVesselId, or null&gt;&quot;,
         &quot;name&quot;: &quot;&lt;name, or null&gt;&quot;,
-        &quot;loaded&quot;: &quot;&lt;loaded: true or false or null&gt;&quot;
+        &quot;loaded&quot;: &quot;&lt;loaded: true or false&gt;&quot;
       }
     ]
   },
@@ -18258,7 +18264,10 @@ supply the true encounter rather than a Kepler approximation.</p>
 <p>Because it comes from the same provider as the trajectory, the encounter and
 the trajectory it lies on are always the same physics. Null on
 <a class="code-ref" href="#schema-VesselTarget"><code>VesselTarget</code></a> when there is no target, no frame the provider can reach both
-objects in, or no encounter inside the window it was asked about.</p>
+objects in, no encounter inside the window it was asked about, or an
+encounter later than the orbit model stands behind for either object. The
+next encounter is the one reported: when the model cannot stand behind it,
+the field is null and no later encounter is given in its place.</p>
 </div>
 <details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">3 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
@@ -19797,8 +19806,8 @@ is not known (the step-out was not recorded, or the craft has since gone).</p>
 <td><p>The kerbal&#39;s name, from the EVA vessel&#39;s <code>GetName()</code>.</p>
 </td>
 </tr><tr>
-<td class="field">loaded <span class="optional">optional</span></td>
-<td class="type">boolean | null</td>
+<td class="field">loaded</td>
+<td class="type">boolean</td>
 <td class="unit"></td>
 <td><p>Whether the game has this kerbal loaded, which is true within physics range
 of the vessel in focus. A kerbal that is not loaded is orbiting or standing
