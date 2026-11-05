@@ -85,7 +85,7 @@ function experimentFrom(raw, index, stationId) {
   const e = raw;
   const completed = numOrNull(e.scienceCompletedPercentage);
   const transmittedPercent = numOrNull(e.scienceTransmittedPercentage);
-  const value2 = numOrNull(e.scienceValue);
+  const value4 = numOrNull(e.scienceValue);
   const progress = clamp01OrNull(completed === null ? null : completed / 100);
   const transmittedShare = clamp01OrNull(
     transmittedPercent === null ? null : transmittedPercent / 100
@@ -97,12 +97,12 @@ function experimentFrom(raw, index, stationId) {
     partId: index,
     id: experimentId ?? `${stationId}-${index}`,
     name: partName || experimentId || "Experiment",
-    total: value2,
+    total: value4,
     limit: numOrNull(e.scienceLimit),
     progress,
     backlog: numOrNull(e.storedData),
     stranded: boolOrNull(e.stranded),
-    transmitted: value2 === null || transmittedShare === null ? null : value2 * transmittedShare,
+    transmitted: value4 === null || transmittedShare === null ? null : value4 * transmittedShare,
     // An experiment that is switched off is not collecting, however far it has got.
     collecting: completed === null ? null : completed < 100 && enabled !== false,
     enabled,
@@ -453,11 +453,14 @@ registerComponent({
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RoboticsConsole/index.tsx
 import {
+  value as quantity,
   registerComponent as registerComponent2,
   stillTrue as stillTrue3,
   useActionInput,
   useCommand,
-  useTelemetry as useTelemetry2
+  useTelemetry as useTelemetry2,
+  useUtNow,
+  useValueCommand
 } from "@ksp-gonogo/sitrep-sdk";
 import { EmptyState as EmptyState2, heldMarking, Panel as Panel3, Section as Section3 } from "@ksp-gonogo/ui-kit";
 import { useState } from "react";
@@ -500,11 +503,11 @@ var roboticsActions = [
 ];
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RoboticsConsole/RoboticsConsoleView.tsx
+import { value as value2 } from "@ksp-gonogo/sitrep-sdk";
 import {
   Badge as Badge2,
-  Button,
   Cluster as Cluster2,
-  Inline,
+  CommandStepper,
   Panel as Panel2,
   ReadoutCaption,
   Section as Section2,
@@ -601,6 +604,7 @@ function RoboticsConsoleView({
   selected,
   positionReadings,
   flagsMarked,
+  targetCommand,
   rows,
   onSelect,
   setTarget,
@@ -623,47 +627,32 @@ function RoboticsConsoleView({
           showToggles && selected.atTarget !== null && /* @__PURE__ */ jsx3(Badge2, { tone: selected.atTarget ? "go" : void 0, role: "status", children: selected.atTarget ? "AT TARGET" : "MOVING" })
         ] }) }, "readout"),
         /* @__PURE__ */ jsxs2(Section2, { gap: "related-dense", children: [
-          /* @__PURE__ */ jsxs2(Cluster2, { justify: "between", wrap: true, children: [
-            /* @__PURE__ */ jsxs2(Inline, { children: [
-              /* @__PURE__ */ jsx3(ReadoutCaption, { children: "Target" }),
-              /* @__PURE__ */ jsx3(Text2, { size: "sm", children: selected.target === null ? "unknown" : /* @__PURE__ */ jsx3(Unit2, { value: readings.target, decimals }) })
-            ] }),
-            /* @__PURE__ */ jsxs2(Inline, { children: [
-              /* @__PURE__ */ jsx3(
-                Button,
-                {
-                  variant: "ghost",
-                  size: "sm",
-                  type: "button",
-                  "aria-label": "Decrease target",
-                  disabled: selected.target === null,
-                  disabledReason: "The target is not reported",
-                  onClick: () => selected.target !== null && setTarget(
-                    selected.partId,
-                    selected.type,
-                    selected.target - TARGET_STEP[selected.type]
-                  ),
-                  children: "\u2212"
-                }
-              ),
-              /* @__PURE__ */ jsx3(
-                Button,
-                {
-                  variant: "ghost",
-                  size: "sm",
-                  type: "button",
-                  "aria-label": "Increase target",
-                  disabled: selected.target === null,
-                  disabledReason: "The target is not reported",
-                  onClick: () => selected.target !== null && setTarget(
-                    selected.partId,
-                    selected.type,
-                    selected.target + TARGET_STEP[selected.type]
-                  ),
-                  children: "+"
-                }
-              )
-            ] })
+          /* @__PURE__ */ jsxs2(Cluster2, { justify: "start", wrap: true, children: [
+            /* @__PURE__ */ jsx3(ReadoutCaption, { children: "Target" }),
+            /* @__PURE__ */ jsx3(Cluster2, { justify: "start", children: /* @__PURE__ */ jsx3(
+              CommandStepper,
+              {
+                unknown: "unknown",
+                lowerLabel: "Decrease target",
+                raiseLabel: "Increase target",
+                commanded: targetCommand.commanded,
+                expected: targetCommand.expected,
+                lastSeen: targetCommand.lastSeen,
+                lastSeenCaption: targetCommand.lastSeenCaption,
+                min: Number.NEGATIVE_INFINITY,
+                max: Number.POSITIVE_INFINITY,
+                step: TARGET_STEP[selected.type],
+                figure: (v) => /* @__PURE__ */ jsx3(
+                  Unit2,
+                  {
+                    value: value2(unitFor(selected.type), v),
+                    decimals
+                  }
+                ),
+                disabledReason: "The target is not reported",
+                onChange: (v) => setTarget(selected.partId, selected.type, v)
+              }
+            ) })
           ] }),
           showToggles && /* @__PURE__ */ jsxs2(Cluster2, { justify: "start", wrap: true, children: [
             /* @__PURE__ */ jsxs2(
@@ -764,14 +753,33 @@ function RoboticsConsoleComponent({
   };
   const [selectedId, setSelectedId] = useState(null);
   const selected = servos.find((s) => s.partId === selectedId) ?? servos[0] ?? null;
-  const setTarget = (id, type, value2) => {
-    const target = Number(formatPos(type, value2));
-    const label = `Target ${formatPos(type, value2)}${unitFor(type)}`;
+  const nowUt = useUtNow() ?? 0;
+  const [ownTarget, setOwnTarget] = useState(null);
+  const selectedPart = selected?.partId ?? null;
+  const own = ownTarget !== null && ownTarget.partId === selectedPart ? { value: ownTarget.value, at: quantity("ut", ownTarget.atUt) } : null;
+  const valueOpts = {
+    received: selected?.target ?? null,
+    own,
+    matches: (entry) => entry.topic === selectedPart
+  };
+  const angleTarget = useValueCommand("robotics.servo.setAngle", valueOpts);
+  const extensionTarget = useValueCommand(
+    "robotics.servo.setExtension",
+    valueOpts
+  );
+  const target = selected?.type === "piston" ? extensionTarget : angleTarget;
+  const setTarget = (id, type, value4) => {
+    const target2 = Number(formatPos(type, value4));
+    const label = `Target ${formatPos(type, value4)}${unitFor(type)}`;
+    setOwnTarget({ partId: id, value: target2, atUt: nowUt });
     if (type === "piston") {
-      void extensionCmd.send({ partId: id, metres: target }, { label });
+      void extensionCmd.send(
+        { partId: id, metres: target2 },
+        { label, topic: id }
+      );
       return;
     }
-    void angleCmd.send({ partId: id, degrees: target }, { label });
+    void angleCmd.send({ partId: id, degrees: target2 }, { label, topic: id });
   };
   const setMotor = (id, engaged) => void motorCmd.send(
     { partId: id, enabled: engaged },
@@ -785,15 +793,15 @@ function RoboticsConsoleComponent({
     // The nudges are relative, so they dispatch nothing while the target is unread.
     "target-up": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
-      if (!selected || selected.target === null) return void 0;
-      const next = selected.target + TARGET_STEP[selected.type];
+      if (!selected || target.commanded === null) return void 0;
+      const next = target.commanded + TARGET_STEP[selected.type];
       setTarget(selected.partId, selected.type, next);
       return { Target: next };
     },
     "target-down": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
-      if (!selected || selected.target === null) return void 0;
-      const next = selected.target - TARGET_STEP[selected.type];
+      if (!selected || target.commanded === null) return void 0;
+      const next = target.commanded - TARGET_STEP[selected.type];
       setTarget(selected.partId, selected.type, next);
       return { Target: next };
     },
@@ -832,6 +840,12 @@ function RoboticsConsoleComponent({
       selected,
       positionReadings,
       flagsMarked: heldMarking(roboticsReading),
+      targetCommand: {
+        commanded: target.commanded,
+        expected: target.expected,
+        lastSeen: roboticsReading.state === "observed" ? null : selected.target,
+        lastSeenCaption: heldMarking(roboticsReading)?.caption
+      },
       rows: h ?? 8,
       onSelect: setSelectedId,
       setTarget,
@@ -862,12 +876,14 @@ registerComponent2({
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RotorTachometer/index.tsx
 import {
-  value as quantity2,
+  value as quantity3,
   registerComponent as registerComponent3,
   stillTrue as stillTrue4,
   useActionInput as useActionInput2,
   useCommand as useCommand2,
-  useTelemetry as useTelemetry3
+  useTelemetry as useTelemetry3,
+  useUtNow as useUtNow2,
+  useValueCommand as useValueCommand2
 } from "@ksp-gonogo/sitrep-sdk";
 import {
   EmptyState as EmptyState3,
@@ -916,13 +932,14 @@ var rotorActions = [
 ];
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RotorTachometer/RotorControls.tsx
+import { value as value3 } from "@ksp-gonogo/sitrep-sdk";
 import {
   Button as Button2,
   Cluster as Cluster3,
-  Grid,
+  CommandStepper as CommandStepper2,
+  ContainerBreak,
   ReadoutCaption as ReadoutCaption2,
   Section as Section4,
-  Text as Text3,
   ToggleButton as ToggleButton2,
   Unit as Unit3
 } from "@ksp-gonogo/ui-kit";
@@ -961,6 +978,29 @@ var clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RotorTachometer/RotorControls.tsx
 import { jsx as jsx5, jsxs as jsxs3 } from "react/jsx-runtime";
+var STEPPER_ROW_MIN_PX = 140;
+var STEPPER_ROWS_NARROW = {
+  display: "grid",
+  gridTemplateColumns: "auto auto auto",
+  justifyContent: "start",
+  alignItems: "center",
+  gap: "var(--gap-related-dense)"
+};
+var STEPPER_ROWS_WIDE = {
+  gridTemplateColumns: "1fr auto auto auto",
+  justifyContent: "normal"
+};
+function CaptionCell({ children }) {
+  return /* @__PURE__ */ jsx5(
+    ContainerBreak,
+    {
+      at: STEPPER_ROW_MIN_PX,
+      narrow: { gridColumn: "1 / -1" },
+      wide: { gridColumn: "auto" },
+      children: /* @__PURE__ */ jsx5(ReadoutCaption2, { children })
+    }
+  );
+}
 function brakeStateText(brakePercentage) {
   if (brakePercentage === null) return "unknown";
   return brakePercentage > 0 ? "on" : "off";
@@ -975,8 +1015,8 @@ function reverseLabel(counterClockwise) {
 }
 function RotorControls({
   selected,
-  rpmLimitReading,
-  torqueReading,
+  rpmCommand,
+  torqueCommand,
   setRpmLimit,
   setTorqueLimit,
   setBrake,
@@ -986,64 +1026,54 @@ function RotorControls({
   flagsMarked = null
 }) {
   return /* @__PURE__ */ jsxs3(Section4, { gap: "related-dense", children: [
-    /* @__PURE__ */ jsxs3(Grid, { cols: "1fr auto auto auto", children: [
-      /* @__PURE__ */ jsx5(ReadoutCaption2, { children: "RPM cap" }),
-      /* @__PURE__ */ jsx5(
-        Button2,
-        {
-          variant: "ghost",
-          size: "sm",
-          type: "button",
-          "aria-label": "Lower RPM cap",
-          disabled: selected.rpmLimit === null,
-          disabledReason: "The RPM cap is not reported",
-          onClick: () => selected.rpmLimit !== null && setRpmLimit(selected.partId, selected.rpmLimit - RPM_STEP),
-          children: "\u2212"
-        }
-      ),
-      /* @__PURE__ */ jsx5(Cluster3, { justify: "center", children: /* @__PURE__ */ jsx5(Text3, { size: "sm", children: selected.rpmLimit === null ? "RPM cap unknown" : /* @__PURE__ */ jsx5(Unit3, { value: rpmLimitReading, decimals: 0 }) }) }),
-      /* @__PURE__ */ jsx5(
-        Button2,
-        {
-          variant: "ghost",
-          size: "sm",
-          type: "button",
-          "aria-label": "Raise RPM cap",
-          disabled: selected.rpmLimit === null,
-          disabledReason: "The RPM cap is not reported",
-          onClick: () => selected.rpmLimit !== null && setRpmLimit(selected.partId, selected.rpmLimit + RPM_STEP),
-          children: "+"
-        }
-      ),
-      /* @__PURE__ */ jsx5(ReadoutCaption2, { children: "Torque" }),
-      /* @__PURE__ */ jsx5(
-        Button2,
-        {
-          variant: "ghost",
-          size: "sm",
-          type: "button",
-          "aria-label": "Lower torque limit",
-          disabled: selected.torqueLimit === null,
-          disabledReason: "The torque limit is not reported",
-          onClick: () => selected.torqueLimit !== null && setTorqueLimit(selected.partId, selected.torqueLimit - TORQUE_STEP),
-          children: "\u2212"
-        }
-      ),
-      /* @__PURE__ */ jsx5(Cluster3, { justify: "center", children: /* @__PURE__ */ jsx5(Text3, { size: "sm", children: selected.torqueLimit === null ? "Torque unknown" : /* @__PURE__ */ jsx5(Unit3, { value: torqueReading, decimals: 0 }) }) }),
-      /* @__PURE__ */ jsx5(
-        Button2,
-        {
-          variant: "ghost",
-          size: "sm",
-          type: "button",
-          "aria-label": "Raise torque limit",
-          disabled: selected.torqueLimit === null,
-          disabledReason: "The torque limit is not reported",
-          onClick: () => selected.torqueLimit !== null && setTorqueLimit(selected.partId, selected.torqueLimit + TORQUE_STEP),
-          children: "+"
-        }
-      )
-    ] }),
+    /* @__PURE__ */ jsx5("div", { style: { containerType: "inline-size", width: "100%" }, children: /* @__PURE__ */ jsxs3(
+      ContainerBreak,
+      {
+        at: STEPPER_ROW_MIN_PX,
+        narrow: STEPPER_ROWS_NARROW,
+        wide: STEPPER_ROWS_WIDE,
+        children: [
+          /* @__PURE__ */ jsx5(CaptionCell, { children: "RPM cap" }),
+          /* @__PURE__ */ jsx5(
+            CommandStepper2,
+            {
+              unknown: "RPM cap unknown",
+              lowerLabel: "Lower RPM cap",
+              raiseLabel: "Raise RPM cap",
+              commanded: rpmCommand.commanded,
+              expected: rpmCommand.expected,
+              lastSeen: rpmCommand.lastSeen,
+              lastSeenCaption: rpmCommand.lastSeenCaption,
+              min: 0,
+              max: ROTOR_MAX_RPM,
+              step: RPM_STEP,
+              figure: (v) => /* @__PURE__ */ jsx5(Unit3, { value: value3("rpm", v), decimals: 0 }),
+              disabledReason: "The RPM cap is not reported",
+              onChange: (v) => setRpmLimit(selected.partId, v)
+            }
+          ),
+          /* @__PURE__ */ jsx5(CaptionCell, { children: "Torque" }),
+          /* @__PURE__ */ jsx5(
+            CommandStepper2,
+            {
+              unknown: "Torque unknown",
+              lowerLabel: "Lower torque limit",
+              raiseLabel: "Raise torque limit",
+              commanded: torqueCommand.commanded,
+              expected: torqueCommand.expected,
+              lastSeen: torqueCommand.lastSeen,
+              lastSeenCaption: torqueCommand.lastSeenCaption,
+              min: 0,
+              max: 100,
+              step: TORQUE_STEP,
+              figure: (v) => /* @__PURE__ */ jsx5(Unit3, { value: value3("%", v), decimals: 0 }),
+              disabledReason: "The torque limit is not reported",
+              onChange: (v) => setTorqueLimit(selected.partId, v)
+            }
+          )
+        ]
+      }
+    ) }),
     /* @__PURE__ */ jsxs3(Cluster3, { justify: "start", wrap: true, children: [
       /* @__PURE__ */ jsxs3(
         ToggleButton2,
@@ -1106,7 +1136,7 @@ function RotorControls({
 }
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RotorTachometer/RotorGauge.tsx
-import { value as quantity } from "@ksp-gonogo/sitrep-sdk";
+import { value as quantity2 } from "@ksp-gonogo/sitrep-sdk";
 import {
   Cluster as Cluster4,
   Dial,
@@ -1136,23 +1166,23 @@ function RotorGauge({
       sweep: 180,
       readout: "regular",
       value: rpmReading,
-      min: quantity("rpm", 0),
-      max: quantity("rpm", ROTOR_MAX_RPM),
+      min: quantity2("rpm", 0),
+      max: quantity2("rpm", ROTOR_MAX_RPM),
       width: gaugeW,
       height: gaugeH,
       zones: cap === null ? void 0 : [
         {
-          from: quantity("rpm", 0),
-          to: quantity("rpm", cap),
+          from: quantity2("rpm", 0),
+          to: quantity2("rpm", cap),
           color: "var(--color-go-status)"
         },
         {
-          from: quantity("rpm", cap),
-          to: quantity("rpm", ROTOR_MAX_RPM),
+          from: quantity2("rpm", cap),
+          to: quantity2("rpm", ROTOR_MAX_RPM),
           color: "var(--color-surface-raised)"
         }
       ],
-      "aria-label": `${rotor.name}: ${rpmReading.value == null ? "RPM unknown" : writeQuantity(rpmReading.value)}, ${rotor.rpmLimit === null ? "cap unknown" : `cap ${writeQuantity(quantity("rpm", rotor.rpmLimit))}`}`
+      "aria-label": `${rotor.name}: ${rpmReading.value == null ? "RPM unknown" : writeQuantity(rpmReading.value)}, ${rotor.rpmLimit === null ? "cap unknown" : `cap ${writeQuantity(quantity2("rpm", rotor.rpmLimit))}`}`
     }
   ) }) });
 }
@@ -1181,22 +1211,41 @@ function RotorTachometerComponent({
   const rotors = parseRotors(roboticsRaw);
   const [selectedId, setSelectedId] = useState2(null);
   const selected = rotors.find((r) => r.partId === selectedId) ?? rotors[0] ?? null;
-  const setRpmLimit = (id, rpm) => {
-    const value2 = Math.round(clamp(rpm, 0, ROTOR_MAX_RPM));
-    void rpmCmd.send({ partId: id, rpm: value2 }, { label: `RPM cap ${value2}` });
+  const nowUt = useUtNow2() ?? 0;
+  const [ownRpm, setOwnRpm] = useState2(null);
+  const selectedId0 = selected?.partId ?? null;
+  const rpm = useValueCommand2("robotics.rotor.setRpmLimit", {
+    received: selected?.rpmLimit ?? null,
+    own: ownRpm !== null && ownRpm.partId === selectedId0 ? { value: ownRpm.value, at: quantity3("ut", ownRpm.atUt) } : null,
+    matches: (entry) => entry.topic === selectedId0
+  });
+  const [ownTorque, setOwnTorque] = useState2(null);
+  const torque = useValueCommand2("robotics.rotor.setTorqueLimit", {
+    received: selected?.torqueLimit ?? null,
+    own: ownTorque !== null && ownTorque.partId === selectedId0 ? { value: ownTorque.value, at: quantity3("ut", ownTorque.atUt) } : null,
+    matches: (entry) => entry.topic === selectedId0
+  });
+  const setRpmLimit = (id, rpm2) => {
+    const value4 = Math.round(clamp(rpm2, 0, ROTOR_MAX_RPM));
+    setOwnRpm({ partId: id, value: value4, atUt: nowUt });
+    void rpmCmd.send(
+      { partId: id, rpm: value4 },
+      { label: `RPM cap ${value4}`, topic: id }
+    );
   };
   const setTorqueLimit = (id, pct) => {
-    const value2 = Math.round(clamp(pct, 0, 100));
+    const value4 = Math.round(clamp(pct, 0, 100));
+    setOwnTorque({ partId: id, value: value4, atUt: nowUt });
     void torqueCmd.send(
-      { partId: id, percent: value2 },
-      { label: `Torque ${writeQuantity2(quantity2("%", value2))}` }
+      { partId: id, percent: value4 },
+      { label: `Torque ${writeQuantity2(quantity3("%", value4))}`, topic: id }
     );
   };
   const setBrake = (id, pct) => {
-    const value2 = Math.round(clamp(pct, 0, 200));
+    const value4 = Math.round(clamp(pct, 0, 200));
     void brakeCmd.send(
-      { partId: id, percent: value2 },
-      { label: `Brake ${writeQuantity2(quantity2("%", value2))}` }
+      { partId: id, percent: value4 },
+      { label: `Brake ${writeQuantity2(quantity3("%", value4))}` }
     );
   };
   const setMotor = (id, engaged) => void motorCmd.send(
@@ -1212,15 +1261,15 @@ function RotorTachometerComponent({
     // The steppers are relative, so they dispatch nothing while the cap is unread.
     "rpm-up": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
-      if (!selected || selected.rpmLimit === null) return void 0;
-      const next = clamp(selected.rpmLimit + RPM_STEP, 0, ROTOR_MAX_RPM);
+      if (!selected || rpm.commanded === null) return void 0;
+      const next = clamp(rpm.commanded + RPM_STEP, 0, ROTOR_MAX_RPM);
       setRpmLimit(selected.partId, next);
       return { RPM: next };
     },
     "rpm-down": (p) => {
       if (p.kind === "button" && p.value !== true) return void 0;
-      if (!selected || selected.rpmLimit === null) return void 0;
-      const next = clamp(selected.rpmLimit - RPM_STEP, 0, ROTOR_MAX_RPM);
+      if (!selected || rpm.commanded === null) return void 0;
+      const next = clamp(rpm.commanded - RPM_STEP, 0, ROTOR_MAX_RPM);
       setRpmLimit(selected.partId, next);
       return { RPM: next };
     },
@@ -1279,8 +1328,18 @@ function RotorTachometerComponent({
           RotorControls,
           {
             selected,
-            rpmLimitReading: readingsOf(selected).rpmLimit,
-            torqueReading: readingsOf(selected).servoMotorLimit,
+            rpmCommand: {
+              commanded: rpm.commanded,
+              expected: rpm.expected,
+              lastSeen: roboticsReading.state === "observed" ? null : selected.rpmLimit,
+              lastSeenCaption: flagsMarked?.caption
+            },
+            torqueCommand: {
+              commanded: torque.commanded,
+              expected: torque.expected,
+              lastSeen: roboticsReading.state === "observed" ? null : selected.torqueLimit,
+              lastSeenCaption: flagsMarked?.caption
+            },
             setRpmLimit,
             setTorqueLimit,
             setBrake,
