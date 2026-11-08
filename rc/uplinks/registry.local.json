@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-07T20:21:12.325Z",
+  "generatedAt": "2026-11-08T05:17:07.720Z",
   "uplinks": [
     {
       "id": "breakingGround",
@@ -15,7 +15,7 @@
           "contractMajor": 51,
           "contractMinor": 0,
           "bundleUrl": "/rc/uplinks/breakingGround.client.js",
-          "integrity": "sha256-941f78b9f83a243480cf196f6823d3f5f3fa14505f998a8387f20d22179bf722",
+          "integrity": "sha256-a33a0bcd3b8a84fd0f134b9ab90203c031826c46abedac99040fea569021ab61",
           "expectedClientHash": null
         }
       ]

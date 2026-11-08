@@ -164,13 +164,6 @@ function powerBalance(station) {
 // ../../mod/GonogoBreakingGroundUplink/client/src/DeployedScience/DeployedStationCard.tsx
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var XS2_STYLE = { fontSize: "var(--font-size-caption)" };
-var FIGURE_AND_BADGE = {
-  display: "inline-flex",
-  flexWrap: "wrap",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  gap: "var(--gap-related)"
-};
 function progressPercentReading(source, fraction) {
   return combineReadings([source], () => value("%", fraction * 100));
 }
@@ -283,16 +276,18 @@ function DeployedStationCard({ listing }) {
       children: /* @__PURE__ */ jsxs(Stack, { children: [
         /* @__PURE__ */ jsxs(Cluster, { justify: "start", wrap: true, children: [
           /* @__PURE__ */ jsx(Text, { size: "sm", style: { fontWeight: 600 }, children: heading }),
-          station?.body && /* @__PURE__ */ jsx(Text, { level: "muted", size: "sm", children: station.body }),
-          /* @__PURE__ */ jsx(Badge, { tone: link.tone, "data-tone": link.tone, live: true, children: link.label })
+          station?.body && /* @__PURE__ */ jsx(Text, { level: "muted", size: "sm", children: station.body })
         ] }),
-        /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: listing.contact === CatalogContact.InContact ? (
-          // The catalog dates an entry in contact from when its listing last changed, which is not a running time.
-          "Heard now"
-        ) : listing.lastContactUt === null ? "No contact on record" : /* @__PURE__ */ jsxs(Fragment, { children: [
-          "Last heard ",
-          /* @__PURE__ */ jsx(MissionDate, { value: listing.lastContactUt })
-        ] }) }),
+        /* @__PURE__ */ jsxs(Cluster, { justify: "start", wrap: true, children: [
+          /* @__PURE__ */ jsx(Badge, { tone: link.tone, "data-tone": link.tone, live: true, size: "sm", children: link.label }),
+          /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: listing.contact === CatalogContact.InContact ? (
+            // The catalog dates an entry in contact from when its listing last changed, which is not a running time.
+            "Heard now"
+          ) : listing.lastContactUt === null ? "No contact on record" : /* @__PURE__ */ jsxs(Fragment, { children: [
+            "Last heard ",
+            /* @__PURE__ */ jsx(MissionDate, { value: listing.lastContactUt })
+          ] }) })
+        ] }),
         station === null ? /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: "Waiting for the station's report" }) : /* @__PURE__ */ jsxs(Fragment, { children: [
           /* @__PURE__ */ jsxs(Cluster, { justify: "start", wrap: true, children: [
             current?.sendPathHome != null && /* @__PURE__ */ jsx(Badge, { tone: current.sendPathHome ? "go" : "nogo", size: "sm", children: current.sendPathHome ? "Sending home" : "No path home" }),
@@ -307,9 +302,9 @@ function DeployedStationCard({ listing }) {
                 size: "sm",
                 children: POWER_LABEL[powerState(station)]
               }
-            )
+            ),
+            siteLine(station) && /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: siteLine(station) })
           ] }),
-          siteLine(station) && /* @__PURE__ */ jsx(Text, { level: "muted", style: XS2_STYLE, children: siteLine(station) }),
           /* @__PURE__ */ jsxs(Text, { level: "muted", style: XS2_STYLE, children: [
             powerBalance(station) ?? "Power unknown",
             station.experiments.length > 0 && /* @__PURE__ */ jsxs(Text, { level: "faint", style: XS2_STYLE, children: [
@@ -352,25 +347,23 @@ function DeployedStationCard({ listing }) {
                 Meter,
                 {
                   label: exp.name,
+                  wrapLabel: true,
                   tone: "go",
                   value: exp.progress === null ? null : progressRatioReading(reading, exp.progress),
-                  valueLabelNode: /* @__PURE__ */ jsxs("span", { style: FIGURE_AND_BADGE, children: [
-                    exp.progress !== null && /* @__PURE__ */ jsx(
-                      Unit,
-                      {
-                        value: progressPercentReading(
-                          reading,
-                          exp.progress
-                        ),
-                        decimals: 0
-                      }
-                    ),
-                    state && /* @__PURE__ */ jsx(Tooltip, { text: state.hint, children: /* @__PURE__ */ jsx(Badge, { tone: state.tone, size: "sm", children: state.label }) }),
-                    exp.stranded === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment has finished and will not send what it still holds, a kerbal has to retrieve it", children: /* @__PURE__ */ jsx(Badge, { tone: "caution", size: "sm", children: "Stranded" }) }),
-                    exp.collecting === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment is collecting science now", children: /* @__PURE__ */ jsx(Badge, { tone: "go", size: "sm", children: "Collecting" }) })
-                  ] })
+                  valueLabelNode: exp.progress === null ? void 0 : /* @__PURE__ */ jsx(
+                    Unit,
+                    {
+                      value: progressPercentReading(reading, exp.progress),
+                      decimals: 0
+                    }
+                  )
                 }
               ),
+              (state || exp.stranded === true || exp.collecting === true) && /* @__PURE__ */ jsxs(Cluster, { justify: "start", wrap: true, children: [
+                state && /* @__PURE__ */ jsx(Tooltip, { text: state.hint, children: /* @__PURE__ */ jsx(Badge, { tone: state.tone, size: "sm", children: state.label }) }),
+                exp.stranded === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment has finished and will not send what it still holds, a kerbal has to retrieve it", children: /* @__PURE__ */ jsx(Badge, { tone: "caution", size: "sm", children: "Stranded" }) }),
+                exp.collecting === true && /* @__PURE__ */ jsx(Tooltip, { text: "This experiment is collecting science now", children: /* @__PURE__ */ jsx(Badge, { tone: "go", size: "sm", children: "Collecting" }) })
+              ] }),
               /* @__PURE__ */ jsx(
                 AugmentSlot,
                 {
@@ -507,14 +500,15 @@ import { value as value2 } from "@ksp-gonogo/sitrep-sdk";
 import {
   Badge as Badge2,
   Cluster as Cluster2,
-  CommandStepper,
   Panel as Panel2,
   ReadoutCaption,
   Section as Section2,
   SelectableRow,
+  Stepper,
   Text as Text2,
   ToggleButton,
-  Unit as Unit2
+  Unit as Unit2,
+  writeQuantity
 } from "@ksp-gonogo/ui-kit";
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/unreadLabels.ts
@@ -630,25 +624,17 @@ function RoboticsConsoleView({
           /* @__PURE__ */ jsxs2(Cluster2, { justify: "start", wrap: true, children: [
             /* @__PURE__ */ jsx3(ReadoutCaption, { children: "Target" }),
             /* @__PURE__ */ jsx3(Cluster2, { justify: "start", children: /* @__PURE__ */ jsx3(
-              CommandStepper,
+              Stepper,
               {
+                label: "target",
                 unknown: "unknown",
-                lowerLabel: "Decrease target",
-                raiseLabel: "Increase target",
-                commanded: targetCommand.commanded,
+                value: targetCommand.commanded,
                 expected: targetCommand.expected,
                 lastSeen: targetCommand.lastSeen,
                 lastSeenCaption: targetCommand.lastSeenCaption,
-                min: Number.NEGATIVE_INFINITY,
-                max: Number.POSITIVE_INFINITY,
                 step: TARGET_STEP[selected.type],
-                figure: (v) => /* @__PURE__ */ jsx3(
-                  Unit2,
-                  {
-                    value: value2(unitFor(selected.type), v),
-                    decimals
-                  }
-                ),
+                format: (v) => writeQuantity(value2(unitFor(selected.type), v), { decimals }),
+                disabled: targetCommand.commanded === null,
                 disabledReason: "The target is not reported",
                 onChange: (v) => setTarget(selected.partId, selected.type, v)
               }
@@ -773,19 +759,22 @@ function RoboticsConsoleComponent({
     const label = `Target ${formatPos(type, value4)}${unitFor(type)}`;
     setOwnTarget({ partId: id, value: target2, atUt: nowUt });
     if (type === "piston") {
-      void extensionCmd.send(
+      void extensionCmd.dangerouslySendWithoutInput(
         { partId: id, metres: target2 },
         { label, topic: id }
       );
       return;
     }
-    void angleCmd.send({ partId: id, degrees: target2 }, { label, topic: id });
+    void angleCmd.dangerouslySendWithoutInput(
+      { partId: id, degrees: target2 },
+      { label, topic: id }
+    );
   };
-  const setMotor = (id, engaged) => void motorCmd.send(
+  const setMotor = (id, engaged) => void motorCmd.dangerouslySendWithoutInput(
     { partId: id, enabled: engaged },
     { label: `Motor ${engaged ? "on" : "off"}` }
   );
-  const setLock = (id, locked) => void lockCmd.send(
+  const setLock = (id, locked) => void lockCmd.dangerouslySendWithoutInput(
     { partId: id, enabled: locked },
     { label: locked ? "Lock" : "Unlock" }
   );
@@ -893,7 +882,7 @@ import {
   SelectableRow as SelectableRow2,
   Unit as Unit4,
   UnitSharedFormat,
-  writeQuantity as writeQuantity2
+  writeQuantity as writeQuantity4
 } from "@ksp-gonogo/ui-kit";
 import { useState as useState2 } from "react";
 
@@ -936,12 +925,12 @@ import { value as value3 } from "@ksp-gonogo/sitrep-sdk";
 import {
   Button as Button2,
   Cluster as Cluster3,
-  CommandStepper as CommandStepper2,
   ContainerBreak,
   ReadoutCaption as ReadoutCaption2,
   Section as Section4,
+  Stepper as Stepper2,
   ToggleButton as ToggleButton2,
-  Unit as Unit3
+  writeQuantity as writeQuantity2
 } from "@ksp-gonogo/ui-kit";
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RotorTachometer/rotors.ts
@@ -1035,38 +1024,38 @@ function RotorControls({
         children: [
           /* @__PURE__ */ jsx5(CaptionCell, { children: "RPM cap" }),
           /* @__PURE__ */ jsx5(
-            CommandStepper2,
+            Stepper2,
             {
+              label: "RPM cap",
               unknown: "RPM cap unknown",
-              lowerLabel: "Lower RPM cap",
-              raiseLabel: "Raise RPM cap",
-              commanded: rpmCommand.commanded,
+              value: rpmCommand.commanded,
               expected: rpmCommand.expected,
               lastSeen: rpmCommand.lastSeen,
               lastSeenCaption: rpmCommand.lastSeenCaption,
               min: 0,
               max: ROTOR_MAX_RPM,
               step: RPM_STEP,
-              figure: (v) => /* @__PURE__ */ jsx5(Unit3, { value: value3("rpm", v), decimals: 0 }),
+              format: (v) => writeQuantity2(value3("rpm", v), { decimals: 0 }),
+              disabled: rpmCommand.commanded === null,
               disabledReason: "The RPM cap is not reported",
               onChange: (v) => setRpmLimit(selected.partId, v)
             }
           ),
           /* @__PURE__ */ jsx5(CaptionCell, { children: "Torque" }),
           /* @__PURE__ */ jsx5(
-            CommandStepper2,
+            Stepper2,
             {
+              label: "Torque limit",
               unknown: "Torque unknown",
-              lowerLabel: "Lower torque limit",
-              raiseLabel: "Raise torque limit",
-              commanded: torqueCommand.commanded,
+              value: torqueCommand.commanded,
               expected: torqueCommand.expected,
               lastSeen: torqueCommand.lastSeen,
               lastSeenCaption: torqueCommand.lastSeenCaption,
               min: 0,
               max: 100,
               step: TORQUE_STEP,
-              figure: (v) => /* @__PURE__ */ jsx5(Unit3, { value: value3("%", v), decimals: 0 }),
+              format: (v) => writeQuantity2(value3("%", v), { decimals: 0 }),
+              disabled: torqueCommand.commanded === null,
               disabledReason: "The torque limit is not reported",
               onChange: (v) => setTorqueLimit(selected.partId, v)
             }
@@ -1142,7 +1131,7 @@ import {
   Dial,
   Section as Section5,
   useElementSize,
-  writeQuantity
+  writeQuantity as writeQuantity3
 } from "@ksp-gonogo/ui-kit";
 import { jsx as jsx6 } from "react/jsx-runtime";
 function RotorGauge({
@@ -1182,7 +1171,7 @@ function RotorGauge({
           color: "var(--color-surface-raised)"
         }
       ],
-      "aria-label": `${rotor.name}: ${rpmReading.value == null ? "RPM unknown" : writeQuantity(rpmReading.value)}, ${rotor.rpmLimit === null ? "cap unknown" : `cap ${writeQuantity(quantity2("rpm", rotor.rpmLimit))}`}`
+      "aria-label": `${rotor.name}: ${rpmReading.value == null ? "RPM unknown" : writeQuantity3(rpmReading.value)}, ${rotor.rpmLimit === null ? "cap unknown" : `cap ${writeQuantity3(quantity2("rpm", rotor.rpmLimit))}`}`
     }
   ) }) });
 }
@@ -1228,7 +1217,7 @@ function RotorTachometerComponent({
   const setRpmLimit = (id, rpm2) => {
     const value4 = Math.round(clamp(rpm2, 0, ROTOR_MAX_RPM));
     setOwnRpm({ partId: id, value: value4, atUt: nowUt });
-    void rpmCmd.send(
+    void rpmCmd.dangerouslySendWithoutInput(
       { partId: id, rpm: value4 },
       { label: `RPM cap ${value4}`, topic: id }
     );
@@ -1236,27 +1225,30 @@ function RotorTachometerComponent({
   const setTorqueLimit = (id, pct) => {
     const value4 = Math.round(clamp(pct, 0, 100));
     setOwnTorque({ partId: id, value: value4, atUt: nowUt });
-    void torqueCmd.send(
+    void torqueCmd.dangerouslySendWithoutInput(
       { partId: id, percent: value4 },
-      { label: `Torque ${writeQuantity2(quantity3("%", value4))}`, topic: id }
+      { label: `Torque ${writeQuantity4(quantity3("%", value4))}`, topic: id }
     );
   };
   const setBrake = (id, pct) => {
     const value4 = Math.round(clamp(pct, 0, 200));
-    void brakeCmd.send(
+    void brakeCmd.dangerouslySendWithoutInput(
       { partId: id, percent: value4 },
-      { label: `Brake ${writeQuantity2(quantity3("%", value4))}` }
+      { label: `Brake ${writeQuantity4(quantity3("%", value4))}` }
     );
   };
-  const setMotor = (id, engaged) => void motorCmd.send(
+  const setMotor = (id, engaged) => void motorCmd.dangerouslySendWithoutInput(
     { partId: id, enabled: engaged },
     { label: `Motor ${engaged ? "on" : "off"}` }
   );
-  const setLock = (id, locked) => void lockCmd.send(
+  const setLock = (id, locked) => void lockCmd.dangerouslySendWithoutInput(
     { partId: id, enabled: locked },
     { label: locked ? "Lock" : "Unlock" }
   );
-  const reverse = (id) => void reverseCmd.send({ partId: id }, { label: "Reverse" });
+  const reverse = (id) => void reverseCmd.dangerouslySendWithoutInput(
+    { partId: id },
+    { label: "Reverse" }
+  );
   useActionInput2({
     // The steppers are relative, so they dispatch nothing while the cap is unread.
     "rpm-up": (p) => {
