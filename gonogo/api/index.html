@@ -13645,6 +13645,8 @@ seats it has.</p>
         &quot;experienceLevel&quot;: &quot;&lt;experienceLevel: number count or null&gt;&quot;,
         &quot;type&quot;: &quot;&lt;type, or null&gt;&quot;,
         &quot;rosterStatus&quot;: &quot;&lt;rosterStatus, or null&gt;&quot;,
+        &quot;partId&quot;: &quot;&lt;partId, or null&gt;&quot;,
+        &quot;partTitle&quot;: &quot;&lt;partTitle, or null&gt;&quot;,
         &quot;carrying&quot;: [
           {
             &quot;name&quot;: &quot;&lt;name&gt;&quot;,
@@ -20098,7 +20100,7 @@ launch site, as read at the crash.</p>
 <code>ProtoCrewMember</code>. Every field is nullable: an absent value is null, never a
 sentinel.</p>
 </div>
-<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">9 fields</span></summary>
+<details class="fields-block"><summary><span class="type-label">Fields</span> <span class="count">11 fields</span></summary>
 <div class="fields-wrap"><table class="fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Unit</th><th scope="col">Description</th></tr></thead>
 <tbody><tr>
@@ -20135,6 +20137,20 @@ or <code>&quot;Unowned&quot;</code> in stock.</p>
 <td><p>The kerbal&#39;s <code>RosterStatus</code> member name: <code>&quot;Available&quot;</code>, <code>&quot;Assigned&quot;</code>,
 <code>&quot;Dead&quot;</code> or <code>&quot;Missing&quot;</code> in stock. A kerbal aboard a vessel is normally
 <code>&quot;Assigned&quot;</code>.</p>
+</td>
+</tr><tr>
+<td class="field">partId <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The <code>flightID</code> of the part this kerbal is seated in, as a string, the same
+id <a class="code-ref" href="#channel-vessel.parts"><code>vessel.parts</code></a> carries. Null when the seat could not be read.</p>
+</td>
+</tr><tr>
+<td class="field">partTitle <span class="optional">optional</span></td>
+<td class="type">string | null</td>
+<td class="unit"></td>
+<td><p>The title of the part this kerbal is seated in, such as <code>&quot;Mk1-3 Command Pod&quot;</code>, so a transfer between two pods shows as a move. Null when the seat
+could not be read.</p>
 </td>
 </tr><tr>
 <td class="field">carrying <span class="optional">optional</span></td>
