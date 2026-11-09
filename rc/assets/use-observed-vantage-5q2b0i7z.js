@@ -1,1 +1,0 @@
-import{r as t}from"./ext-react-C0MU9AHG.js";import{ba as r}from"./lagrange-qsL-TsQ4.js";function l(){const e=r(),a=t.useCallback(n=>e?e.onObservedVantageChange(n):()=>{},[e]),s=t.useCallback(()=>e?.observedVantage,[e]);return t.useSyncExternalStore(a,s)}export{l as u};
