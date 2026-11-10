@@ -428,7 +428,7 @@ function DeployedScienceComponent(_) {
 registerComponent({
   id: "deployed-science",
   name: "Deployed Science",
-  description: "Whether each Breaking Ground deployed station's science is reaching home and when it was last heard, with its power balance and per-experiment science progress, reported even while you fly something else. Read-only.",
+  description: "Science, power and last contact of Breaking Ground deployed stations.",
   tags: ["telemetry", "science"],
   defaultSize: { w: 5, h: 9 },
   // Five columns hold an experiment's figure beside its collecting badge, and seven rows keep a station's header, contact line, send and power badges and first experiment on screen with the held badge wrapped onto its own line.
@@ -601,9 +601,9 @@ function RoboticsConsoleView({
   targetCommand,
   rows,
   onSelect,
-  setTarget,
-  setMotor,
-  setLock
+  stepCommand,
+  motorCommand,
+  lockCommand
 }) {
   const decimals = positionDecimals(selected.type);
   const readings = positionReadings(selected);
@@ -634,40 +634,37 @@ function RoboticsConsoleView({
                 lastSeenCaption: targetCommand.lastSeenCaption,
                 step: TARGET_STEP[selected.type],
                 format: (v) => writeQuantity(value2(unitFor(selected.type), v), { decimals }),
-                disabled: targetCommand.commanded === null,
-                disabledReason: "The target is not reported",
-                onChange: (v) => setTarget(selected.partId, selected.type, v)
+                command: stepCommand,
+                unavailable: targetCommand.commanded === null ? "The target is not reported" : null
               }
             ) })
           ] }),
           showToggles && /* @__PURE__ */ jsxs2(Cluster2, { justify: "start", wrap: true, children: [
-            /* @__PURE__ */ jsxs2(
+            /* @__PURE__ */ jsx3(
               ToggleButton,
               {
                 size: "sm",
-                pressed: selected.motorEngaged === true,
                 tone: "go",
-                disabled: selected.motorEngaged === null || selected.motorized === false,
-                disabledReason: selected.motorEngaged === null ? "The motor state is not reported" : "This part has no motor",
-                marked: flagsMarked,
-                onClick: () => selected.motorEngaged !== null && setMotor(selected.partId, !selected.motorEngaged),
-                children: [
-                  "Motor ",
-                  motorStateText(selected.motorEngaged)
-                ]
+                command: motorCommand,
+                state: selected.motorEngaged,
+                name: "Motor",
+                unavailable: selected.motorEngaged === null ? "The motor state is not reported" : null,
+                advise: selected.motorized === false ? "this part has no motor" : null,
+                marking: flagsMarked,
+                children: (shown) => `Motor ${motorStateText(typeof shown === "boolean" ? shown : null)}`
               }
             ),
             /* @__PURE__ */ jsx3(
               ToggleButton,
               {
                 size: "sm",
-                pressed: selected.locked === true,
                 tone: "warn",
-                disabled: selected.locked === null,
-                disabledReason: "The lock state is not reported",
-                marked: flagsMarked,
-                onClick: () => selected.locked !== null && setLock(selected.partId, !selected.locked),
-                children: lockStateText(selected.locked)
+                command: lockCommand,
+                state: selected.locked,
+                name: "Lock",
+                unavailable: selected.locked === null ? "The lock state is not reported" : null,
+                marking: flagsMarked,
+                children: (shown) => lockStateText(typeof shown === "boolean" ? shown : null)
               }
             )
           ] })
@@ -778,6 +775,54 @@ function RoboticsConsoleComponent({
     { partId: id, enabled: locked },
     { label: locked ? "Lock" : "Unlock" }
   );
+  const stepCommand = selected ? selected.type === "piston" ? extensionCmd.toArgs(
+    (v) => ({
+      partId: selected.partId,
+      metres: Number(formatPos(selected.type, v))
+    }),
+    {
+      label: "Set target",
+      topic: selected.partId,
+      before: (args) => {
+        if (args !== void 0) {
+          setOwnTarget({
+            partId: selected.partId,
+            value: args.metres,
+            atUt: nowUt
+          });
+        }
+      }
+    }
+  ) : angleCmd.toArgs(
+    (v) => ({
+      partId: selected.partId,
+      degrees: Number(formatPos(selected.type, v))
+    }),
+    {
+      label: "Set target",
+      topic: selected.partId,
+      before: (args) => {
+        if (args !== void 0) {
+          setOwnTarget({
+            partId: selected.partId,
+            value: args.degrees,
+            atUt: nowUt
+          });
+        }
+      }
+    }
+  ) : angleCmd.toArgs((_v) => void 0);
+  const motorCommand = motorCmd.toArgs(
+    (engaged) => ({
+      partId: selected?.partId ?? "",
+      enabled: engaged
+    }),
+    { label: "Motor" }
+  );
+  const lockCommand = lockCmd.toArgs(
+    (locked) => ({ partId: selected?.partId ?? "", enabled: locked }),
+    { label: "Lock" }
+  );
   useActionInput({
     // The nudges are relative, so they dispatch nothing while the target is unread.
     "target-up": (p) => {
@@ -837,16 +882,16 @@ function RoboticsConsoleComponent({
       },
       rows: h ?? 8,
       onSelect: setSelectedId,
-      setTarget,
-      setMotor,
-      setLock
+      stepCommand,
+      motorCommand,
+      lockCommand
     }
   );
 }
 registerComponent2({
   id: "robotics-console",
   name: "Robotics Console",
-  description: "Current-vs-target position, at-target state and motor/lock controls for Breaking Ground robotic hinges, rotation servos and pistons. Select a joint to drive it from the stepper or a mapped input.",
+  description: "Drive Breaking Ground hinges, rotation servos and pistons.",
   tags: ["telemetry", "robotics"],
   defaultSize: { w: 5, h: 8 },
   minSize: { w: 4, h: 4 },
@@ -880,9 +925,8 @@ import {
   Panel as Panel4,
   Section as Section6,
   SelectableRow as SelectableRow2,
-  Unit as Unit4,
-  UnitSharedFormat,
-  writeQuantity as writeQuantity4
+  Unit as Unit3,
+  UnitSharedFormat
 } from "@ksp-gonogo/ui-kit";
 import { useState as useState2 } from "react";
 
@@ -921,11 +965,12 @@ var rotorActions = [
 ];
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RotorTachometer/RotorControls.tsx
-import { value as value3 } from "@ksp-gonogo/sitrep-sdk";
 import {
-  Button as Button2,
+  value as value3
+} from "@ksp-gonogo/sitrep-sdk";
+import {
+  Button,
   Cluster as Cluster3,
-  ContainerBreak,
   ReadoutCaption as ReadoutCaption2,
   Section as Section4,
   Stepper as Stepper2,
@@ -967,28 +1012,22 @@ var clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 // ../../mod/GonogoBreakingGroundUplink/client/src/RotorTachometer/RotorControls.tsx
 import { jsx as jsx5, jsxs as jsxs3 } from "react/jsx-runtime";
-var STEPPER_ROW_MIN_PX = 140;
-var STEPPER_ROWS_NARROW = {
-  display: "grid",
-  gridTemplateColumns: "auto auto auto",
-  justifyContent: "start",
+var STEPPER_PAIRS = {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  columnGap: "var(--gap-related)",
+  rowGap: "var(--gap-related-dense)"
+};
+var STEPPER_PAIR = {
+  display: "flex",
+  flexWrap: "wrap",
   alignItems: "center",
   gap: "var(--gap-related-dense)"
 };
-var STEPPER_ROWS_WIDE = {
-  gridTemplateColumns: "1fr auto auto auto",
-  justifyContent: "normal"
-};
+var CAPTION_WIDTH = { minWidth: "9ch" };
 function CaptionCell({ children }) {
-  return /* @__PURE__ */ jsx5(
-    ContainerBreak,
-    {
-      at: STEPPER_ROW_MIN_PX,
-      narrow: { gridColumn: "1 / -1" },
-      wide: { gridColumn: "auto" },
-      children: /* @__PURE__ */ jsx5(ReadoutCaption2, { children })
-    }
-  );
+  return /* @__PURE__ */ jsx5("span", { style: CAPTION_WIDTH, children: /* @__PURE__ */ jsx5(ReadoutCaption2, { children }) });
 }
 function brakeStateText(brakePercentage) {
   if (brakePercentage === null) return "unknown";
@@ -1006,117 +1045,103 @@ function RotorControls({
   selected,
   rpmCommand,
   torqueCommand,
-  setRpmLimit,
-  setTorqueLimit,
-  setBrake,
-  setMotor,
-  setLock,
-  reverse,
+  rpmStepCommand,
+  torqueStepCommand,
+  brakeCommand,
+  motorCommand,
+  lockCommand,
+  reverseCommand,
   flagsMarked = null
 }) {
   return /* @__PURE__ */ jsxs3(Section4, { gap: "related-dense", children: [
-    /* @__PURE__ */ jsx5("div", { style: { containerType: "inline-size", width: "100%" }, children: /* @__PURE__ */ jsxs3(
-      ContainerBreak,
-      {
-        at: STEPPER_ROW_MIN_PX,
-        narrow: STEPPER_ROWS_NARROW,
-        wide: STEPPER_ROWS_WIDE,
-        children: [
-          /* @__PURE__ */ jsx5(CaptionCell, { children: "RPM cap" }),
-          /* @__PURE__ */ jsx5(
-            Stepper2,
-            {
-              label: "RPM cap",
-              unknown: "RPM cap unknown",
-              value: rpmCommand.commanded,
-              expected: rpmCommand.expected,
-              lastSeen: rpmCommand.lastSeen,
-              lastSeenCaption: rpmCommand.lastSeenCaption,
-              min: 0,
-              max: ROTOR_MAX_RPM,
-              step: RPM_STEP,
-              format: (v) => writeQuantity2(value3("rpm", v), { decimals: 0 }),
-              disabled: rpmCommand.commanded === null,
-              disabledReason: "The RPM cap is not reported",
-              onChange: (v) => setRpmLimit(selected.partId, v)
-            }
-          ),
-          /* @__PURE__ */ jsx5(CaptionCell, { children: "Torque" }),
-          /* @__PURE__ */ jsx5(
-            Stepper2,
-            {
-              label: "Torque limit",
-              unknown: "Torque unknown",
-              value: torqueCommand.commanded,
-              expected: torqueCommand.expected,
-              lastSeen: torqueCommand.lastSeen,
-              lastSeenCaption: torqueCommand.lastSeenCaption,
-              min: 0,
-              max: 100,
-              step: TORQUE_STEP,
-              format: (v) => writeQuantity2(value3("%", v), { decimals: 0 }),
-              disabled: torqueCommand.commanded === null,
-              disabledReason: "The torque limit is not reported",
-              onChange: (v) => setTorqueLimit(selected.partId, v)
-            }
-          )
-        ]
-      }
-    ) }),
+    /* @__PURE__ */ jsxs3("div", { style: STEPPER_PAIRS, children: [
+      /* @__PURE__ */ jsxs3("div", { style: STEPPER_PAIR, children: [
+        /* @__PURE__ */ jsx5(CaptionCell, { children: "RPM cap" }),
+        /* @__PURE__ */ jsx5(
+          Stepper2,
+          {
+            label: "RPM cap",
+            unknown: "RPM cap unknown",
+            value: rpmCommand.commanded,
+            expected: rpmCommand.expected,
+            lastSeen: rpmCommand.lastSeen,
+            lastSeenCaption: rpmCommand.lastSeenCaption,
+            min: 0,
+            max: ROTOR_MAX_RPM,
+            step: RPM_STEP,
+            format: (v) => writeQuantity2(value3("rpm", v), { decimals: 0 }),
+            command: rpmStepCommand,
+            unavailable: rpmCommand.commanded === null ? "The RPM cap is not reported" : null
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxs3("div", { style: STEPPER_PAIR, children: [
+        /* @__PURE__ */ jsx5(CaptionCell, { children: "Torque" }),
+        /* @__PURE__ */ jsx5(
+          Stepper2,
+          {
+            label: "Torque limit",
+            unknown: "Torque unknown",
+            value: torqueCommand.commanded,
+            expected: torqueCommand.expected,
+            lastSeen: torqueCommand.lastSeen,
+            lastSeenCaption: torqueCommand.lastSeenCaption,
+            min: 0,
+            max: 100,
+            step: TORQUE_STEP,
+            format: (v) => writeQuantity2(value3("%", v), { decimals: 0 }),
+            command: torqueStepCommand,
+            unavailable: torqueCommand.commanded === null ? "The torque limit is not reported" : null
+          }
+        )
+      ] })
+    ] }),
     /* @__PURE__ */ jsxs3(Cluster3, { justify: "start", wrap: true, children: [
-      /* @__PURE__ */ jsxs3(
+      /* @__PURE__ */ jsx5(
         ToggleButton2,
         {
           size: "sm",
-          pressed: selected.motorEngaged === true,
           tone: "go",
-          disabled: selected.motorEngaged === null,
-          disabledReason: "The motor state is not reported",
-          marked: flagsMarked,
-          onClick: () => selected.motorEngaged !== null && setMotor(selected.partId, !selected.motorEngaged),
-          children: [
-            "Motor ",
-            motorStateText(selected.motorEngaged)
-          ]
+          command: motorCommand,
+          state: selected.motorEngaged,
+          name: "Motor",
+          unavailable: selected.motorEngaged === null ? "The motor state is not reported" : null,
+          marking: flagsMarked,
+          children: (shown) => `Motor ${motorStateText(typeof shown === "boolean" ? shown : null)}`
         }
       ),
       /* @__PURE__ */ jsx5(
         ToggleButton2,
         {
           size: "sm",
-          pressed: selected.locked === true,
           tone: "warn",
-          disabled: selected.locked === null,
-          disabledReason: "The lock state is not reported",
-          marked: flagsMarked,
-          onClick: () => selected.locked !== null && setLock(selected.partId, !selected.locked),
-          children: lockStateText(selected.locked)
-        }
-      ),
-      /* @__PURE__ */ jsxs3(
-        ToggleButton2,
-        {
-          size: "sm",
-          pressed: selected.brakePercentage !== null && selected.brakePercentage > 0,
-          tone: "warn",
-          disabled: selected.brakePercentage === null,
-          disabledReason: "The brake is not reported",
-          marked: flagsMarked,
-          onClick: () => selected.brakePercentage !== null && setBrake(selected.partId, selected.brakePercentage > 0 ? 0 : 100),
-          children: [
-            "Brake ",
-            brakeStateText(selected.brakePercentage)
-          ]
+          command: lockCommand,
+          state: selected.locked,
+          name: "Lock",
+          unavailable: selected.locked === null ? "The lock state is not reported" : null,
+          marking: flagsMarked,
+          children: (shown) => lockStateText(typeof shown === "boolean" ? shown : null)
         }
       ),
       /* @__PURE__ */ jsx5(
-        Button2,
+        ToggleButton2,
         {
           size: "sm",
-          type: "button",
+          tone: "warn",
+          command: brakeCommand,
+          state: selected.brakePercentage === null ? null : selected.brakePercentage > 0,
+          name: "Brake",
+          unavailable: selected.brakePercentage === null ? "The brake is not reported" : null,
+          marking: flagsMarked,
+          children: (shown) => `Brake ${brakeStateText(typeof shown === "boolean" ? shown ? 100 : 0 : null)}`
+        }
+      ),
+      /* @__PURE__ */ jsx5(
+        Button,
+        {
+          size: "sm",
           "aria-label": reverseLabel(selected.counterClockwise),
-          marked: flagsMarked,
-          onClick: () => reverse(selected.partId),
+          command: reverseCommand,
           children: directionText(selected.counterClockwise)
         }
       )
@@ -1222,21 +1247,6 @@ function RotorTachometerComponent({
       { label: `RPM cap ${value4}`, topic: id }
     );
   };
-  const setTorqueLimit = (id, pct) => {
-    const value4 = Math.round(clamp(pct, 0, 100));
-    setOwnTorque({ partId: id, value: value4, atUt: nowUt });
-    void torqueCmd.dangerouslySendWithoutInput(
-      { partId: id, percent: value4 },
-      { label: `Torque ${writeQuantity4(quantity3("%", value4))}`, topic: id }
-    );
-  };
-  const setBrake = (id, pct) => {
-    const value4 = Math.round(clamp(pct, 0, 200));
-    void brakeCmd.dangerouslySendWithoutInput(
-      { partId: id, percent: value4 },
-      { label: `Brake ${writeQuantity4(quantity3("%", value4))}` }
-    );
-  };
   const setMotor = (id, engaged) => void motorCmd.dangerouslySendWithoutInput(
     { partId: id, enabled: engaged },
     { label: `Motor ${engaged ? "on" : "off"}` }
@@ -1249,6 +1259,47 @@ function RotorTachometerComponent({
     { partId: id },
     { label: "Reverse" }
   );
+  const partId = selected?.partId ?? "";
+  const rpmStepCommand = rpmCmd.toArgs(
+    (v) => ({
+      partId,
+      rpm: Math.round(clamp(v, 0, ROTOR_MAX_RPM))
+    }),
+    {
+      label: "RPM cap",
+      topic: partId,
+      before: (args) => {
+        if (args !== void 0) {
+          setOwnRpm({ partId, value: args.rpm, atUt: nowUt });
+        }
+      }
+    }
+  );
+  const torqueStepCommand = torqueCmd.toArgs(
+    (v) => ({ partId, percent: Math.round(clamp(v, 0, 100)) }),
+    {
+      label: "Torque",
+      topic: partId,
+      before: (args) => {
+        if (args !== void 0) {
+          setOwnTorque({ partId, value: args.percent, atUt: nowUt });
+        }
+      }
+    }
+  );
+  const brakeCommand = brakeCmd.toArgs(
+    (applied) => ({ partId, percent: applied ? 100 : 0 }),
+    { label: "Brake" }
+  );
+  const motorCommand = motorCmd.toArgs(
+    (engaged) => ({ partId, enabled: engaged }),
+    { label: "Motor" }
+  );
+  const lockCommand = lockCmd.toArgs(
+    (locked) => ({ partId, enabled: locked }),
+    { label: "Lock" }
+  );
+  const reverseCommand = reverseCmd.with({ partId }, { label: "Reverse" });
   useActionInput2({
     // The steppers are relative, so they dispatch nothing while the cap is unread.
     "rpm-up": (p) => {
@@ -1332,12 +1383,12 @@ function RotorTachometerComponent({
               lastSeen: roboticsReading.state === "observed" ? null : selected.torqueLimit,
               lastSeenCaption: flagsMarked?.caption
             },
-            setRpmLimit,
-            setTorqueLimit,
-            setBrake,
-            setMotor,
-            setLock,
-            reverse,
+            rpmStepCommand,
+            torqueStepCommand,
+            brakeCommand,
+            motorCommand,
+            lockCommand,
+            reverseCommand,
             flagsMarked
           },
           "controls"
@@ -1352,7 +1403,7 @@ function RotorTachometerComponent({
               /* @__PURE__ */ jsxs4("span", { children: [
                 /* @__PURE__ */ jsxs4(UnitSharedFormat, { children: [
                   /* @__PURE__ */ jsx7(
-                    Unit4,
+                    Unit3,
                     {
                       value: readingsOf(r).currentRPM,
                       decimals: 0,
@@ -1360,7 +1411,7 @@ function RotorTachometerComponent({
                     }
                   ),
                   "/",
-                  /* @__PURE__ */ jsx7(Unit4, { value: readingsOf(r).rpmLimit, decimals: 0 })
+                  /* @__PURE__ */ jsx7(Unit3, { value: readingsOf(r).rpmLimit, decimals: 0 })
                 ] }),
                 r.motorEngaged === false ? " \xB7 off" : "",
                 r.locked === true ? " \xB7 locked" : ""
@@ -1376,7 +1427,7 @@ function RotorTachometerComponent({
 registerComponent3({
   id: "rotor-tachometer",
   name: "Rotor Tachometer",
-  description: "Live RPM vs commanded cap for Breaking Ground robotic rotors, with motor, lock, brake and direction controls. Select a rotor to drive it from the dial or a mapped input.",
+  description: "RPM and controls for Breaking Ground rotors.",
   tags: ["telemetry", "robotics"],
   defaultSize: { w: 6, h: 10 },
   minSize: { w: 4, h: 4 },
