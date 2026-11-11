@@ -1,0 +1,1 @@
+import{r as s}from"./ext-react-C0MU9AHG.js";import{cy as r}from"./context-C6-ms_G4.js";function m(){const o=s.useCallback(t=>{const u=r().map(a=>a.onStatusChange(t));return()=>u.forEach(a=>{a()})},[]),e=s.useCallback(()=>r().map(t=>t.status).join(","),[]);return s.useSyncExternalStore(o,e,e),r().map(t=>({id:t.id,name:t.name,status:t.status}))}export{m as u};

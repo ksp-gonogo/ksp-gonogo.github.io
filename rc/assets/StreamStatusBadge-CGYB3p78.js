@@ -1,0 +1,1 @@
+import{j as a}from"./ext-react-jsx-runtime-Cf8x2fCZ.js";import{aa as e,B as s}from"./Modal-DH2ZJ8Vf.js";import{s as o,f as m}from"./contributionsRead-Cdcp0syN.js";function f({status:t}){const r=m(t);return a.jsx(e,{children:r!==null&&a.jsx(s,{tone:o(t),size:"sm",children:r})})}export{f as S};
