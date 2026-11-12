@@ -1,1 +1,0 @@
-import{r}from"./ext-react-C0MU9AHG.js";import{cl as u,bp as a}from"./context-C6-ms_G4.js";function b(t){const o=u(),s=o?a(o):void 0;r.useEffect(()=>s?.activate(t.id),[s,t.id]);const e=r.useCallback(i=>s?s.subscribe(t.id,i):()=>{},[s,t.id]),c=r.useCallback(()=>s?.value(t.id),[s,t.id]);return r.useSyncExternalStore(e,c)}export{b as u};
